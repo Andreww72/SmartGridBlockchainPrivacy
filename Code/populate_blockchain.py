@@ -3,18 +3,19 @@
 
 """
 Wrangle the energy data into a format resembling what would be available publicly on a blockchain ledger.
-Warning this will take while :)
-Perhaps I could make it run in parallel
+Warning this will take while despite running in parallel :)
 """
 
 import os
 import math
+import multiprocessing
 
 import pandas as pd
 import hashlib
 
+
 block_size = 10
-years = ['Solar30minData_1Jul10-30Jun11', 'Solar30minData_1Jul11-30Jun12', 'Solar30minData_1Jul12-30Jun13']
+datasets = ['Solar30minData_1Jul10-30Jun11', 'Solar30minData_1Jul11-30Jun12', 'Solar30minData_1Jul12-30Jun13']
 months = pd.date_range(start='2010-07', freq='M', periods=36)
 
 
@@ -23,14 +24,13 @@ def create_hash(hash_string):
     return sha_signature
 
 
-os.chdir('../EnergyData/MainData/OriginalSolarData')
-for year in years:
+def wrangle_blockchain_data(set_num, year):
     # Load original energy data
-    print(f"Loading {year}.csv")
+    print(f"Process {os.getpid()} loading {year}.csv")
     energy_data = pd.read_csv(year + '.csv', header=0)
 
     # Make pandas interpret date column as dates
-    energy_data['Date'] = pd.to_datetime(energy_data['Date'], infer_datetime_format=True)
+    energy_data['Date'] = pd.to_datetime(energy_data['Date'], format="%d-%m-%Y")
 
     # Adjust headings for better sorting later
     # Originally times denote the end of period block, change to start of block
@@ -41,7 +41,6 @@ for year in years:
     energy_data.columns = energy_data_header
 
     # Split each file into months
-    print(f"Splitting by month {year}")
     os.chdir('../SplitMonthly')
 
     # Groupby key (Date) and freq (Month)
@@ -50,13 +49,12 @@ for year in years:
 
     # Save CSVs
     for num, month in enumerate(monthly_data):
-        name = str(months[num]).split('-')
+        name = str(months[set_num*12 + num]).split('-')
         month.to_csv(f"{name[0]}-{name[1]}_split.csv", index=False)
-        print(f"Split {name[0]}-{name[1]}")
+        print(f"Process {os.getpid()} split {name[0]}-{name[1]}")
 
     #################################
     # First, wrangle this idiotic Ausgrid data which used timestamps across columns, into rows using datetime.
-    print(f"Wrangling {year}")
     os.chdir('../../Blockchained/Wrangled')
     wrangled_cols = ['Customer', 'Capacity', 'Timestamp', 'Type', 'Amount']
     wrangled_monthly_data = []
@@ -94,13 +92,12 @@ for year in years:
 
         # Save wrangled data as csv
         wrangled_monthly_data.append(wrangled_dataframe)
-        name = str(months[num]).split('-')
+        name = str(months[set_num*12+num]).split('-')
         wrangled_dataframe.to_csv(f"{name[0]}-{name[1]}_wrangled.csv", index=False)
-        print(f"Wrangled {name[0]}-{name[1]}")
+        print(f"Process {os.getpid()} wrangled {name[0]}-{name[1]}")
 
     #################################
     # Second, populate the blockchain
-    print(f"Populating blockchain {year}")
     os.chdir('../')
     blockchain_cols = ['Customer', 'Capacity', 'Block', 'Tid', 'P_Tid', 'Timestamp', 'Type', 'Amount', 'PK']
     next_pk = 'PK'
@@ -142,11 +139,25 @@ for year in years:
         blockchain_data = pd.DataFrame(transaction_list, columns=blockchain_cols)
 
         # Save resulting month's blockchain as csv
-        name = str(months[num]).split('-')
+        name = str(months[set_num*12+num]).split('-')
         blockchain_data.to_csv(f"{name[0]}-{name[1]}_blockchain.csv", index=False)
-        print(f"Blockchained {name[0]}-{name[1]}")
+        print(f"Process {os.getpid()} blockchained {name[0]}-{name[1]}")
 
     os.chdir('../MainData/OriginalSolarData/')
-    print(f"Finished {year}")
+    print(f"Process {os.getpid()} finished {year}")
 
-print("All complete, bet you weren't expecting it to take that long eh :)")
+
+if __name__ == '__main__':
+    os.chdir('../EnergyData/MainData/OriginalSolarData')
+    processes = []
+
+    for inum, d in enumerate(datasets):
+        print(f"Creating {len(datasets)} processes to handle each dataset")
+        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d,))
+        processes.append(p)
+        p.start()
+
+    for p in processes:
+        p.join()
+
+    print(f"Finally finished eh :)")

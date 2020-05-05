@@ -1,4 +1,6 @@
-numpy==1.18.3
-joblib==0.14.1
 pandas==1.0.3
+numpy==1.18.4
 scikit_learn==0.22.2.post1
+matplotlib==3.2.1
+pycryptodome==3.9.7
+# Use of multiprocessing for threading

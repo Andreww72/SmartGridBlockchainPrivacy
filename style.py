@@ -8,13 +8,15 @@ This file is an example setup for project consistency
 # Standard libraries
 import os
 import sys
+import math
 import random
+import multiprocessing
 
 # Third party
 import pandas as pd
 import numpy as np
+import hashlib
 from sklearn import datasets, svm
-from joblib import dump, load
 
 # Local source
 import code
