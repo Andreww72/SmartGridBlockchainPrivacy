@@ -41,8 +41,8 @@ for year in years:
     energy_data.columns = energy_data_header
 
     # Split each file into months
-    os.chdir('../SplitMonthly')
     print(f"Splitting by month {year}")
+    os.chdir('../SplitMonthly')
 
     # Groupby key (Date) and freq (Month)
     g = energy_data.groupby(pd.Grouper(key='Date', freq='M'))
@@ -57,7 +57,7 @@ for year in years:
     #################################
     # First, wrangle this idiotic Ausgrid data which used timestamps across columns, into rows using datetime.
     print(f"Wrangling {year}")
-    os.chdir('../../Blockchained/')
+    os.chdir('../../Blockchained/Wrangled')
     wrangled_cols = ['Customer', 'Capacity', 'Timestamp', 'Type', 'Amount']
     wrangled_monthly_data = []
     first_kwh_col = 5
@@ -88,7 +88,6 @@ for year in years:
                 ])
 
         # Sort by datetime. As a bonus it somewhat randomises customers within each timestamp too
-        # TODO: Properly randomise the order within a timestamp
         wrangled_dataframe = pd.DataFrame(wrangled_list, columns=wrangled_cols)
         wrangled_dataframe['Timestamp'] = pd.to_datetime(wrangled_dataframe['Timestamp'], infer_datetime_format=True)
         wrangled_dataframe.sort_values(by=['Timestamp'], inplace=True)
@@ -102,6 +101,7 @@ for year in years:
     #################################
     # Second, populate the blockchain
     print(f"Populating blockchain {year}")
+    os.chdir('../')
     blockchain_cols = ['Customer', 'Capacity', 'Block', 'Tid', 'P_Tid', 'Timestamp', 'Type', 'Amount', 'PK']
     next_pk = 'PK'
     block_count = 1
@@ -148,6 +148,5 @@ for year in years:
 
     os.chdir('../MainData/OriginalSolarData/')
     print(f"Finished {year}")
-    break
 
 print("All complete, bet you weren't expecting it to take that long eh :)")
