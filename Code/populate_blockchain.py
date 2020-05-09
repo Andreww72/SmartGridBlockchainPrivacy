@@ -34,10 +34,6 @@ def wrangle_blockchain_data(set_num, dataset):
     pid = os.getpid()
     energy_data = pd.read_csv(dataset, header=0)
 
-    # Make pandas interpret date column as dates
-    #energy_data['Date'] = pd.to_datetime(energy_data['Date'], format="%d-%m-%Y")
-
-    # Adjust headings for better sorting later
     # Originally times denote the end of period block, change to start of block
     energy_data_header = energy_data.columns.values.tolist()
     add_pos = energy_data_header.index("0:30")
@@ -81,7 +77,7 @@ def wrangle_blockchain_data(set_num, dataset):
 
     #################################
     # Second, populate the blockchain
-    os.chdir('../../Blockchained/')
+    os.chdir('../BlockchainData/')
 
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
@@ -148,7 +144,7 @@ def combine_years():
 
 
 if __name__ == '__main__':
-    os.chdir('../EnergyData/MainData/OriginalSolarData')
+    os.chdir('../OriginalEnergyData/')
 
     # # Run sequentially if computer can't handle parallel code below
     # for inum, d in enumerate(datasets):
@@ -167,7 +163,7 @@ if __name__ == '__main__':
         p.join()
 
     # Combine the files of the same customer number
-    os.chdir('../../Blockchained/')
+    os.chdir('../BlockchainData/')
     combine_years()
 
     print(f"Speedy boi now :)")
