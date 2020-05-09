@@ -9,6 +9,7 @@ Warning this will take while despite running in parallel :)
 import os
 import math
 import csv
+import glob
 import multiprocessing
 
 import pandas as pd
@@ -17,9 +18,9 @@ import hashlib
 
 block_size = 10
 years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
-datasets = ['Solar30minData_1Jul10-30Jun11.csv',
-            'Solar30minData_1Jul11-30Jun12.csv',
-            'Solar30minData_1Jul12-30Jun13.csv']
+datasets = ['EnergyData_1Jul10-30Jun11.csv',
+            'EnergyData_1Jul11-30Jun12.csv',
+            'EnergyData_1Jul12-30Jun13.csv']
 
 
 def create_hash(hash_string):
@@ -86,8 +87,6 @@ def wrangle_blockchain_data(set_num, dataset):
     for num, ledger in enumerate(wrangled_ledgers):
         blockchain_ledger = []
         prev_hash = ''
-        block_count = 1
-        block_transacts = 1
 
         for row in ledger:
             # Structure of transaction: Block | Tid | Prev Tid | timestamp | type | amount | PK
@@ -97,7 +96,6 @@ def wrangle_blockchain_data(set_num, dataset):
             curr_hash = create_hash(''.join([str(datetime), eng_type, str(kwh_amount)]))
 
             blockchain_ledger.append([
-                block_count,
                 curr_hash,
                 prev_hash,
                 datetime,
@@ -107,13 +105,9 @@ def wrangle_blockchain_data(set_num, dataset):
 
             # Updates for next loop
             prev_hash = curr_hash
-            block_transacts += 1
-            if block_transacts > block_size:
-                block_count += 1
-                block_transacts = 1
 
         # Save blockchain!
-        header = ['Block', 'Hash', 'P_Hash', 'Timestamp', 'Type', 'Amount']
+        header = ['Hash', 'P_Hash', 'Timestamp', 'Type', 'Amount']
         with open(f'{years[set_num]}_{num}_blockchain.csv', 'w', newline='') as csv_out:
             writer = csv.writer(csv_out, delimiter=',')
             writer.writerow(header)
@@ -121,7 +115,36 @@ def wrangle_blockchain_data(set_num, dataset):
         print(f"Process {pid} blockchain {num}")
 
     print(f"Process {pid} complete")
-    os.chdir('../MainData/OriginalSolarData')
+
+
+def combine_years():
+    num_customers = 300
+    for num in range(0, num_customers):
+        print(f"Combining {num} year ledgers")
+
+        # Find the ledger from each of the three data sets per customer
+        same_ledger_files = [j for j in glob.glob(f'*_{num}_blockchain.csv')]
+
+        if same_ledger_files:
+            # Open output files
+            with open(f"{num}_blockchain.csv", "w", newline='') as combined_out:
+                csv_write_file = csv.writer(combined_out, delimiter=',')
+
+                # Start with first file to get header write
+                with open(same_ledger_files[0], mode='rt') as read_file:
+                    csv_read_file = csv.reader(read_file, delimiter=',')
+                    csv_write_file.writerows(csv_read_file)
+                os.remove(same_ledger_files[0])
+
+                # Loop on remaining files to append to first
+                for i in range(1, len(same_ledger_files)):
+                    with open(same_ledger_files[i], mode='rt') as read_file:
+                        csv_read_file = csv.reader(read_file, delimiter=',')
+                        next(csv_read_file) # ignore header
+                        csv_write_file.writerows(csv_read_file)
+
+                    # Remove original files as now combined
+                    os.remove(same_ledger_files[i])
 
 
 if __name__ == '__main__':
@@ -142,5 +165,9 @@ if __name__ == '__main__':
     # Wait for completion
     for p in processes:
         p.join()
+
+    # Combine the files of the same customer number
+    os.chdir('../../Blockchained/')
+    combine_years()
 
     print(f"Speedy boi now :)")
