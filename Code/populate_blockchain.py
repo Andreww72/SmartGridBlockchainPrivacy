@@ -8,6 +8,7 @@ Warning this will take while despite running in parallel :)
 
 import os
 import math
+import csv
 import multiprocessing
 
 import pandas as pd
@@ -15,8 +16,10 @@ import hashlib
 
 
 block_size = 10
-datasets = ['Solar30minData_1Jul10-30Jun11', 'Solar30minData_1Jul11-30Jun12', 'Solar30minData_1Jul12-30Jun13']
-months = pd.date_range(start='2010-07', freq='M', periods=36)
+years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
+datasets = ['Solar30minData_1Jul10-30Jun11.csv',
+            'Solar30minData_1Jul11-30Jun12.csv',
+            'Solar30minData_1Jul12-30Jun13.csv']
 
 
 def create_hash(hash_string):
@@ -24,13 +27,14 @@ def create_hash(hash_string):
     return sha_signature
 
 
-def wrangle_blockchain_data(set_num, year):
+def wrangle_blockchain_data(set_num, dataset):
     # Load original energy data
-    print(f"Process {os.getpid()} loading {year}.csv")
-    energy_data = pd.read_csv(year + '.csv', header=0)
+    print(f"Process {os.getpid()} loading {dataset}")
+    pid = os.getpid()
+    energy_data = pd.read_csv(dataset, header=0)
 
     # Make pandas interpret date column as dates
-    energy_data['Date'] = pd.to_datetime(energy_data['Date'], format="%d-%m-%Y")
+    #energy_data['Date'] = pd.to_datetime(energy_data['Date'], format="%d-%m-%Y")
 
     # Adjust headings for better sorting later
     # Originally times denote the end of period block, change to start of block
@@ -40,92 +44,65 @@ def wrangle_blockchain_data(set_num, year):
     energy_data_header.pop()
     energy_data.columns = energy_data_header
 
-    # Split each file into months
-    os.chdir('../SplitMonthly')
-
-    # Groupby key (Date) and freq (Month)
-    g = energy_data.groupby(pd.Grouper(key='Date', freq='M'))
-    monthly_data = [group for _, group in g]
-
-    # Save CSVs
-    for num, month in enumerate(monthly_data):
-        name = str(months[set_num*12 + num]).split('-')
-        month.to_csv(f"{name[0]}-{name[1]}_split.csv", index=False)
-        print(f"Process {os.getpid()} split {name[0]}-{name[1]}")
+    # Split by customer, convert back to basic lists for speed
+    g = energy_data.groupby(pd.Grouper(key='Customer'))
+    houses = [group.values.tolist() for _, group in g]
 
     #################################
     # First, wrangle this idiotic Ausgrid data which used timestamps across columns, into rows using datetime.
-    os.chdir('../../Blockchained/Wrangled')
-    wrangled_cols = ['Customer', 'Capacity', 'Timestamp', 'Type', 'Amount']
-    wrangled_monthly_data = []
-    first_kwh_col = 5
+    wrangled_ledgers = []
+    type_col, date_col, first_kwh_col = 3, 4, 5
 
     # Loop on input data, wrangling cols into rows of datetime.
-    for num, month in enumerate(monthly_data):
-        wrangled_list = []
+    for num, house in enumerate(houses):
+        wrangled_ledger = []
 
-        for index, row in month.iterrows():
+        for row in house:
             # For each column of times during a day (48 half hour periods)
             # Combine half hourly into hourly data
             for i in range(24): # 0 to 24
 
                 # If amount used/generated for consumer, type, and time period is 0 then skip
-                kwh_amount = row[first_kwh_col + 2*i] + row[first_kwh_col + 2*i+1]
+                kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
                 if math.ceil(kwh_amount) <= 0:
                     break
+                datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2*i]}"
+                eng_type = row[type_col]
 
-                datetime = f"{row['Date']} {energy_data_header[first_kwh_col + 2*i]}"
-                eng_type = row['Consumption Category']
-
-                wrangled_list.append([
-                    row['Customer'],
-                    row['Generator Capacity'],
+                wrangled_ledger.append([
                     datetime,
                     eng_type,
-                    kwh_amount,
+                    kwh_amount
                 ])
 
-        # Sort by datetime. As a bonus it somewhat randomises customers within each timestamp too
-        wrangled_dataframe = pd.DataFrame(wrangled_list, columns=wrangled_cols)
-        wrangled_dataframe['Timestamp'] = pd.to_datetime(wrangled_dataframe['Timestamp'], infer_datetime_format=True)
-        wrangled_dataframe.sort_values(by=['Timestamp'], inplace=True)
-
-        # Save wrangled data as csv
-        wrangled_monthly_data.append(wrangled_dataframe)
-        name = str(months[set_num*12+num]).split('-')
-        wrangled_dataframe.to_csv(f"{name[0]}-{name[1]}_wrangled.csv", index=False)
-        print(f"Process {os.getpid()} wrangled {name[0]}-{name[1]}")
+        wrangled_ledgers.append(wrangled_ledger)
+        print(f"Process {pid} wrangled {num}")
 
     #################################
     # Second, populate the blockchain
-    os.chdir('../')
-    blockchain_cols = ['Customer', 'Capacity', 'Block', 'Tid', 'P_Tid', 'Timestamp', 'Type', 'Amount', 'PK']
-    next_pk = 'PK'
-    block_count = 1
-    block_transacts = 1
-    prev_hash = ''
+    os.chdir('../../Blockchained/')
 
     # Loop on wrangled data to create blockchain transaction format.
-    for num, month in enumerate(wrangled_monthly_data):
-        transaction_list = []
+    for num, ledger in enumerate(wrangled_ledgers):
+        blockchain_ledger = []
+        prev_hash = ''
+        block_count = 1
+        block_transacts = 1
 
-        for index, row in month.iterrows():
+        for row in ledger:
             # Structure of transaction: Block | Tid | Prev Tid | timestamp | type | amount | PK
-            datetime = row['Timestamp']
-            eng_type = row['Type']
-            kwh_amount = row['Amount']
+            datetime = row[0]
+            eng_type = row[1]
+            kwh_amount = row[2]
             curr_hash = create_hash(''.join([str(datetime), eng_type, str(kwh_amount)]))
 
-            transaction_list.append([
-                row['Customer'], # Obviously not on chain, but needed for ML training
-                row['Capacity'], # As above comment
+            blockchain_ledger.append([
                 block_count,
                 curr_hash,
                 prev_hash,
                 datetime,
                 eng_type,
                 kwh_amount,
-                next_pk
             ])
 
             # Updates for next loop
@@ -135,29 +112,35 @@ def wrangle_blockchain_data(set_num, year):
                 block_count += 1
                 block_transacts = 1
 
-        # Single node acts as miner and collects all home transactions.
-        blockchain_data = pd.DataFrame(transaction_list, columns=blockchain_cols)
+        # Save blockchain!
+        header = ['Block', 'Hash', 'P_Hash', 'Timestamp', 'Type', 'Amount']
+        with open(f'{years[set_num]}_{num}_blockchain.csv', 'w', newline='') as csv_out:
+            writer = csv.writer(csv_out, delimiter=',')
+            writer.writerow(header)
+            writer.writerows(blockchain_ledger)
+        print(f"Process {pid} blockchain {num}")
 
-        # Save resulting month's blockchain as csv
-        name = str(months[set_num*12+num]).split('-')
-        blockchain_data.to_csv(f"{name[0]}-{name[1]}_blockchain.csv", index=False)
-        print(f"Process {os.getpid()} blockchained {name[0]}-{name[1]}")
-
-    os.chdir('../MainData/OriginalSolarData/')
-    print(f"Process {os.getpid()} finished {year}")
+    print(f"Process {pid} complete")
+    os.chdir('../MainData/OriginalSolarData')
 
 
 if __name__ == '__main__':
     os.chdir('../EnergyData/MainData/OriginalSolarData')
-    processes = []
 
+    # # Run sequentially if computer can't handle parallel code below
+    # for inum, d in enumerate(datasets):
+    #     wrangle_blockchain_data(inum, d)
+
+    # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
+    print(f"Creating {len(datasets)} processes to handle the {len(datasets)} datasets")
+    processes = []
     for inum, d in enumerate(datasets):
-        print(f"Creating {len(datasets)} processes to handle each dataset")
         p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d,))
         processes.append(p)
         p.start()
 
+    # Wait for completion
     for p in processes:
         p.join()
 
-    print(f"Finally finished eh :)")
+    print(f"Speedy boi now :)")
