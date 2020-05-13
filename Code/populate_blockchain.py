@@ -10,7 +10,6 @@ import os
 import math
 import csv
 import glob
-import hashlib
 import multiprocessing
 
 import pandas as pd
@@ -20,11 +19,6 @@ years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
 datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul11-30Jun12.csv',
             'EnergyData_1Jul12-30Jun13.csv']
-
-
-def create_hash(hash_string):
-    sha_signature = hashlib.sha256(hash_string.encode()).hexdigest()[0:8]
-    return sha_signature
 
 
 def wrangle_blockchain_data(set_num, dataset):
@@ -60,8 +54,6 @@ def wrangle_blockchain_data(set_num, dataset):
 
                 # If amount used/generated for consumer, type, and time period is 0 then skip
                 kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
-                if math.ceil(kwh_amount) <= 0:
-                    break
                 datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2*i]}"
                 eng_type = row[type_col]
 
@@ -72,7 +64,7 @@ def wrangle_blockchain_data(set_num, dataset):
                 ])
 
         wrangled_ledgers.append(wrangled_ledger)
-        print(f"Process {pid} wrangled {num}")
+        print(f"Process {pid} wrangled {num+1}")
 
     #################################
     # Second, populate the blockchain
@@ -81,33 +73,26 @@ def wrangle_blockchain_data(set_num, dataset):
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
         blockchain_ledger = []
-        prev_hash = ''
 
         for row in ledger:
             # Structure of transaction: Block | Tid | Prev Tid | timestamp | type | amount | PK
             datetime = row[0]
             eng_type = row[1]
             kwh_amount = row[2]
-            curr_hash = create_hash(''.join([str(datetime), eng_type, str(kwh_amount)]))
 
             blockchain_ledger.append([
-                curr_hash,
-                prev_hash,
                 datetime,
                 eng_type,
                 kwh_amount,
             ])
 
-            # Updates for next loop
-            prev_hash = curr_hash
-
         # Save blockchain!
-        header = ['Hash', 'P_Hash', 'Timestamp', 'Type', 'Amount']
-        with open(f'{years[set_num]}_{num}_blockchain.csv', 'w', newline='') as csv_out:
+        header = ['Timestamp', 'Type', 'Amount']
+        with open(f'{years[set_num]}_{num+1}_blockchain.csv', 'w', newline='') as csv_out:
             writer = csv.writer(csv_out, delimiter=',')
             writer.writerow(header)
             writer.writerows(blockchain_ledger)
-        print(f"Process {pid} blockchain {num}")
+        print(f"Process {pid} blockchain {num+1}")
 
     print(f"Process {pid} complete")
 
@@ -117,14 +102,14 @@ def wrangle_blockchain_data(set_num, dataset):
 def combine_years():
     num_customers = 300
     for num in range(0, num_customers):
-        print(f"Combining {num} year ledgers")
+        print(f"Combining customer {num+1} ledgers")
 
         # Find the ledger from each of the three data sets per customer
-        same_ledger_files = [j for j in glob.glob(f'*_{num}_blockchain.csv')]
+        same_ledger_files = [j for j in glob.glob(f'*_{num+1}_blockchain.csv')]
 
         if same_ledger_files:
             # Open output files
-            with open(f"{num}_blockchain.csv", "w", newline='') as combined_out:
+            with open(f"{num+1}_blockchain.csv", "w", newline='') as combined_out:
                 csv_write_file = csv.writer(combined_out, delimiter=',')
 
                 # Start with first file to get header write
