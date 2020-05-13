@@ -10,13 +10,12 @@ import os
 import math
 import csv
 import glob
+import hashlib
 import multiprocessing
 
 import pandas as pd
-import hashlib
 
 
-block_size = 10
 years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
 datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul11-30Jun12.csv',
@@ -113,6 +112,8 @@ def wrangle_blockchain_data(set_num, dataset):
     print(f"Process {pid} complete")
 
 
+#################################
+# Third, combine the separately processed years into one ledger per household.
 def combine_years():
     num_customers = 300
     for num in range(0, num_customers):
@@ -146,10 +147,11 @@ def combine_years():
 if __name__ == '__main__':
     os.chdir('../OriginalEnergyData/')
 
-    # # Run sequentially if computer can't handle parallel code below
+    # # Run sequentially if computer can't handle parallel code. Uncomment next two lines, comment parallel setup.
     # for inum, d in enumerate(datasets):
     #     wrangle_blockchain_data(inum, d)
 
+    # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
     print(f"Creating {len(datasets)} processes to handle the {len(datasets)} datasets")
     processes = []
