@@ -46,8 +46,22 @@ def wrangle_blockchain_data(set_num, dataset):
     # Loop on input data, wrangling cols into rows of datetime.
     for num, house in enumerate(houses):
         wrangled_ledger = []
+        prev_type = ''
 
         for row in house:
+            eng_type = row[type_col]
+
+            # If house has no solar production data, add blanks to create same length data sets
+            if eng_type == 'GC' and prev_type == 'GG' or (not prev_type and not eng_type == 'CL'):
+                for i in range(24):  # 0 to 24
+                    datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
+                    wrangled_ledger.append([
+                        datetime,
+                        'CL',
+                        0
+                    ])
+            prev_type = row[type_col]
+
             # For each column of times during a day (48 half hour periods)
             # Combine half hourly into hourly data
             for i in range(24): # 0 to 24
@@ -55,7 +69,6 @@ def wrangle_blockchain_data(set_num, dataset):
                 # If amount used/generated for consumer, type, and time period is 0 then skip
                 kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
                 datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2*i]}"
-                eng_type = row[type_col]
 
                 wrangled_ledger.append([
                     datetime,
