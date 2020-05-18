@@ -7,7 +7,6 @@ Warning this will take while despite running in parallel :)
 """
 
 import os
-import math
 import csv
 import glob
 import multiprocessing
@@ -21,7 +20,7 @@ datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul12-30Jun13.csv']
 
 
-def wrangle_blockchain_data(set_num, dataset):
+def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
     # Load original energy data
     print(f"Process {os.getpid()} loading {dataset}")
     pid = os.getpid()
@@ -52,37 +51,42 @@ def wrangle_blockchain_data(set_num, dataset):
             eng_type = row[type_col]
 
             # If house has no solar production data, add blanks to create same length data sets
-            if eng_type == 'GC' and prev_type == 'GG' or (not prev_type and not eng_type == 'CL'):
+            if incl_zeroes and (eng_type == 'GC' and prev_type == 'GG' or (not prev_type and not eng_type == 'CL')):
                 for i in range(24):  # 0 to 24
                     datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
-                    wrangled_ledger.append([
-                        datetime,
-                        'CL',
-                        0
-                    ])
+                    wrangled_ledger.append([datetime, 'CL', 0])
             prev_type = row[type_col]
 
             # For each column of times during a day (48 half hour periods)
+            if daily:
+                irange = 1
+            else:
+                irange = 24
+
             # Combine half hourly into hourly data
-            for i in range(24): # 0 to 24
-
+            for i in range(irange): # 0 to 24
                 # If amount used/generated for consumer, type, and time period is 0 then skip
-                kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
-                datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2*i]}"
+                if daily:
+                    kwh_amount = 0
+                    for j in range(48):
+                        kwh_amount += round(row[first_kwh_col + i], 3)
+                    datetime = f"{row[date_col]}"
+                else:
+                    kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
+                    datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2*i]}"
 
-                wrangled_ledger.append([
-                    datetime,
-                    eng_type,
-                    kwh_amount
-                ])
+                if incl_zeroes or (incl_zeroes and kwh_amount > 0):
+                    wrangled_ledger.append([datetime, eng_type, kwh_amount])
 
         wrangled_ledgers.append(wrangled_ledger)
         print(f"Process {pid} wrangled {num+1}")
 
     #################################
     # Second, populate the blockchain
-    os.chdir('../BlockchainData/')
-
+    if daily:
+        os.chdir('../BlockchainData/Daily')
+    else:
+        os.chdir('../BlockchainData/Hourly')
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
         blockchain_ledger = []
@@ -143,18 +147,15 @@ def combine_years():
 
 
 if __name__ == '__main__':
-    os.chdir('../OriginalEnergyData/')
-
-    # # Run sequentially if computer can't handle parallel code. Uncomment next two lines, comment parallel setup.
-    # for inum, d in enumerate(datasets):
-    #     wrangle_blockchain_data(inum, d)
-
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
-    print(f"Creating {len(datasets)} processes to handle the {len(datasets)} datasets")
+
+    # Hourly data!
+    os.chdir('../OriginalEnergyData/')
+    print(f"Creating {len(datasets)} processes to create hourly blockchains")
     processes = []
     for inum, d in enumerate(datasets):
-        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d,))
+        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
         processes.append(p)
         p.start()
 
@@ -163,7 +164,24 @@ if __name__ == '__main__':
         p.join()
 
     # Combine the files of the same customer number
-    os.chdir('../BlockchainData/')
+    os.chdir('../BlockchainData/Hourly/')
+    combine_years()
+
+    # Daily data!
+    os.chdir('../../OriginalEnergyData/')
+    print(f"Creating {len(datasets)} processes to create daily blockchains")
+    processes = []
+    for inum, d in enumerate(datasets):
+        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
+        processes.append(p)
+        p.start()
+
+    # Wait for completion
+    for p in processes:
+        p.join()
+
+    # Combine the files of the same customer number
+    os.chdir('../BlockchainData/Daily/')
     combine_years()
 
     print(f"Speedy boi now :)")
