@@ -21,42 +21,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import accuracy_score
-from sklearn.svm import LinearSVC
 
-os.chdir("../BlockchainData/")
-
-# Table of customers, postcodes, and generator sizes
-extra_info = pd.read_csv(f"../OriginalEnergyData/Solutions.csv", header=0)
-generator_col = 1
-postcode_col = 2
-num_customers = 300
-
-###################################
-##    Classify on hourly data    ##
-###################################
-os.chdir("../BlockchainData/Hourly")
-
-
-###################################
-##    Classify on daily data     ##
-###################################
-os.chdir("../Daily")
-
-
-###################################
-##    Classify on weekly data    ##
-###################################
-os.chdir("../Weekly")
-
-# Neural network
-
-# SGD classifier
-
+os.chdir("../BlockchainData/Monthly")
 
 ###################################
 ##    Classify on monthly data   ##
 ###################################
-os.chdir("../Monthly")
 print("Classifying stage 1 monthly data")
 
 monthly_data = pd.read_csv('0_1a_combined_monthly_time.csv', header=0)
@@ -89,12 +59,12 @@ X_train_post = scaler_post.transform(X_train_post)
 X_test_post = scaler_post.transform(X_test_post)
 
 # Neural network
-print("Applying neural network for customer number\n")
+print("Applying neural network for customer number")
 mlp_num = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
 mlp_num.fit(X_train_num, Y_train_num)
 predictions_num_nn = mlp_num.predict(X_test_num)
 
-print("Applying neural network for postcode\n")
+print("Applying neural network for postcode")
 mlp_post = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
 mlp_post.fit(X_train_post, Y_train_post)
 predictions_post_nn = mlp_post.predict(X_test_post)
