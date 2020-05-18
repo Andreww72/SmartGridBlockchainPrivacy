@@ -53,14 +53,17 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
 
             # If house has no solar production data, add blanks to create same length data sets
             if incl_zeroes and (eng_type == 'GC' and prev_type == 'GG' or (not prev_type and not eng_type == 'CL')):
-                for i in range(24):  # 0 to 24
-                    datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
+                if daily:
+                    datetime = f"{row[date_col]}"
                     wrangled_ledger.append([datetime, 'CL', 0])
+                else:
+                    for i in range(24):  # 0 to 24
+                        datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
+                        wrangled_ledger.append([datetime, 'CL', 0])
             prev_type = row[type_col]
 
             # For each column of times during a day (48 half hour periods)
             kwh_amount = 0
-            datetime = None
             if daily:
                 # Combine half hourly into daily data
                 datetime = f"{row[date_col]}"
