@@ -5,6 +5,8 @@
 ML analysis
 2b) Grid + solar data, uninformed attacker: clustering
 
+This treats each household as separate ledgers
+
 Clustering methods
     Comparing datasets themselves against each other
     i) Euclidean distance, ii) LTSM, iii) Cointegration analysis, iv) Clustering
@@ -17,6 +19,5 @@ import os
 import json
 
 import pandas as pd
-import numpy as np
 
 os.chdir("../BlockchainData/")

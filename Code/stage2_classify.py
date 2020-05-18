@@ -5,6 +5,8 @@
 ML analysis
 2a) Grid + solar data, informed attacker: classification
 
+This treats all households on a single ledger
+
 Classification methods
     Technique that yields greatest accuracy for each
     Include consumer number, generator, and postcode in for training
@@ -17,6 +19,5 @@ import os
 import json
 
 import pandas as pd
-import numpy as np
 
 os.chdir("../BlockchainData/")

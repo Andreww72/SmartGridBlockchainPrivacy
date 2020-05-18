@@ -5,6 +5,8 @@
 ML analysis
 1b) Grid data only, uninformed attacker: clustering
 
+This treats each household as separate ledgers
+
 Clustering methods
     Comparing datasets themselves against each other
     i) Euclidean distance, ii) LTSM, iii) Cointegration analysis, iv) Clustering
