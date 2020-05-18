@@ -13,6 +13,8 @@ Clustering methods
     Clustering: https://petolau.github.io/Multiple-data-streams-clustering-in-r/
     https://www.researchgate.net/publication/322011057_Time_Series_Analysis_for_Spatial_Node_Selection_in_Environment_Monitoring_Sensor_Networks
     LSTM, Cointegration analysis
+
+    https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
 """
 
 import os
