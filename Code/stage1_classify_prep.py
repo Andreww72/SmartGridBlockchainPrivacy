@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-ML analysis
+ML data preparation for analysis
 1a) Grid data only, informed attacker: classification
 
 This treats all households on a single ledger
@@ -32,7 +32,6 @@ num_customers = 300
 ###################################
 os.chdir("../BlockchainData/Hourly")
 
-# 1) Combine hourly data into one dataset
 hourly_to_combine = []
 # Can include customer two for classification
 # Loop on remaining files to append to first
@@ -67,7 +66,6 @@ combined_hourly.to_csv('0_1a_combined_hourly.csv', index=False)
 ###################################
 os.chdir("../Daily")
 
-# 1) Combine hourly data into one dataset
 daily_to_combine = []
 # Can include customer two for classification
 # Loop on remaining files to append to first
@@ -94,7 +92,6 @@ combined_daily.to_csv('0_1a_combined_daily.csv', index=False)
 ###################################
 os.chdir("../Weekly")
 
-# 1) Combine hourly data into one dataset
 weekly_to_combine = []
 # Can include customer two for classification
 # Loop on remaining files to append to first
@@ -121,7 +118,6 @@ combined_weekly.to_csv('0_1a_combined_weekly.csv', index=False)
 ###################################
 os.chdir("../Monthly")
 
-# 1) Combine hourly data into one dataset
 monthly_to_combine = []
 # Can include customer two for classification
 # Loop on remaining files to append to first
