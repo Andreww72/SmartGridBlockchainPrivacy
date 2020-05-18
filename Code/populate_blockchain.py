@@ -14,6 +14,7 @@ import multiprocessing
 import pandas as pd
 
 
+num_customers = 300
 years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
 datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul11-30Jun12.csv',
@@ -58,25 +59,24 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
             prev_type = row[type_col]
 
             # For each column of times during a day (48 half hour periods)
+            kwh_amount = 0
+            datetime = None
             if daily:
-                irange = 1
-            else:
-                irange = 24
+                # Combine half hourly into daily data
+                datetime = f"{row[date_col]}"
+                for j in range(48):
+                    kwh_amount += round(row[first_kwh_col + j], 3)
 
-            # Combine half hourly into hourly data
-            for i in range(irange): # 0 to 24
-                # If amount used/generated for consumer, type, and time period is 0 then skip
-                if daily:
-                    kwh_amount = 0
-                    for j in range(48):
-                        kwh_amount += round(row[first_kwh_col + i], 3)
-                    datetime = f"{row[date_col]}"
-                else:
-                    kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
-                    datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2*i]}"
-
-                if incl_zeroes or (incl_zeroes and kwh_amount > 0):
+                if incl_zeroes or (not incl_zeroes and kwh_amount > 0):
                     wrangled_ledger.append([datetime, eng_type, kwh_amount])
+            else:
+                # Combine half hourly into hourly data
+                for i in range(24):  # 0 to 24
+                    kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
+                    datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
+
+                    if incl_zeroes or (not incl_zeroes and kwh_amount > 0):
+                        wrangled_ledger.append([datetime, eng_type, kwh_amount])
 
         wrangled_ledgers.append(wrangled_ledger)
         print(f"Process {pid} wrangled {num+1}")
@@ -92,7 +92,7 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
         blockchain_ledger = []
 
         for row in ledger:
-            # Structure of transaction: Block | Tid | Prev Tid | timestamp | type | amount | PK
+            # Structure of transaction: timestamp | type | amount
             datetime = row[0]
             eng_type = row[1]
             kwh_amount = row[2]
@@ -117,7 +117,6 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
 #################################
 # Third, combine the separately processed years into one ledger per household.
 def combine_years():
-    num_customers = 300
     for num in range(0, num_customers):
         print(f"Combining customer {num+1} ledgers")
 
