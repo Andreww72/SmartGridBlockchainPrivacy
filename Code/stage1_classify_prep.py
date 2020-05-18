@@ -53,14 +53,6 @@ print(f"Concatenate and save hourly")
 combined_hourly = pd.concat(hourly_to_combine)
 combined_hourly.to_csv('0_1a_combined_hourly.csv', index=False)
 
-# 2) Apply machine learning classification
-# Predict customer number and postcode
-# 2i) Split
-
-
-# 2ii) K-fold
-
-
 ###################################
 ##    Classify on daily data     ##
 ###################################

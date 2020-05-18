@@ -22,14 +22,22 @@ import json
 import pandas as pd
 import numpy as np
 
-os.chdir("../BlockchainData/Monthly")
+os.chdir("../BlockchainData/Weekly")
+
+###################################
+##    Classify on weekly data    ##
+###################################
+print("Clustering stage 1 weekly data")
 
 # Euclidean distance
 results = {}
 results_list = []
-comparison_vector = np.zeros(108)
+num_customers = 300
+length_weekly = 471
+comparison_vector = np.zeros(length_weekly)
 
-for num in range(300):
+for num in range(num_customers):
+    # Customer 2 dataset is missing several months, skip it
     if not num == 2-1:
         print(f"Euclidean distance of {num+1}")
         df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
