@@ -46,4 +46,4 @@ for num in range(num_customers):
         results[num+1] = euc_dist
         results_list.append(euc_dist)
 
-json.dump(results, open("0_results.json", "w"), indent=4)
+json.dump(results, open("0_euclidean_results.json", "w"), indent=4)

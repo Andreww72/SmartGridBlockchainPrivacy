@@ -33,7 +33,7 @@ print("Clustering stage 1 daily data")
 results = {}
 results_list = []
 num_customers = 300
-length_daily = 3045
+length_daily = 3288
 comparison_vector = np.zeros(length_daily)
 
 for num in range(num_customers):
@@ -46,4 +46,4 @@ for num in range(num_customers):
         results[num+1] = euc_dist
         results_list.append(euc_dist)
 
-json.dump(results, open("0_results.json", "w"), indent=4)
+json.dump(results, open("0_euclidean_results.json", "w"), indent=4)
