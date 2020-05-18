@@ -161,6 +161,7 @@ def create_weekly():
         weekly = []
         weekly_count = 0
         weekly_flag = True
+
         while weekly_flag:
             try:
                 week_date = df[weekly_count * days_in_week * num_of_types][0]
@@ -182,52 +183,77 @@ def create_weekly():
     # Save blockchains!
     os.chdir("../Weekly")
     header = ['Timestamp', 'Type', 'Amount']
+    print("Saving weekly files")
     for num in range(num_customers):
-        with open(f"{num+1}_weekly_blockchain.csv", 'w', newline='') as csv_out:
+        with open(f"{num+1}_blockchain.csv", 'w', newline='') as csv_out:
             writer = csv.writer(csv_out, delimiter=',')
             writer.writerow(header)
             writer.writerows(all_weekly[num])
+
+
+def create_monthly():
+    month_and_type_splits = []
+
+    for num in range(num_customers):
+        print(f"Creating monthly {num+1} ledger")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+        df['Timestamp'] = pd.to_datetime(df['Timestamp'], dayfirst=True)
+        df['Timestamp'].dt.to_period('M')
+
+        dg = df.groupby([pd.Grouper(key='Timestamp', freq='1M'), "Type"]).sum()  # groupby each 1 month
+        month_and_type_splits.append(dg)
+
+    # Save blockchains!
+    os.chdir("../Monthly")
+    print("Saving monthy files")
+    for num in range(num_customers):
+        month_and_type_splits[num].reset_index().to_csv(f"{num+1}_blockchain.csv", index=False)
+
 
 if __name__ == '__main__':
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
 
-    # Hourly data!
-    os.chdir('../OriginalEnergyData/')
-    print(f"Creating {len(datasets)} processes to create hourly blockchains")
-    processes = []
-    for inum, d in enumerate(datasets):
-        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
-        processes.append(p)
-        p.start()
-
-    # Wait for completion
-    for p in processes:
-        p.join()
-
-    # Combine the files of the same customer number
-    os.chdir('../BlockchainData/Hourly/')
-    combine_years()
-
-    # Daily data!
-    os.chdir('../../OriginalEnergyData/')
-    print(f"Creating {len(datasets)} processes to create daily blockchains")
-    processes = []
-    for inum, d in enumerate(datasets):
-        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
-        processes.append(p)
-        p.start()
-
-    # Wait for completion
-    for p in processes:
-        p.join()
-
-    # Combine the files of the same customer number
-    os.chdir('../BlockchainData/Daily/')
-    combine_years()
-
-    # Take daily and create weekly and monthly
-    print(f"Creating weekly blockchains")
-    create_weekly()
+    # # Hourly data!
+    # os.chdir('../OriginalEnergyData/')
+    # print(f"Creating {len(datasets)} processes to create hourly blockchains")
+    # processes = []
+    # for inum, d in enumerate(datasets):
+    #     p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
+    #     processes.append(p)
+    #     p.start()
+    #
+    # # Wait for completion
+    # for p in processes:
+    #     p.join()
+    #
+    # # Combine the files of the same customer number
+    # os.chdir('../BlockchainData/Hourly/')
+    # combine_years()
+    #
+    # # Daily data!
+    # os.chdir('../../OriginalEnergyData/')
+    # print(f"Creating {len(datasets)} processes to create daily blockchains")
+    # processes = []
+    # for inum, d in enumerate(datasets):
+    #     p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
+    #     processes.append(p)
+    #     p.start()
+    #
+    # # Wait for completion
+    # for p in processes:
+    #     p.join()
+    #
+    # # Combine the files of the same customer number
+    # os.chdir('../BlockchainData/Daily/')
+    # combine_years()
+    #
+    # # Take daily and create weekly and monthly
+    # print(f"Creating weekly blockchains")
+    # create_weekly()
+    os.chdir("../BlockchainData/Daily")
+    #os.chdir('../Daily/')
+    print(f"Creating monthly blockchains")
+    create_monthly()
 
     print(f"Speedy boi now :)")
