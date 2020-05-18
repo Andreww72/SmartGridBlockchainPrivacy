@@ -148,6 +148,46 @@ def combine_years():
                     os.remove(same_ledger_files[i])
 
 
+#################################
+# From daily blockchain output, create weekly and monthly blockchains.
+def create_weekly():
+    days_in_week = 7
+    num_of_types = 3
+    all_weekly = []
+
+    for num in range(num_customers):
+        print(f"Creating weekly {num+1} ledger")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0).values.tolist()
+        weekly = []
+        weekly_count = 0
+        weekly_flag = True
+        while weekly_flag:
+            try:
+                week_date = df[weekly_count * days_in_week * num_of_types][0]
+                for i in range(num_of_types):
+                    eng_type = df[weekly_count * days_in_week * num_of_types + i][1]
+                    amount = 0
+                    try:
+                        for j in range(days_in_week):
+                            amount += df[weekly_count * days_in_week * num_of_types + i + j * num_of_types][2]
+                        weekly.append([week_date, eng_type, amount])
+                    except IndexError:
+                        weekly.append([week_date, eng_type, amount])
+                        weekly_flag = False
+                weekly_count += 1
+            except IndexError:
+                weekly_flag = False
+        all_weekly.append(weekly)
+
+    # Save blockchains!
+    os.chdir("../Weekly")
+    header = ['Timestamp', 'Type', 'Amount']
+    for num in range(num_customers):
+        with open(f"{num+1}_weekly_blockchain.csv", 'w', newline='') as csv_out:
+            writer = csv.writer(csv_out, delimiter=',')
+            writer.writerow(header)
+            writer.writerows(all_weekly[num])
+
 if __name__ == '__main__':
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
@@ -185,5 +225,9 @@ if __name__ == '__main__':
     # Combine the files of the same customer number
     os.chdir('../BlockchainData/Daily/')
     combine_years()
+
+    # Take daily and create weekly and monthly
+    print(f"Creating weekly blockchains")
+    create_weekly()
 
     print(f"Speedy boi now :)")
