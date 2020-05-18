@@ -190,46 +190,45 @@ if __name__ == '__main__':
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
 
-    # # Hourly data!
-    # os.chdir('../OriginalEnergyData/')
-    # print(f"Creating {len(datasets)} processes to create hourly blockchains")
-    # processes = []
-    # for inum, d in enumerate(datasets):
-    #     p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
-    #     processes.append(p)
-    #     p.start()
-    #
-    # # Wait for completion
-    # for p in processes:
-    #     p.join()
-    #
-    # # Combine the files of the same customer number
-    # os.chdir('../BlockchainData/Hourly/')
-    # combine_years()
-    #
-    # # Daily data!
-    # os.chdir('../../OriginalEnergyData/')
-    # print(f"Creating {len(datasets)} processes to create daily blockchains")
-    # processes = []
-    # for inum, d in enumerate(datasets):
-    #     p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
-    #     processes.append(p)
-    #     p.start()
-    #
-    # # Wait for completion
-    # for p in processes:
-    #     p.join()
-    #
-    # # Combine the files of the same customer number
-    # os.chdir('../BlockchainData/Daily/')
-    # combine_years()
-    #
-    # # Take daily and create weekly and monthly
-    os.chdir("../BlockchainData/Daily")
+    # Hourly data!
+    os.chdir('../OriginalEnergyData/')
+    print(f"Creating {len(datasets)} processes to create hourly blockchains")
+    processes = []
+    for inum, d in enumerate(datasets):
+        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
+        processes.append(p)
+        p.start()
+
+    # Wait for completion
+    for p in processes:
+        p.join()
+
+    # Combine the files of the same customer number
+    os.chdir('../BlockchainData/Hourly/')
+    combine_years()
+
+    # Daily data!
+    os.chdir('../../OriginalEnergyData/')
+    print(f"Creating {len(datasets)} processes to create daily blockchains")
+    processes = []
+    for inum, d in enumerate(datasets):
+        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
+        processes.append(p)
+        p.start()
+
+    # Wait for completion
+    for p in processes:
+        p.join()
+
+    # Combine the files of the same customer number
+    os.chdir('../BlockchainData/Daily/')
+    combine_years()
+
+    # Take daily and create weekly and monthly
     print(f"Creating weekly blockchains")
     create_weekly()
-    # os.chdir('../Daily/')
-    # print(f"Creating monthly blockchains")
-    # create_monthly()
+    os.chdir('../Daily/')
+    print(f"Creating monthly blockchains")
+    create_monthly()
 
     print(f"Speedy boi now :)")
