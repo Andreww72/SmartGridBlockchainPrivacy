@@ -151,44 +151,21 @@ def combine_years():
 #################################
 # From daily blockchain output, create weekly and monthly blockchains.
 def create_weekly():
-    days_in_week = 7
-    num_of_types = 3
-    all_weekly = []
+    week_and_type_splits = []
 
     for num in range(num_customers):
         print(f"Creating weekly {num+1} ledger")
-        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0).values.tolist()
-        weekly = []
-        weekly_count = 0
-        weekly_flag = True
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+        df['Timestamp'] = pd.to_datetime(df['Timestamp'], dayfirst=True)
 
-        while weekly_flag:
-            try:
-                week_date = df[weekly_count * days_in_week * num_of_types][0]
-                for i in range(num_of_types):
-                    eng_type = df[weekly_count * days_in_week * num_of_types + i][1]
-                    amount = 0
-                    try:
-                        for j in range(days_in_week):
-                            amount += df[weekly_count * days_in_week * num_of_types + i + j * num_of_types][2]
-                        weekly.append([week_date, eng_type, amount])
-                    except IndexError:
-                        weekly.append([week_date, eng_type, amount])
-                        weekly_flag = False
-                weekly_count += 1
-            except IndexError:
-                weekly_flag = False
-        all_weekly.append(weekly)
+        dg = df.groupby([pd.Grouper(key='Timestamp', freq='W-MON'), "Type"]).sum()
+        week_and_type_splits.append(dg)
 
     # Save blockchains!
     os.chdir("../Weekly")
-    header = ['Timestamp', 'Type', 'Amount']
     print("Saving weekly files")
     for num in range(num_customers):
-        with open(f"{num+1}_blockchain.csv", 'w', newline='') as csv_out:
-            writer = csv.writer(csv_out, delimiter=',')
-            writer.writerow(header)
-            writer.writerows(all_weekly[num])
+        week_and_type_splits[num].reset_index().to_csv(f"{num+1}_blockchain.csv", index=False)
 
 
 def create_monthly():
@@ -198,9 +175,8 @@ def create_monthly():
         print(f"Creating monthly {num+1} ledger")
         df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
         df['Timestamp'] = pd.to_datetime(df['Timestamp'], dayfirst=True)
-        df['Timestamp'].dt.to_period('M')
 
-        dg = df.groupby([pd.Grouper(key='Timestamp', freq='1M'), "Type"]).sum()  # groupby each 1 month
+        dg = df.groupby([pd.Grouper(key='Timestamp', freq='1M'), "Type"]).sum()
         month_and_type_splits.append(dg)
 
     # Save blockchains!
@@ -249,11 +225,11 @@ if __name__ == '__main__':
     # combine_years()
     #
     # # Take daily and create weekly and monthly
-    # print(f"Creating weekly blockchains")
-    # create_weekly()
     os.chdir("../BlockchainData/Daily")
-    #os.chdir('../Daily/')
-    print(f"Creating monthly blockchains")
-    create_monthly()
+    print(f"Creating weekly blockchains")
+    create_weekly()
+    # os.chdir('../Daily/')
+    # print(f"Creating monthly blockchains")
+    # create_monthly()
 
     print(f"Speedy boi now :)")
