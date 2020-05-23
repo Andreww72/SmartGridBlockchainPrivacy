@@ -170,18 +170,19 @@ def create_weekly():
         df['Timestamp'] = pd.to_datetime(df['Timestamp'], dayfirst=True)
 
         # Group by week
-        dg = df.groupby(["PK", pd.Grouper(key='Timestamp', freq='W-MON'), "Type"]).sum().reset_index()
+        dg = df.groupby([pd.Grouper(key='Timestamp', freq='W-MON'), "Type"]).sum().reset_index()
+        dg = dg[['Hash', 'PHash', 'PK', 'Timestamp', 'Type', 'Amount']]
 
-        # Recreate new hash and prev hash columns
+        # Recreate hash and prev hash columns
         weekly_data = dg.values.tolist()
         prev_hash = "0"
 
-        for row in weekly_data:
-            # Structure: Hash | PHash | PK | Timestamp | Type | Amount
-            curr_hash = create_hash(f"{row[3]} {row[4]} {row[5]}")
-            row.insert(0, curr_hash)
-            row.insert(1, prev_hash)
-            prev_hash = curr_hash
+        # for row in weekly_data:
+        #     # Structure: Hash | PHash | PK | Timestamp | Type | Amount
+        #     curr_hash = create_hash(f"{row[3]} {row[4]} {row[5]}")
+        #     row[0] = curr_hash
+        #     row[1] = prev_hash
+        #     prev_hash = curr_hash
 
         week_and_type_splits.append(weekly_data)
 

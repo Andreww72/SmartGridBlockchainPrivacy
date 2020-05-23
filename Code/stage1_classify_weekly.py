@@ -27,6 +27,7 @@ Classify
 
 import os
 import sys
+import csv
 import pandas as pd
 
 # Classify MLP
@@ -64,13 +65,15 @@ def preprocessing():
     # weekly_data = weekly_data[weekly_data['Amount'] != 0]
     # This might screw up LSTM
 
-    if case == 0:
+    if int(case) == 0:
         print("Preprocessing data for worst case")
         # Drop the PK and hash information
         weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1)
-    elif case == 1:
+        # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
+    elif int(case) == 1:
         print("Preprocessing data for best case")
         # Don't remove anything lol
+        # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
         print("Invalid usage: python ./stage1_classify_weekly.py [case] [MLP] [LSTM]")
