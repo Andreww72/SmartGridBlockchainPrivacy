@@ -7,11 +7,12 @@ ML analysis
 
 Cases (without obfuscation techniques)
     Worst case: Cannot perform this clustering
-    TODO Realistic cases: Households change PKs at some interval, those on same PK are linked
+    TODO Realistic cases: Households change PKs at some interval, those on same PK are linked. Train on first two years, test on third. Instead of random split.
     TODO Best case: Household has one PK, all transactions linked
 
 Clustering methods
     ii)  https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
+        https://www.analyticsvidhya.com/blog/2019/01/introduction-time-series-classification/
     iii) https://www.researchgate.net/publication/322011057_Time_Series_Analysis_for_Spatial_Node_Selection_in_Environment_Monitoring_Sensor_Networks
     iv)  https://petolau.github.io/Multiple-data-streams-clustering-in-r/
 
