@@ -26,9 +26,8 @@ datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul12-30Jun13.csv']
 
 
-def create_hash(hash_string):
-    sha_signature = hashlib.sha256(hash_string.encode()).hexdigest()[0:8]
-    return sha_signature
+def create_hash(s):
+    return int(hashlib.sha256(s.encode('utf-8')).hexdigest(), 16) % 10 ** 12
 
 
 def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
@@ -103,7 +102,7 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
         blockchain_ledger = []
-        prev_hash = "Genisis"
+        prev_hash = "0"
         pk = create_hash(f"{num}")
 
         for row in ledger:
@@ -174,16 +173,14 @@ def create_weekly():
         dg = df.groupby(["PK", pd.Grouper(key='Timestamp', freq='W-MON'), "Type"]).sum().reset_index()
 
         # Recreate new hash and prev hash columns
-        dg.insert(loc=0, column='PHash', value=np.nan)
-        dg.insert(loc=0, column='Hash', value=np.nan)
         weekly_data = dg.values.tolist()
-        prev_hash = "Genisis"
+        prev_hash = "0"
 
         for row in weekly_data:
             # Structure: Hash | PHash | PK | Timestamp | Type | Amount
             curr_hash = create_hash(f"{row[3]} {row[4]} {row[5]}")
-            row[0] = curr_hash
-            row[1] = prev_hash
+            row.insert(0, curr_hash)
+            row.insert(1, prev_hash)
             prev_hash = curr_hash
 
         week_and_type_splits.append(weekly_data)
@@ -235,8 +232,8 @@ if __name__ == '__main__':
         os.chdir('../BlockchainData/Hourly/')
         combine_years()
 
-    if int(sys.argv[2]) == 1:
-        if int(sys.argv[1]) == 1:
+    if int(sys.argv[2]):
+        if int(sys.argv[1]):
             os.chdir('../../OriginalEnergyData/')
 
         # Daily data! #

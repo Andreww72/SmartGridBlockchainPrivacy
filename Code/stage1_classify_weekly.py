@@ -53,9 +53,29 @@ def preprocessing():
     print("Preprocessing stage 1 weekly data")
 
     weekly_data = pd.read_csv('0_1a_combined_weekly.csv', header=0)
-    # May want to consider removing rows with amount = 0
-    # Have manually converted categorical to numeric, may consider coding this, ex:
-    # https://www.dataquest.io/blog/sci-kit-learn-tutorial/
+
+    # Convert categorical columns to numeric
+    weekly_data['Type'] = weekly_data['Type'].astype('category').cat.codes
+
+    weekly_data['Timestamp'] = pd.to_datetime(weekly_data['Timestamp'], dayfirst=True)
+    weekly_data['Timestamp'] = (weekly_data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
+
+    # Remove rows with amount = 0 cause you can't classify them
+    # weekly_data = weekly_data[weekly_data['Amount'] != 0]
+    # This might screw up LSTM
+
+    if case == 0:
+        print("Preprocessing data for worst case")
+        # Drop the PK and hash information
+        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1)
+    elif case == 1:
+        print("Preprocessing data for best case")
+        # Don't remove anything lol
+    else:
+        print("Invalid case selected")
+        print("Invalid usage: python ./stage1_classify_weekly.py [case] [MLP] [LSTM]")
+        print("Use a 0 for worst case, 1 for best case for case argument")
+        print("Use a 1 or 0 indicator for MLP and LSTM arguments")
 
     global X_num, Y_num, X_post, Y_post
     X_num = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
@@ -110,7 +130,7 @@ def lstm():
     # https://www.analyticsvidhya.com/blog/2017/12/fundamentals-of-deep-learning-introduction-to-lstm/
     print("Applying MLP neural network for customer number")
     lstm_num = Sequential()
-    lstm_num.add(LSTM(256, input_shape=(seq_len, 4)))
+    lstm_num.add(LSTM(256, input_shape=X_train_num.shape))
     lstm_num.add(Dense(1, activation='sigmoid'))
     lstm_num.summary()
 
