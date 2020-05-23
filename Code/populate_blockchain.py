@@ -5,7 +5,7 @@
 Wrangle the energy data into a format resembling what would be available publicly on a blockchain ledger.
 Warning this will take while despite running in parallel :)
 
-Use: python ./populate_blockchain [hourly] [daily/weekly]
+Use: python ./populate_blockchain.py [hourly] [daily/weekly]
 Use a true or false indicator for each argument
 """
 
@@ -207,6 +207,13 @@ if __name__ == '__main__':
         print("Use a true or false indicator for each argument")
         exit()
 
+    if not os.path.exists('../BlockchainData/Hourly'):
+        os.makedirs('../BlockchainData/Hourly')
+    if not os.path.exists('../BlockchainData/Daily'):
+        os.makedirs('../BlockchainData/Daily')
+    if not os.path.exists('../BlockchainData/Weekly'):
+        os.makedirs('../BlockchainData/Weekly')
+
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
     os.chdir('../OriginalEnergyData/')
@@ -235,14 +242,14 @@ if __name__ == '__main__':
         # Daily data! #
         print(f"Creating {len(datasets)} processes to create daily blockchains")
         processes = []
-        # for inum, d in enumerate(datasets):
-        #     p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
-        #     processes.append(p)
-        #     p.start()
-        # 
-        # # Wait for completion
-        # for p in processes:
-        #     p.join()
+        for inum, d in enumerate(datasets):
+            p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
+            processes.append(p)
+            p.start()
+
+        # Wait for completion
+        for p in processes:
+            p.join()
 
         # Combine the files of the same customer number
         os.chdir('../BlockchainData/Daily/')
