@@ -9,7 +9,7 @@ This treats each household as separate ledgers
 
 Clustering methods
     Comparing datasets themselves against each other
-    i) Euclidean distance, ii) LTSM, iii) Cointegration analysis, iv) Clustering
+    i) Euclidean distance, ii) LTSM, iii) Cointegration analysis, iv) Clustering (skip if ii and iii are good)
 
     ii)  https://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
     iii) https://www.researchgate.net/publication/322011057_Time_Series_Analysis_for_Spatial_Node_Selection_in_Environment_Monitoring_Sensor_Networks

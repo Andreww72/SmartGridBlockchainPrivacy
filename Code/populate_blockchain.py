@@ -168,24 +168,6 @@ def create_weekly():
         week_and_type_splits[num].reset_index().to_csv(f"{num+1}_blockchain.csv", index=False)
 
 
-def create_monthly():
-    month_and_type_splits = []
-
-    for num in range(num_customers):
-        print(f"Creating monthly {num+1} ledger")
-        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
-        df['Timestamp'] = pd.to_datetime(df['Timestamp'], dayfirst=True)
-
-        dg = df.groupby([pd.Grouper(key='Timestamp', freq='1M'), "Type"]).sum()
-        month_and_type_splits.append(dg)
-
-    # Save blockchains!
-    os.chdir("../Monthly")
-    print("Saving monthy files")
-    for num in range(num_customers):
-        month_and_type_splits[num].reset_index().to_csv(f"{num+1}_blockchain.csv", index=False)
-
-
 if __name__ == '__main__':
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
@@ -227,8 +209,5 @@ if __name__ == '__main__':
     # Take daily and create weekly and monthly
     print(f"Creating weekly blockchains")
     create_weekly()
-    os.chdir('../Daily/')
-    print(f"Creating monthly blockchains")
-    create_monthly()
 
     print(f"Speedy boi now :)")

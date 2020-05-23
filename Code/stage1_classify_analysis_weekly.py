@@ -38,9 +38,9 @@ weekly_data = pd.read_csv('0_1a_combined_weekly_allnumeric.csv', header=0)
 # Have manually converted categorical to numeric, may consider coding this, ex:
 # https://www.dataquest.io/blog/sci-kit-learn-tutorial/
 
-X_num = weekly_data.drop('Customer', axis=1)
+X_num = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
 Y_num = weekly_data['Customer']
-X_post = weekly_data.drop('Postcode', axis=1)
+X_post = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
 Y_post = weekly_data['Postcode']
 
 X_train_num, X_test_num, Y_train_num, Y_test_num = train_test_split(X_num, Y_num)
