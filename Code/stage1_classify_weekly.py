@@ -12,7 +12,7 @@ Use a 1 or 0 indicator for MLP and LSTM arguments
 Cases (without obfuscation techniques)
     Worst case: Households use a new PK every transaction, no links between transactions
     TODO Realistic cases: Households change PKs at some interval, those on same PK are linked
-    TODO Best case: Household has one PK, all transactions linked
+    Best case: Household has one PK, all transactions linked
 
 Classifiers
     Neural network MLP classification. TODO Investigate changing parameters

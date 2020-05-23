@@ -15,9 +15,7 @@ import csv
 import glob
 import hashlib
 import multiprocessing
-
 import pandas as pd
-import numpy as np
 
 num_customers = 300
 years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
@@ -177,12 +175,12 @@ def create_weekly():
         weekly_data = dg.values.tolist()
         prev_hash = "0"
 
-        # for row in weekly_data:
-        #     # Structure: Hash | PHash | PK | Timestamp | Type | Amount
-        #     curr_hash = create_hash(f"{row[3]} {row[4]} {row[5]}")
-        #     row[0] = curr_hash
-        #     row[1] = prev_hash
-        #     prev_hash = curr_hash
+        for row in weekly_data:
+            # Structure: Hash | PHash | PK | Timestamp | Type | Amount
+            curr_hash = create_hash(f"{row[3]} {row[4]} {row[5]}")
+            row[0] = curr_hash
+            row[1] = prev_hash
+            prev_hash = curr_hash
 
         week_and_type_splits.append(weekly_data)
 
@@ -221,7 +219,9 @@ if __name__ == '__main__':
         print(f"Creating {len(datasets)} processes to create hourly blockchains")
         processes = []
         for inum, d in enumerate(datasets):
-            p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
+            p = multiprocessing.Process(target=wrangle_blockchain_data,
+                                        name=f"Process {inum}",
+                                        args=(inum, d, True, False))
             processes.append(p)
             p.start()
 
@@ -241,7 +241,9 @@ if __name__ == '__main__':
         print(f"Creating {len(datasets)} processes to create daily blockchains")
         processes = []
         for inum, d in enumerate(datasets):
-            p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
+            p = multiprocessing.Process(target=wrangle_blockchain_data,
+                                        name=f"Process {inum}",
+                                        args=(inum, d, True, True))
             processes.append(p)
             p.start()
 
