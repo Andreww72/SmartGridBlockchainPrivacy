@@ -45,13 +45,14 @@ from keras.callbacks import ModelCheckpoint
 
 case = None
 
+
 ###################################
 ##         Preprocessing         ##
 ###################################
 def preprocessing():
     print("Preprocessing stage 1 weekly data")
 
-    weekly_data = pd.read_csv('0_1a_combined_weekly_allnumeric.csv', header=0)
+    weekly_data = pd.read_csv('0_1a_combined_weekly.csv', header=0)
     # May want to consider removing rows with amount = 0
     # Have manually converted categorical to numeric, may consider coding this, ex:
     # https://www.dataquest.io/blog/sci-kit-learn-tutorial/
