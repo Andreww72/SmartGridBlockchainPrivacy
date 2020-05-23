@@ -206,7 +206,7 @@ if __name__ == '__main__':
     os.chdir('../BlockchainData/Daily/')
     combine_years()
 
-    # Take daily and create weekly and monthly
+    # Take daily and create weekly data
     print(f"Creating weekly blockchains")
     create_weekly()
 

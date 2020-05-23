@@ -104,29 +104,3 @@ for num in range(num_customers):
 print(f"Concatenate and save weekly")
 combined_weekly = pd.concat(weekly_to_combine)
 combined_weekly.to_csv('0_1a_combined_weekly.csv', index=False)
-
-###################################
-##    Classify on monthly data   ##
-###################################
-os.chdir("../Monthly")
-
-monthly_to_combine = []
-# Can include customer two for classification
-# Loop on remaining files to append to first
-for num in range(num_customers):
-    print(f"Load and adjust monthly {num+1}")
-    df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
-
-    # Add columns needed
-    row_count = df.shape[0]
-    postcode = extra_info.iloc[num, postcode_col]
-    generator = extra_info.iloc[num, generator_col]
-    df.insert(loc=0, column='Customer', value=[num+1] * row_count)
-    df.insert(loc=1, column='Postcode', value=[postcode] * row_count)
-    df.insert(loc=2, column='Generator', value=[generator] * row_count)
-
-    monthly_to_combine.append(df)
-
-print(f"Concatenate and save monthly")
-combined_monthly = pd.concat(monthly_to_combine)
-combined_monthly.to_csv('0_1a_combined_monthly.csv', index=False)

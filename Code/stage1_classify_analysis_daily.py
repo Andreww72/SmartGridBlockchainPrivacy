@@ -5,11 +5,19 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-This treats all households on a single ledger
+Cases (without obfuscation techniques)
+    Worst case: Households use a new PK every transaction, no links between transactions
+    TODO Realistic cases: Households change PKs at some interval, those on same PK are linked
+    TODO Best case: Household has one PK, all transactions linked
 
-Neural network classification
-    Include consumer number, generator, and postcode in for training
-    Predictions for i) hourly, ii) daily, iii) weekly, iv) monthly data
+Classifiers
+    Neural network MPL classification. Investigate different layers and neurons.
+    TODO Second method that better classifies and uses time series properly.
+
+Classify
+    Include consumer number, generator, and postcode for training set
+    Drop those three from the test set
+    Predictions for a) hourly, b) daily, & c) weekly
         Predictions for i) consumer number, ii) postcode
 """
 
