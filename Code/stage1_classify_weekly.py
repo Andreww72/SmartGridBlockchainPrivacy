@@ -5,8 +5,9 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_classify_weekly.py [MLP] [LSTM]
-Use a true or false indicator for each argument
+Use: python ./stage1_classify_weekly.py [case] [MLP] [LSTM]
+Use a 0 for worst case, 1 for best case for case argument
+Use a 1 or 0 indicator for MLP and LSTM arguments
 
 Cases (without obfuscation techniques)
     Worst case: Households use a new PK every transaction, no links between transactions
@@ -42,6 +43,7 @@ from keras.optimizers import Adam
 from keras.models import load_model
 from keras.callbacks import ModelCheckpoint
 
+case = None
 
 ###################################
 ##         Preprocessing         ##
@@ -129,19 +131,22 @@ def lstm():
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 3:
-        print("Invalid usage: python ./populate_blockchain [hourly] [daily/weekly]")
-        print("Use a true or false indicator for each argument")
+    if not len(sys.argv) == 4:
+        print("Invalid usage: python ./stage1_classify_weekly.py [case] [MLP] [LSTM]")
+        print("Use a 0 for worst case, 1 for best case for case argument")
+        print("Use a 1 or 0 indicator for MLP and LSTM arguments")
         exit()
+
+    case = sys.argv[1]
 
     os.chdir("../BlockchainData/Weekly")
     preprocessing()
 
-    if int(sys.argv[1]):
+    if int(sys.argv[2]):
         print("Classifying stage 1 weekly data with MLP neural network")
         mlp()
 
-    if int(sys.argv[2]):
+    if int(sys.argv[3]):
         print("Classifying stage 1 weekly data with LSTM")
         lstm()
 

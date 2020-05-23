@@ -6,7 +6,7 @@ Wrangle the energy data into a format resembling what would be available publicl
 Warning this will take while despite running in parallel :)
 
 Use: python ./populate_blockchain.py [hourly] [daily/weekly]
-Use a true or false indicator for each argument
+Use a 1 or 0 indicator for each argument
 """
 
 import os
@@ -203,7 +203,7 @@ def create_weekly():
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 3:
-        print("Invalid usage: python ./populate_blockchain [hourly] [daily/weekly]")
+        print("Invalid usage: python ./populate_blockchain.py [hourly] [daily/weekly]")
         print("Use a true or false indicator for each argument")
         exit()
 
