@@ -4,11 +4,16 @@
 """
 Wrangle the energy data into a format resembling what would be available publicly on a blockchain ledger.
 Warning this will take while despite running in parallel :)
+
+Use: python ./populate_blockchain [hourly] [daily/weekly]
+Use a true or false indicator for each argument
 """
 
 import os
+import sys
 import csv
 import glob
+import hashlib
 import multiprocessing
 
 import pandas as pd
@@ -19,6 +24,11 @@ years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
 datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul11-30Jun12.csv',
             'EnergyData_1Jul12-30Jun13.csv']
+
+
+def create_hash(hash_string):
+    sha_signature = hashlib.sha256(hash_string.encode()).hexdigest()[0:8]
+    return sha_signature
 
 
 def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
@@ -93,21 +103,28 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
         blockchain_ledger = []
+        prev_hash = "Genisis"
+        pk = create_hash(f"{num}")
 
         for row in ledger:
-            # Structure of transaction: timestamp | type | amount
+            # Structure of transaction: Tid | Ptid | PK | timestamp | type | amount
             datetime = row[0]
             eng_type = row[1]
             kwh_amount = row[2]
+            curr_hash = create_hash(f"{datetime} {eng_type} {kwh_amount}")
 
             blockchain_ledger.append([
+                curr_hash,
+                prev_hash,
+                pk,
                 datetime,
                 eng_type,
                 kwh_amount,
             ])
+            prev_hash = curr_hash
 
         # Save blockchain!
-        header = ['Timestamp', 'Type', 'Amount']
+        header = ['Tid', 'Ptid', 'PK', 'Timestamp', 'Type', 'Amount']
         with open(f'{years[set_num]}_{num+1}_blockchain.csv', 'w', newline='') as csv_out:
             writer = csv.writer(csv_out, delimiter=',')
             writer.writerow(header)
@@ -127,33 +144,28 @@ def combine_years():
         same_ledger_files = [j for j in glob.glob(f'*_{num+1}_blockchain.csv')]
 
         if same_ledger_files:
-            # Open output files
-            with open(f"{num+1}_blockchain.csv", "w", newline='') as combined_out:
-                csv_write_file = csv.writer(combined_out, delimiter=',')
+            combine_sets = []
 
-                # Start with first file to get header write
-                with open(same_ledger_files[0], mode='rt') as read_file:
-                    csv_read_file = csv.reader(read_file, delimiter=',')
-                    csv_write_file.writerows(csv_read_file)
-                os.remove(same_ledger_files[0])
+            for i, ledger_file in enumerate(same_ledger_files):
+                df = pd.read_csv(ledger_file)
+                prev_ending_tid = df['Tid'].iloc[-1]
+                if prev_ending_tid:
+                    df['Tid'].iloc[0] = prev_ending_tid
+                combine_sets.append(df)
+                os.remove(ledger_file)
 
-                # Loop on remaining files to append to first
-                for i in range(1, len(same_ledger_files)):
-                    with open(same_ledger_files[i], mode='rt') as read_file:
-                        csv_read_file = csv.reader(read_file, delimiter=',')
-                        next(csv_read_file) # ignore header
-                        csv_write_file.writerows(csv_read_file)
-
-                    # Remove original files as now combined
-                    os.remove(same_ledger_files[i])
+            combined_year = pd.concat(combine_sets)
+            combined_year.to_csv(f"{num+1}_blockchain.csv", index=False)
 
 
 #################################
-# From daily blockchain output, create weekly and monthly blockchains.
+# From daily blockchain output, create weekly blockchain.
 def create_weekly():
     week_and_type_splits = []
+    prev_hash = "Genisis"
 
     for num in range(num_customers):
+        pk = create_hash(f"{num}")
         print(f"Creating weekly {num+1} ledger")
         df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
         df['Timestamp'] = pd.to_datetime(df['Timestamp'], dayfirst=True)
@@ -169,45 +181,55 @@ def create_weekly():
 
 
 if __name__ == '__main__':
+    # Check usage
+    if not len(sys.argv) == 3:
+        print("Invalid usage: python ./populate_blockchain [hourly] [daily/weekly]")
+        print("Use a true or false indicator for each argument")
+        exit()
+
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
-
-    # Hourly data!
     os.chdir('../OriginalEnergyData/')
-    print(f"Creating {len(datasets)} processes to create hourly blockchains")
-    processes = []
-    for inum, d in enumerate(datasets):
-        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
-        processes.append(p)
-        p.start()
 
-    # Wait for completion
-    for p in processes:
-        p.join()
+    if sys.argv[1]:
+        # Hourly data!
+        print(f"Creating {len(datasets)} processes to create hourly blockchains")
+        processes = []
+        for inum, d in enumerate(datasets):
+            p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, False))
+            processes.append(p)
+            p.start()
 
-    # Combine the files of the same customer number
-    os.chdir('../BlockchainData/Hourly/')
-    combine_years()
+        # Wait for completion
+        for p in processes:
+            p.join()
 
-    # Daily data!
-    os.chdir('../../OriginalEnergyData/')
-    print(f"Creating {len(datasets)} processes to create daily blockchains")
-    processes = []
-    for inum, d in enumerate(datasets):
-        p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
-        processes.append(p)
-        p.start()
+        # Combine the files of the same customer number
+        os.chdir('../BlockchainData/Hourly/')
+        combine_years()
 
-    # Wait for completion
-    for p in processes:
-        p.join()
+    if sys.argv[2]:
+        if sys.argv[1]:
+            os.chdir('../../OriginalEnergyData/')
 
-    # Combine the files of the same customer number
-    os.chdir('../BlockchainData/Daily/')
-    combine_years()
+        # Daily data! #
+        print(f"Creating {len(datasets)} processes to create daily blockchains")
+        processes = []
+        for inum, d in enumerate(datasets):
+            p = multiprocessing.Process(target=wrangle_blockchain_data, name=f"Process {inum}", args=(inum, d, True, True))
+            processes.append(p)
+            p.start()
 
-    # Take daily and create weekly data
-    print(f"Creating weekly blockchains")
-    create_weekly()
+        # Wait for completion
+        for p in processes:
+            p.join()
+
+        # Combine the files of the same customer number
+        os.chdir('../BlockchainData/Daily/')
+        combine_years()
+
+        # Take daily and create weekly data
+        print(f"Creating weekly blockchains")
+        create_weekly()
 
     print(f"Speedy boi now :)")
