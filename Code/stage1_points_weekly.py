@@ -226,11 +226,11 @@ if __name__ == '__main__':
             p.join()
 
     if int(sys.argv[3]):
-        print("Classifying stage 1 weekly data with kNN")
+        print("Classifying stage 1 weekly data with KNN")
         knn(case, True, True)
 
     if int(sys.argv[4]):
-        print("KMEANS CLUSTER")
+        print("Clustering stage 1 weekly data with KMeans")
         kms(case)
 
 # from sklearn.metrics import classification_report, confusion_matrix
