@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_classify_hourly.py [case] [MLP] [LSTM]
+Use: python ./stage1_points_hourly.py [case] [MLP] [LSTM]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for MLP and LSTM arguments
 
@@ -133,7 +133,7 @@ def lstm():
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 4:
-        print("Invalid usage: python ./stage1_classify_hourly.py [case] [MLP] [LSTM]")
+        print("Invalid usage: python ./stage1_points_hourly.py [case] [MLP] [LSTM]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for MLP and LSTM arguments")
         exit()
