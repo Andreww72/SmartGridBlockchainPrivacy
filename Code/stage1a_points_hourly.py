@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_points_weekly.py [case] [MLP] [KNN] [KMS]
+Use: python ./stage1a_points_hourly.py [case] [MLP] [KNN] [KMS]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for MLP and LSTM arguments
 
@@ -45,20 +45,20 @@ import matplotlib.pyplot as plt
 ##         Preprocessing         ##
 ###################################
 def preprocessing(case=1, strip_zeros=False):
-    print("Preprocessing stage 1 weekly data")
+    print("Preprocessing stage 1 hourly data")
 
-    weekly_data = pd.read_csv('0_1a_combined_weekly.csv', header=0)
+    hourly_data = pd.read_csv('0_1a_combined_hourly.csv', header=0)
 
     # Convert categorical columns to numeric
-    weekly_data['Type'] = weekly_data['Type'].astype('category').cat.codes
+    hourly_data['Type'] = hourly_data['Type'].astype('category').cat.codes
 
-    weekly_data['Timestamp'] = pd.to_datetime(weekly_data['Timestamp'], dayfirst=True)
-    weekly_data['Timestamp'] = (weekly_data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
+    hourly_data['Timestamp'] = pd.to_datetime(hourly_data['Timestamp'], dayfirst=True)
+    hourly_data['Timestamp'] = (hourly_data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
     if case == 0:
         print("Preprocessing data for worst case")
         # Drop the PK and hash information
-        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1)
+        hourly_data.drop(['Hash', 'PHash', 'PK'], axis=1)
         # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
     elif case == 1:
         print("Preprocessing data for best case")
@@ -66,17 +66,17 @@ def preprocessing(case=1, strip_zeros=False):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1_points_weekly.py [case] [MLP] [KNN] [KMS]")
+        print("Invalid usage: python ./stage1a_points_hourly.py [case] [MLP] [KNN] [KMS]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for MLP and LSTM arguments")
 
     if strip_zeros:
-        weekly_data = weekly_data[weekly_data['Amount'] != 0]
+        hourly_data = hourly_data[hourly_data['Amount'] != 0]
 
-    x_num = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
-    y_num = weekly_data['Customer']
-    x_post = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
-    y_post = weekly_data['Postcode']
+    x_num = hourly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
+    y_num = hourly_data['Customer']
+    x_post = hourly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
+    y_post = hourly_data['Postcode']
 
     global X_train_num, X_test_num, Y_train_num, Y_test_num
     global X_train_post, X_test_post, Y_train_post, Y_test_post
@@ -111,14 +111,14 @@ def mlp(case, customer, postcode):
         mlp_num = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_num.fit(X_train_num, Y_train_num)
         mlp_predictions_num = mlp_num.predict(X_test_num)
-        print("NN number weekly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
+        print("NN number hourly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
 
     if postcode:
         print("Applying MLP neural network for postcode")
         mlp_post = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_post.fit(X_train_post, Y_train_post)
         mlp_predictions_post = mlp_post.predict(X_test_post)
-        print("NN postcode weekly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post, normalize=True))
+        print("NN postcode hourly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post, normalize=True))
 
 
 ###################################
@@ -141,7 +141,7 @@ def knn(case, customer, postcode):
             result = accuracy_score(Y_test_num, knn_predictions_num)
             results_num.append(result)
         best_k = ks[results_num.index(max(results_num))]
-        print(f"Best KNN number weekly accuracy (k={best_k}:", max(results_num))
+        print(f"Best KNN number hourly accuracy (k={best_k}:", max(results_num))
 
     if postcode:
         print("Applying KNN for postcode")
@@ -152,7 +152,7 @@ def knn(case, customer, postcode):
             result = accuracy_score(Y_test_post, knn_predictions_post)
             results_post.append(result)
         best_k = ks[results_post.index(max(results_post))]
-        print(f"KNN postcode weekly accuracy (k={best_k}:", max(results_post))
+        print(f"KNN postcode hourly accuracy (k={best_k}:", max(results_post))
 
 
 def kms(case):
@@ -200,17 +200,17 @@ def kms(case):
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 5:
-        print("Invalid usage: python ./stage1_points_weekly.py [case] [MLP] [KNN] [KMS]")
+        print("Invalid usage: python ./stage1a_points_hourly.py [case] [MLP] [KNN] [KMS]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for MLP and LSTM arguments")
         exit()
 
     case = int(sys.argv[1])
 
-    os.chdir("../BlockchainData/Weekly")
+    os.chdir("../BlockchainData/Hourly")
 
     if int(sys.argv[2]):
-        print("Classifying stage 1 weekly data with MLP neural network")
+        print("Classifying stage 1 hourly data with MLP neural network")
 
         print("Creating 2 processes for MLP analysis")
         processes = [
@@ -226,11 +226,11 @@ if __name__ == '__main__':
             p.join()
 
     if int(sys.argv[3]):
-        print("Classifying stage 1 weekly data with KNN")
+        print("Classifying stage 1 hourly data with KNN")
         knn(case, True, True)
 
     if int(sys.argv[4]):
-        print("Clustering stage 1 weekly data with KMeans")
+        print("Clustering stage 1 hourly data with KMeans")
         kms(case)
 
 # from sklearn.metrics import classification_report, confusion_matrix
