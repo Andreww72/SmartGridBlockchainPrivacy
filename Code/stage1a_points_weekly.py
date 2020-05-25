@@ -15,8 +15,8 @@ Cases (without obfuscation techniques)
     Best case: Household has one PK, all transactions linked
 
 Classifiers
-    Neural network MLP classification. TODO Investigate changing parameters
-    LSTM single layer network classification. TODO Investigate changing parameters
+    Neural network MLP classification
+    KNN classification
 
 Classify
     Include consumer number, generator, and postcode for training set
@@ -58,7 +58,7 @@ def preprocessing(case=1, strip_zeros=False):
     if case == 0:
         print("Preprocessing data for worst case")
         # Drop the PK and hash information
-        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1)
+        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1, inplace=True)
         # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
     elif case == 1:
         print("Preprocessing data for best case")
@@ -107,18 +107,18 @@ def mlp(case, customer, postcode):
     preprocessing(case, True)
 
     if customer:
-        print("Applying MLP neural network for customer number")
+        print("Applying MLP for customer number")
         mlp_num = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_num.fit(X_train_num, Y_train_num)
         mlp_predictions_num = mlp_num.predict(X_test_num)
-        print("NN number weekly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
+        print("MLP number weekly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
 
     if postcode:
-        print("Applying MLP neural network for postcode")
+        print("Applying MLP for postcode")
         mlp_post = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_post.fit(X_train_post, Y_train_post)
         mlp_predictions_post = mlp_post.predict(X_test_post)
-        print("NN postcode weekly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post, normalize=True))
+        print("MLP postcode weekly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post, normalize=True))
 
 
 ###################################
@@ -155,6 +155,9 @@ def knn(case, customer, postcode):
         print(f"KNN postcode weekly accuracy (k={best_k}:", max(results_post))
 
 
+###################################
+##        Cluster KMeans         ##
+###################################
 def kms(case):
     preprocessing(case, False)
 
@@ -188,7 +191,7 @@ def kms(case):
     plt.scatter(centroids[:, 0], centroids[:, 1],
                 marker='.', s=169, linewidths=2,
                 color='r', zorder=10)
-    plt.title('K-means clustering (PCA-reduced data)\n'
+    plt.title('K-means 100 clusters (PCA-reduced data)\n'
               'Centroids are marked with red dot')
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
@@ -210,7 +213,7 @@ if __name__ == '__main__':
     os.chdir("../BlockchainData/Weekly")
 
     if int(sys.argv[2]):
-        print("Classifying stage 1 weekly data with MLP neural network")
+        print("Classifying stage 1 weekly data with MLP")
 
         print("Creating 2 processes for MLP analysis")
         processes = [
@@ -232,9 +235,3 @@ if __name__ == '__main__':
     if int(sys.argv[4]):
         print("Clustering stage 1 weekly data with KMeans")
         kms(case)
-
-# from sklearn.metrics import classification_report, confusion_matrix
-# print(confusion_matrix(Y_test_num, predictions_num_nn))
-# print(classification_report(Y_test_num, predictions_num_nn))
-# print(confusion_matrix(Y_test_post, predictions_post_nn))
-# print(classification_report(Y_test_post, predictions_post_nn))
