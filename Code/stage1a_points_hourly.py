@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1a_points_hourly.py [case] [MLP] [KNN] [KMS]
+Use: python ./stage1a_points_hourly.py [case] [year] [MLP] [KNN] [KMS]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
@@ -44,10 +44,16 @@ import matplotlib.pyplot as plt
 ###################################
 ##         Preprocessing         ##
 ###################################
-def preprocessing(case=1, strip_zeros=False):
+def preprocessing(case=1, strip_zeros=False, year=0):
     print("Preprocessing stage 1 hourly data")
+    hourly_data = []
 
-    hourly_data = pd.read_csv('0_1a_combined_hourly.csv', header=0)
+    if year == 0:
+        hourly_data = pd.read_csv('0_1a_combined_hourly_2010-11.csv', header=0)
+    elif year == 1:
+        hourly_data = pd.read_csv('0_1a_combined_hourly_2011-12.csv', header=0)
+    elif year == 2:
+        hourly_data = pd.read_csv('0_1a_combined_hourly_2012-13.csv', header=0)
 
     # Convert categorical columns to numeric
     hourly_data['Type'] = hourly_data['Type'].astype('category').cat.codes
@@ -66,7 +72,7 @@ def preprocessing(case=1, strip_zeros=False):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1a_points_hourly.py [case] [MLP] [KNN] [KMS]")
+        print("Invalid usage: python ./stage1a_points_hourly.py [case] [year] [MLP] [KNN] [KMS]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
 
@@ -103,8 +109,8 @@ def preprocessing(case=1, strip_zeros=False):
 ###################################
 ##         Classify MLP          ##
 ###################################
-def mlp(case, customer, postcode):
-    preprocessing(case, True)
+def mlp(case, year, customer, postcode):
+    preprocessing(case, year, True)
 
     if customer:
         print("Applying MLP for customer")
@@ -124,35 +130,26 @@ def mlp(case, customer, postcode):
 ###################################
 ##         Classify KNN          ##
 ###################################
-def knn(case, customer, postcode):
-    ks = [1, 3, 5, 10, 20, 50]
-    results_num = []
-    results_post = []
+def knn(case, year, customer, postcode):
 
-    print(f"KNN with k values: {ks}")
-    preprocessing(case, False)
+    print("KNN with k values 1 and 50")
+    preprocessing(case, year, False)
 
     if customer:
         print("Applying KNN for customer")
-        for k in ks:
-            knn_num = KNeighborsClassifier(n_neighbors=k)
-            knn_num.fit(X_train_num, Y_train_num)
-            knn_predictions_num = knn_num.predict(X_test_num)
-            result = accuracy_score(Y_test_num, knn_predictions_num)
-            results_num.append(result)
-        best_k = ks[results_num.index(max(results_num))]
-        print(f"Best KNN number hourly accuracy (k={best_k}:", max(results_num))
+        knn_num = KNeighborsClassifier(n_neighbors=1)
+        knn_num.fit(X_train_num, Y_train_num)
+        knn_predictions_num = knn_num.predict(X_test_num)
+        result = accuracy_score(Y_test_num, knn_predictions_num)
+        print(f"Best KNN number hourly accuracy (k=1: {max(result)}")
 
     if postcode:
         print("Applying KNN for postcode")
-        for k in ks:
-            knn_post = KNeighborsClassifier(n_neighbors=k)
-            knn_post.fit(X_train_post, Y_train_post)
-            knn_predictions_post = knn_post.predict(X_test_post)
-            result = accuracy_score(Y_test_post, knn_predictions_post)
-            results_post.append(result)
-        best_k = ks[results_post.index(max(results_post))]
-        print(f"KNN postcode hourly accuracy (k={best_k}:", max(results_post))
+        knn_post = KNeighborsClassifier(n_neighbors=50)
+        knn_post.fit(X_train_post, Y_train_post)
+        knn_predictions_post = knn_post.predict(X_test_post)
+        result = accuracy_score(Y_test_post, knn_predictions_post)
+        print(f"KNN postcode hourly accuracy (k=50: {max(result)}")
 
 
 ###################################
@@ -202,36 +199,37 @@ def kms(case):
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 5:
-        print("Invalid usage: python ./stage1a_points_hourly.py [case] [MLP] [KNN] [KMS]")
+    if not len(sys.argv) == 6:
+        print("Invalid usage: python ./stage1a_points_hourly.py [case] [year] [MLP] [KNN] [KMS]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
         exit()
 
     case = int(sys.argv[1])
+    year = int(sys.argv[2])
 
     os.chdir("../BlockchainData/Hourly")
 
-    if int(sys.argv[2]):
+    if int(sys.argv[3]):
         print("Classifying stage 1 hourly data with MLP")
 
         print("Creating 2 processes for MLP analysis")
         processes = [
             multiprocessing.Process(target=mlp,
                                     name="Process Customer",
-                                    args=(case, True, False)),
+                                    args=(case, year, True, False)),
             multiprocessing.Process(target=mlp,
                                     name="Process Postcode",
-                                    args=(case, False, True))]
+                                    args=(case, year, False, True))]
         for p in processes:
             p.start()
         for p in processes:
             p.join()
 
-    if int(sys.argv[3]):
+    if int(sys.argv[4]):
         print("Classifying stage 1 hourly data with KNN")
         knn(case, True, True)
 
-    if int(sys.argv[4]):
+    if int(sys.argv[5]):
         print("Clustering stage 1 hourly data with KMeans")
         kms(case)

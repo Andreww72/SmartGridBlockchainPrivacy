@@ -55,9 +55,27 @@ def hourly():
 
         hourly_to_combine.append(df)
 
-    print(f"Concatenate and save hourly")
+    print("Concatenate hourly")
     combined_hourly = pd.concat(hourly_to_combine)
-    combined_hourly.to_csv('0_1a_combined_hourly.csv', index=False)
+    print("Convert timestamp str to timestamp for spitting")
+    combined_hourly['Timestamp'] = pd.to_datetime(combined_hourly['Timestamp'], dayfirst=True)
+
+    print("Splitting and saving hourly")
+    # Hourly data is unmanageable when all together, split into financial years
+    split_year = combined_hourly[
+        (combined_hourly['Timestamp'] >= pd.Timestamp(2010, 7, 1)) &
+        (combined_hourly['Timestamp'] <= pd.Timestamp(2011, 6, 30))]
+    split_year.to_csv('0_1a_combined_hourly_2010-11.csv', index=False)
+
+    split_year = combined_hourly[
+        (combined_hourly['Timestamp'] >= pd.Timestamp(2011, 7, 1)) &
+        (combined_hourly['Timestamp'] <= pd.Timestamp(2012, 6, 30))]
+    split_year.to_csv('0_1a_combined_hourly_2011-12.csv', index=False)
+
+    split_year = combined_hourly[
+        (combined_hourly['Timestamp'] >= pd.Timestamp(2012, 7, 1)) &
+        (combined_hourly['Timestamp'] <= pd.Timestamp(2013, 6, 30))]
+    split_year.to_csv('0_1a_combined_hourly_2012-13.csv', index=False)
 
 
 ###################################
