@@ -9,9 +9,9 @@ Use: python ./stage1a_points_hourly.py [case] [year] [MLP] [KNN] [KMS]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
-Cases (without obfuscation techniques)
+Cases
     Worst case: Households use a new PK every transaction, no links between transactions
-    TODO Realistic cases: Households change PKs at some interval, those on same PK are linked
+    Obfuscation cases: Households change PKs at some interval, those on same PK are linked
     Best case: Household has one PK, all transactions linked
 
 Classifiers
@@ -141,7 +141,7 @@ def knn(case, year, customer, postcode):
         knn_num.fit(X_train_num, Y_train_num)
         knn_predictions_num = knn_num.predict(X_test_num)
         result = accuracy_score(Y_test_num, knn_predictions_num)
-        print(f"Best KNN number hourly accuracy (k=1: {max(result)}")
+        print(f"Best KNN number hourly accuracy (k=1: {result}")
 
     if postcode:
         print("Applying KNN for postcode")
@@ -149,14 +149,14 @@ def knn(case, year, customer, postcode):
         knn_post.fit(X_train_post, Y_train_post)
         knn_predictions_post = knn_post.predict(X_test_post)
         result = accuracy_score(Y_test_post, knn_predictions_post)
-        print(f"KNN postcode hourly accuracy (k=50: {max(result)}")
+        print(f"KNN postcode hourly accuracy (k=50: {result}")
 
 
 ###################################
 ##        Cluster KMeans         ##
 ###################################
-def kms(case):
-    preprocessing(case, False)
+def kms(case, year):
+    preprocessing(case, year, False)
 
     clusters = 100
     reduced_data = PCA(n_components=2).fit_transform(X_train_num)
@@ -228,8 +228,8 @@ if __name__ == '__main__':
 
     if int(sys.argv[4]):
         print("Classifying stage 1 hourly data with KNN")
-        knn(case, True, True)
+        knn(case, year, True, True)
 
     if int(sys.argv[5]):
         print("Clustering stage 1 hourly data with KMeans")
-        kms(case)
+        kms(case, year)

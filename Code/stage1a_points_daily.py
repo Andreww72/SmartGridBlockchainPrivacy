@@ -9,9 +9,9 @@ Use: python ./stage1a_points_daily.py [case] [MLP] [KNN] [KMS]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
-Cases (without obfuscation techniques)
+Cases
     Worst case: Households use a new PK every transaction, no links between transactions
-    TODO Realistic cases: Households change PKs at some interval, those on same PK are linked
+    Obfuscation cases: Households change PKs at some interval, those on same PK are linked
     Best case: Household has one PK, all transactions linked
 
 Classifiers

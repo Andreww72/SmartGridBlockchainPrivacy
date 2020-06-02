@@ -8,10 +8,10 @@ ML data preparation for analysis
 Use: python ./stage1a_prep.py [hourly] [daily] [weekly]
 Use a 1 or 0 indicator for each argument
 
-Cases (without obfuscation techniques)
+Cases
     Worst case: Households use a new PK every transaction, no links between transactions
-    TODO Realistic cases: Households change PKs at some interval, those on same PK are linked
-    TODO Best case: Household has one PK, all transactions linked
+    Obfuscation cases: Households change PKs at some interval, those on same PK are linked
+    Best case: Household has one PK, all transactions linked
 
 Classifiers
     Neural network MLP classification. TODO Investigate changing parameters

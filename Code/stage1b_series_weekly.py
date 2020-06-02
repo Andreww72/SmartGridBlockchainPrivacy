@@ -10,7 +10,7 @@ Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
 Cases (without obfuscation techniques)
-    Worst case: Cannot perform this clustering
+    TODO Worst case: Cannot perform this clustering
     TODO Realistic cases: Households change PKs at some interval, those on same PK are linked. Train on first two years, test on third. Instead of random split.
     TODO Best case: Household has one PK, all transactions linked
 
