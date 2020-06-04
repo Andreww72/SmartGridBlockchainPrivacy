@@ -43,7 +43,7 @@ def half_hourly():
     # Can include customer two for classification
     # Loop on remaining files to append to first
     for num in range(num_customers):
-        print(f"Load and adjust hourly {num+1}")
+        print(f"Load and adjust half hourly {num+1}")
         df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
 
         # Add columns needed
@@ -56,27 +56,27 @@ def half_hourly():
 
         half_hourly_to_combine.append(df)
 
-    print("Concatenate hourly")
+    print("Concatenate half hourly")
     combined_half_hourly = pd.concat(half_hourly_to_combine)
     print("Convert timestamp str to timestamp for spitting")
     combined_half_hourly['Timestamp'] = pd.to_datetime(combined_half_hourly['Timestamp'], dayfirst=True)
 
-    print("Splitting and saving hourly")
+    print("Splitting and saving half hourly")
     # Hourly data is unmanageable when all together, split into financial years
     split_year = combined_half_hourly[
         (combined_half_hourly['Timestamp'] >= pd.Timestamp(2010, 7, 1)) &
         (combined_half_hourly['Timestamp'] <= pd.Timestamp(2011, 6, 30))]
-    split_year.to_csv('0_1a_combined_hourly_2010-11.csv', index=False)
+    split_year.to_csv('0_1a_combined_half_hourly_2010-11.csv', index=False)
 
     split_year = combined_half_hourly[
         (combined_half_hourly['Timestamp'] >= pd.Timestamp(2011, 7, 1)) &
         (combined_half_hourly['Timestamp'] <= pd.Timestamp(2012, 6, 30))]
-    split_year.to_csv('0_1a_combined_hourly_2011-12.csv', index=False)
+    split_year.to_csv('0_1a_combined_half_hourly_2011-12.csv', index=False)
 
     split_year = combined_half_hourly[
         (combined_half_hourly['Timestamp'] >= pd.Timestamp(2012, 7, 1)) &
         (combined_half_hourly['Timestamp'] <= pd.Timestamp(2013, 6, 30))]
-    split_year.to_csv('0_1a_combined_hourly_2012-13.csv', index=False)
+    split_year.to_csv('0_1a_combined_half_hourly_2012-13.csv', index=False)
 
 
 ###################################
@@ -184,13 +184,14 @@ if __name__ == '__main__':
         exit()
 
     extra_info = pd.read_csv(f"../OriginalEnergyData/Solutions.csv", header=0)
-    os.chdir("../BlockchainData/Hourly")
+    os.chdir("../BlockchainData/HalfHourly")
 
     if int(sys.argv[1]):
         print("Preparing hourly data")
         half_hourly()
 
     if int(sys.argv[2]):
+        os.chdir("../Hourly")
         print("Preparing hourly data")
         hourly()
 
