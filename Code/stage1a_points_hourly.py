@@ -37,7 +37,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import classification_report, accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 ###################################
@@ -131,6 +133,12 @@ def mlp(case, year, customer, postcode):
 ###################################
 def forest(case, customer, postcode):
     preprocessing(case, True)
+    features = []
+
+    if case == 0:
+        features = ['Timestamp', 'Type', 'Amount']
+    elif case == 1:
+        features = ['Hash', 'PHash', 'PK', 'Timestamp', 'Type', 'Amount']
 
     if customer:
         print("Applying forest for customer")
@@ -139,20 +147,39 @@ def forest(case, customer, postcode):
         forest_predictions_num = np.round(forest_num.predict(X_test_num))
 
         print("Forest customer hourly accuracy information")
-        #print(confusion_matrix(Y_test_num, forest_predictions_num))
-        #print(classification_report(Y_test_num, forest_predictions_num))
+        print(classification_report(Y_test_num, forest_predictions_num))
         print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
+        print(forest_num.feature_importances_)
+        feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
+
+        # Creating a bar plot
+        sns.barplot(x=feature_imp, y=feature_imp.index)
+        # Add labels to your graph
+        plt.xlabel('Feature Importance Score')
+        plt.ylabel('Features')
+        plt.title("RF Hourly Customer")
+        plt.legend()
+        plt.show()
 
     if postcode:
         print("Applying forest for postcode")
         forest_post = RandomForestRegressor(n_estimators=20, random_state=0)
         forest_post.fit(X_train_post, Y_train_post)
         forest_predictions_post = np.round(forest_post.predict(X_test_post))
-        print(forest_predictions_post)
+
         print("Forest postcode hourly accuracy information")
-        #print(confusion_matrix(Y_test_post, forest_predictions_post))
-        #print(classification_report(Y_test_post, forest_predictions_post))
+        print(classification_report(Y_test_post, forest_predictions_post))
         print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
+        feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
+
+        # Creating a bar plot
+        sns.barplot(x=feature_imp, y=feature_imp.index)
+        # Add labels to your graph
+        plt.xlabel('Feature Importance Score')
+        plt.ylabel('Features')
+        plt.title("RF Hourly Postcode")
+        plt.legend()
+        plt.show()
 
 
 ###################################
