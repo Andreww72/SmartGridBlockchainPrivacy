@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1a_points_weekly.py [case] [MLP] [FOR] [KNN]
+Use: python ./stage1_points_weekly.py [case] [MLP] [FOR] [KNN] [LSTM]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
@@ -18,6 +18,8 @@ Classifiers
     Neural network MLP classification
     Random forest classification
     KNN classification
+    LSTM classification
+    Cointegration analysis
 
 Classify
     Include consumer number, generator, and postcode for training set
@@ -37,6 +39,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
+from keras.models import Sequential
+from keras.layers import Dense, LSTM, SpatialDropout1D
+from keras.callbacks import EarlyStopping
 from sklearn.metrics import classification_report, accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -59,7 +64,7 @@ def preprocessing(case=1, strip_zeros=False):
     if case == 0:
         print("Preprocessing data for worst case")
         # Drop the PK and hash information
-        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1, inplace=True)
+        weekly_data.drop(['PK'], axis=1, inplace=True)
         # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
     elif case == 1:
         print("Preprocessing data for best case")
@@ -67,7 +72,7 @@ def preprocessing(case=1, strip_zeros=False):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1a_points_weekly.py [case] [MLP] [FOR] [KNN]")
+        print("Invalid usage: python ./stage1_points_weekly.py [case] [MLP] [FOR] [KNN] [LSTM]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
 
@@ -210,10 +215,69 @@ def knn(case, customer, postcode):
         print(f"Best KNN postcode weekly accuracy (k={best_k}:", max(results_post))
 
 
+###################################
+##         Classify LSTM         ##
+###################################
+def lstm(case, customer, postcode):
+    # LSTM neural network
+    preprocessing(case, True)
+
+    if customer:
+        print("Applying LSTM for customer")
+
+        X_reshaped = X_train_num.reshape(-1, X_train_num.shape[0], X_train_num.shape[1])
+        Y_reshaped = Y_train_num.reshape(-1, Y_train_num.shape[0], Y_train_num.shape[1])
+
+        model = Sequential()
+        model.add(LSTM(100, input_shape=(X_train_num.shape[0], X_train_num.shape[1]), return_sequences=True))
+        model.add(LSTM(5, input_shape=(X_train_num.shape[0], X_train_num.shape[1]), return_sequences=True))
+
+        # model = Sequential()
+        # model.add(SpatialDropout1D(0.2))
+        # model.add(LSTM(100, dropout=0.2, return_sequences=True, recurrent_dropout=0.2))
+        # model.add(Dense(13, activation='softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+        model.fit(X_reshaped, Y_reshaped, epochs=3, batch_size=64, validation_split=0.1,
+                  callbacks=[EarlyStopping(monitor='val_loss', patience=3, min_delta=0.0001)])
+        accr = model.evaluate(X_test_num, Y_test_num)
+        print('Test set\n  Loss: {:0.3f}\n  Accuracy: {:0.3f}'.format(accr[0], accr[1]))
+
+    # if postcode:
+    #     print("Applying LSTM for postcode")
+    #     lstm_post = Sequential()
+    #     lstm_post.add(LSTM(units=50, input_shape=(X_train_post.shape[1], 1, 1)))
+    #     lstm_post.add(LSTM(units=50))
+    #     lstm_post.add(Dense(1))
+    #     lstm_post.compile(loss='mean_squared_error', optimizer='adadelta')
+    #     lstm_post.fit(X_train_post, Y_train_post, epochs=3, batch_size=1, verbose=2)
+    #     lstm_predictions_post = lstm_post.predict(X_test_post)
+    #     print(accuracy_score(Y_test_post, lstm_predictions_post, normalize=True))
+
+
+###################################
+##         Cointegration         ##
+###################################
+def coint(case, customer, postcode):
+    import statsmodels.tsa.stattools as ts
+
+    data1 = web.DataReader('FB', data_source='yahoo',start='4/4/2015', end='4/4/2016')
+    data2 = web.DataReader('AAPL', data_source='yahoo',start='4/4/2015', end='4/4/2016')
+
+    data1['key'] = data1.index
+    data2['key'] = data2.index
+    result = pd.merge(data1, data2, on='key')
+
+    x1 = result['Close_x']
+    y1 = result['Close_y']
+    coin_result = ts.coint(x1, y1)
+    print(coin_result)
+
+
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 5:
-        print("Invalid usage: python ./stage1a_points_weekly.py [case] [MLP] [FOR] [KNN]")
+    if not len(sys.argv) == 6:
+        print("Invalid usage: python ./stage1_points_weekly.py [case] [MLP] [FOR] [KNN] [LSTM]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
         exit()
@@ -257,6 +321,20 @@ if __name__ == '__main__':
                                     name="KNN Customer",
                                     args=(case, True, False)),
             multiprocessing.Process(target=knn,
+                                    name="Process Postcode",
+                                    args=(case, False, True))]
+        for p in processes:
+            p.start()
+        for p in processes:
+            p.join()
+
+    if int(sys.argv[5]):
+        print("Classifying stage 1 weekly data with LSTM")
+        processes = [
+            multiprocessing.Process(target=lstm,
+                                    name="KNN Customer",
+                                    args=(case, True, False)),
+            multiprocessing.Process(target=lstm,
                                     name="Process Postcode",
                                     args=(case, False, True))]
         for p in processes:
