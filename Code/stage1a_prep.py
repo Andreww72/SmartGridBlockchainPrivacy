@@ -5,7 +5,7 @@
 ML data preparation for analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1a_prep.py [hourly] [daily] [weekly]
+Use: python ./stage1a_prep.py [half-hourly] [hourly] [daily] [weekly]
 Use a 1 or 0 indicator for each argument
 
 Cases
@@ -14,13 +14,14 @@ Cases
     Best case: Household has one PK, all transactions linked
 
 Classifiers
-    Neural network MLP classification. TODO Investigate changing parameters
-    LSTM single layer network classification. TODO Investigate changing parameters
+    Neural network MLP classification
+    Random forest classification
+    KNN classification
 
 Classify
     Include consumer number, generator, and postcode for training set
     Drop those three from the test set
-    Predictions for a) hourly, b) daily, & c) weekly
+    Predictions for a) half-hourly, b) hourly, c) daily, & d) weekly
         Predictions for i) consumer number, ii) postcode
 """
 
@@ -32,6 +33,50 @@ import pandas as pd
 generator_col = 1
 postcode_col = 2
 num_customers = 300
+
+
+###################################
+##   Prepare half hourly data    ##
+###################################
+def half_hourly():
+    half_hourly_to_combine = []
+    # Can include customer two for classification
+    # Loop on remaining files to append to first
+    for num in range(num_customers):
+        print(f"Load and adjust hourly {num+1}")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+
+        # Add columns needed
+        row_count = df.shape[0]
+        postcode = extra_info.iloc[num, postcode_col]
+        generator = extra_info.iloc[num, generator_col]
+        df.insert(loc=0, column='Customer', value=[num+1] * row_count)
+        df.insert(loc=1, column='Postcode', value=[postcode] * row_count)
+        df.insert(loc=2, column='Generator', value=[generator] * row_count)
+
+        half_hourly_to_combine.append(df)
+
+    print("Concatenate hourly")
+    combined_half_hourly = pd.concat(half_hourly_to_combine)
+    print("Convert timestamp str to timestamp for spitting")
+    combined_half_hourly['Timestamp'] = pd.to_datetime(combined_half_hourly['Timestamp'], dayfirst=True)
+
+    print("Splitting and saving hourly")
+    # Hourly data is unmanageable when all together, split into financial years
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2010, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2011, 6, 30))]
+    split_year.to_csv('0_1a_combined_hourly_2010-11.csv', index=False)
+
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2011, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2012, 6, 30))]
+    split_year.to_csv('0_1a_combined_hourly_2011-12.csv', index=False)
+
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2012, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2013, 6, 30))]
+    split_year.to_csv('0_1a_combined_hourly_2012-13.csv', index=False)
 
 
 ###################################
@@ -133,8 +178,8 @@ def weekly():
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 4:
-        print("Use: python ./stage1a_prep.py [hourly] [daily] [weekly]")
+    if not len(sys.argv) == 5:
+        print("Use: python ./stage1a_prep.py [half-hourly] [hourly] [daily] [weekly]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
@@ -143,14 +188,18 @@ if __name__ == '__main__':
 
     if int(sys.argv[1]):
         print("Preparing hourly data")
-        hourly()
+        half_hourly()
 
     if int(sys.argv[2]):
+        print("Preparing hourly data")
+        hourly()
+
+    if int(sys.argv[3]):
         os.chdir("../Daily")
         print("Preparing daily data")
         daily()
 
-    if int(sys.argv[3]):
+    if int(sys.argv[4]):
         os.chdir("../Weekly")
         print("Preparing weekly data")
         weekly()

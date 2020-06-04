@@ -5,7 +5,7 @@
 Wrangle the energy data into a format resembling what would be available publicly on a blockchain ledger.
 Warning this will take while despite running in parallel :)
 
-Use: python ./populate_blockchain.py [hourly] [daily/weekly]
+Use: python ./populate_blockchain.py [half-hourly] [hourly] [daily+weekly]
 Use a 1 or 0 indicator for each argument
 """
 
@@ -28,7 +28,7 @@ def create_hash(s):
     return int(hashlib.sha256(s.encode('utf-8')).hexdigest(), 16) % 10 ** 12
 
 
-def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
+def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, freq=0):
     # Load original energy data
     print(f"Process {os.getpid()} loading {dataset}")
     pid = os.getpid()
@@ -60,18 +60,23 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
 
             # If house has no solar production data, add blanks to create same length data sets
             if incl_zeroes and (eng_type == 'GC' and prev_type == 'GG' or (not prev_type and not eng_type == 'CL')):
-                if daily:
+                if freq == 2: # Daily
                     datetime = f"{row[date_col]}"
                     wrangled_ledger.append([datetime, 'CL', 0])
-                else:
+                elif freq == 1: # Hourly
                     for i in range(24):  # 0 to 24
                         datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
                         wrangled_ledger.append([datetime, 'CL', 0])
+                elif freq == 0: # Half hourly
+                    for i in range(48):  # 0 to 48
+                        datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + i]}"
+                        wrangled_ledger.append([datetime, 'CL', 0])
+
             prev_type = row[type_col]
 
             # For each column of times during a day (48 half hour periods)
             kwh_amount = 0
-            if daily:
+            if freq == 2:
                 # Combine half hourly into daily data
                 datetime = f"{row[date_col]}"
                 for j in range(48):
@@ -79,11 +84,19 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
 
                 if incl_zeroes or (not incl_zeroes and kwh_amount > 0):
                     wrangled_ledger.append([datetime, eng_type, kwh_amount])
-            else:
+            elif freq == 1:
                 # Combine half hourly into hourly data
-                for i in range(24):  # 0 to 24
+                for i in range(24):
                     kwh_amount = round(row[first_kwh_col + 2 * i] + row[first_kwh_col + 2 * i + 1], 3)
                     datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + 2 * i]}"
+
+                    if incl_zeroes or (not incl_zeroes and kwh_amount > 0):
+                        wrangled_ledger.append([datetime, eng_type, kwh_amount])
+
+            elif freq == 0:
+                for i in range(48):
+                    kwh_amount = round(row[first_kwh_col + i], 3)
+                    datetime = f"{row[date_col]} {energy_data_header[first_kwh_col + i]}"
 
                     if incl_zeroes or (not incl_zeroes and kwh_amount > 0):
                         wrangled_ledger.append([datetime, eng_type, kwh_amount])
@@ -93,10 +106,13 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, daily=False):
 
     #################################
     # Second, populate the blockchain
-    if daily:
+    if freq == 2:
         os.chdir('../BlockchainData/Daily')
-    else:
+    elif freq == 1:
         os.chdir('../BlockchainData/Hourly')
+    elif freq == 0:
+        os.chdir('../BlockchainData/HalfHourly')
+
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
         blockchain_ledger = []
@@ -198,11 +214,13 @@ def create_weekly():
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 3:
-        print("Invalid usage: python ./populate_blockchain.py [hourly] [daily/weekly]")
+    if not len(sys.argv) == 4:
+        print("Invalid usage: python ./populate_blockchain.py [half-hourly] [hourly] [daily+weekly]")
         print("Use a true or false indicator for each argument")
         exit()
 
+    if not os.path.exists('../BlockchainData/HalfHourly'):
+        os.makedirs('../BlockchainData/HalfHourly')
     if not os.path.exists('../BlockchainData/Hourly'):
         os.makedirs('../BlockchainData/Hourly')
     if not os.path.exists('../BlockchainData/Daily'):
@@ -215,13 +233,35 @@ if __name__ == '__main__':
     os.chdir('../OriginalEnergyData/')
 
     if int(sys.argv[1]):
+        # Half hourly data!
+        print(f"Creating {len(datasets)} processes to create half hourly blockchains")
+        processes = []
+        for inum, d in enumerate(datasets):
+            p = multiprocessing.Process(target=wrangle_blockchain_data,
+                                        name=f"Process {inum}",
+                                        args=(inum, d, True, 0))
+            processes.append(p)
+            p.start()
+
+        # Wait for completion
+        for p in processes:
+            p.join()
+
+        # Combine the files of the same customer number
+        os.chdir('../BlockchainData/HalfHourly/')
+        combine_years()
+
+    if int(sys.argv[2]):
+        if int(sys.argv[1]):
+            os.chdir('../../OriginalEnergyData/')
+
         # Hourly data!
         print(f"Creating {len(datasets)} processes to create hourly blockchains")
         processes = []
         for inum, d in enumerate(datasets):
             p = multiprocessing.Process(target=wrangle_blockchain_data,
                                         name=f"Process {inum}",
-                                        args=(inum, d, True, False))
+                                        args=(inum, d, True, 1))
             processes.append(p)
             p.start()
 
@@ -233,8 +273,8 @@ if __name__ == '__main__':
         os.chdir('../BlockchainData/Hourly/')
         combine_years()
 
-    if int(sys.argv[2]):
-        if int(sys.argv[1]):
+    if int(sys.argv[3]):
+        if int(sys.argv[1]) or int(sys.argv[2]):
             os.chdir('../../OriginalEnergyData/')
 
         # Daily data! #
@@ -243,7 +283,7 @@ if __name__ == '__main__':
         for inum, d in enumerate(datasets):
             p = multiprocessing.Process(target=wrangle_blockchain_data,
                                         name=f"Process {inum}",
-                                        args=(inum, d, True, True))
+                                        args=(inum, d, True, 2))
             processes.append(p)
             p.start()
 
