@@ -5,7 +5,7 @@
 ML data preparation for analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1a_prep.py [half-hourly] [hourly] [daily] [weekly]
+Use: python ./stage1_prep.py [half-hourly] [hourly] [daily] [weekly]
 Use a 1 or 0 indicator for each argument
 
 Cases
@@ -179,7 +179,7 @@ def weekly():
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 5:
-        print("Use: python ./stage1a_prep.py [half-hourly] [hourly] [daily] [weekly]")
+        print("Use: python ./stage1_prep.py [half-hourly] [hourly] [daily] [weekly]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
