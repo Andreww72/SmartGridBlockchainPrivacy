@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1a_points_weekly.py [case] [MLP] [KNN] [KMS]
+Use: python ./stage1a_points_weekly.py [case] [MLP] [FOR] [KNN]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
@@ -16,12 +16,13 @@ Cases
 
 Classifiers
     Neural network MLP classification
+    Random forest classification
     KNN classification
 
 Classify
     Include consumer number, generator, and postcode for training set
     Drop those three from the test set
-    Predictions for a) hourly, b) daily, & c) weekly
+    Predictions for a) half-hourly, b) hourly, c) daily, & d) weekly
         Predictions for i) consumer number, ii) postcode
 """
 
@@ -34,11 +35,9 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 
 ###################################
@@ -66,7 +65,7 @@ def preprocessing(case=1, strip_zeros=False):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1a_points_weekly.py [case] [MLP] [KNN] [KMS]")
+        print("Invalid usage: python ./stage1a_points_weekly.py [case] [MLP] [FOR] [KNN]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
 
@@ -107,7 +106,7 @@ def mlp(case, customer, postcode):
     preprocessing(case, True)
 
     if customer:
-        print("Applying MLP for customer number")
+        print("Applying MLP for customer")
         mlp_num = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_num.fit(X_train_num, Y_train_num)
         mlp_predictions_num = mlp_num.predict(X_test_num)
@@ -122,6 +121,35 @@ def mlp(case, customer, postcode):
 
 
 ###################################
+##        Classify Forest        ##
+###################################
+def forest(case, customer, postcode):
+    preprocessing(case, True)
+
+    if customer:
+        print("Applying forest for customer")
+        forest_num = RandomForestRegressor(n_estimators=20, random_state=0)
+        forest_num.fit(X_train_num, Y_train_num)
+        forest_predictions_num = np.round(forest_num.predict(X_test_num))
+
+        print("Forest customer weekly accuracy information")
+        #print(confusion_matrix(Y_test_num, forest_predictions_num))
+        #print(classification_report(Y_test_num, forest_predictions_num))
+        print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
+
+    if postcode:
+        print("Applying forest for postcode")
+        forest_post = RandomForestRegressor(n_estimators=20, random_state=0)
+        forest_post.fit(X_train_post, Y_train_post)
+        forest_predictions_post = np.round(forest_post.predict(X_test_post))
+        print(forest_predictions_post)
+        print("Forest postcode weekly accuracy information")
+        #print(confusion_matrix(Y_test_post, forest_predictions_post))
+        #print(classification_report(Y_test_post, forest_predictions_post))
+        print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
+
+
+###################################
 ##         Classify KNN          ##
 ###################################
 def knn(case, customer, postcode):
@@ -130,7 +158,7 @@ def knn(case, customer, postcode):
     results_post = []
 
     print(f"KNN with k values: {ks}")
-    preprocessing(case, False)
+    preprocessing(case, True)
 
     if customer:
         print("Applying KNN for customer")
@@ -155,55 +183,10 @@ def knn(case, customer, postcode):
         print(f"KNN postcode weekly accuracy (k={best_k}:", max(results_post))
 
 
-###################################
-##        Cluster KMeans         ##
-###################################
-def kms(case):
-    preprocessing(case, False)
-
-    clusters = 100
-    reduced_data = PCA(n_components=2).fit_transform(X_train_num)
-    kmeans = KMeans(init='k-means++', n_clusters=clusters, n_init=10)
-    kmeans.fit(reduced_data)
-
-    # Step size of the mesh. Decrease to increase the quality of the VQ.
-    h = .02  # point in the mesh [x_min, x_max]x[y_min, y_max].
-
-    # Plot the decision boundary. For that, we will assign a color to each
-    x_min, x_max = reduced_data[:, 0].min() - 1, reduced_data[:, 0].max() + 1
-    y_min, y_max = reduced_data[:, 1].min() - 1, reduced_data[:, 1].max() + 1
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-
-    # Obtain labels for each point in mesh. Use last trained model.
-    Z = kmeans.predict(np.c_[xx.ravel(), yy.ravel()])
-
-    # Put the result into a color plot
-    Z = Z.reshape(xx.shape)
-    plt.figure(1)
-    plt.clf()
-    plt.imshow(Z, interpolation='nearest',
-               extent=(xx.min(), xx.max(), yy.min(), yy.max()),
-               aspect='auto', origin='lower')
-
-    plt.plot(reduced_data[:, 0], reduced_data[:, 1], 'k.', markersize=2)
-    # Plot the centroids as a red .
-    centroids = kmeans.cluster_centers_
-    plt.scatter(centroids[:, 0], centroids[:, 1],
-                marker='.', s=169, linewidths=2,
-                color='r', zorder=10)
-    plt.title('K-means 100 clusters (PCA-reduced data)\n'
-              'Centroids are marked with red dot')
-    plt.xlim(x_min, x_max)
-    plt.ylim(y_min, y_max)
-    plt.xticks(())
-    plt.yticks(())
-    plt.show()
-
-
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 5:
-        print("Invalid usage: python ./stage1a_points_weekly.py [case] [MLP] [KNN] [KMS]")
+        print("Invalid usage: python ./stage1a_points_weekly.py [case] [MLP] [FOR] [KNN]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
         exit()
@@ -214,14 +197,12 @@ if __name__ == '__main__':
 
     if int(sys.argv[2]):
         print("Classifying stage 1 weekly data with MLP")
-
-        print("Creating 2 processes for MLP analysis")
         processes = [
             multiprocessing.Process(target=mlp,
-                                    name="Process Customer",
+                                    name="MLP Customer",
                                     args=(case, True, False)),
             multiprocessing.Process(target=mlp,
-                                    name="Process Postcode",
+                                    name="MLP Postcode",
                                     args=(case, False, True))]
         for p in processes:
             p.start()
@@ -229,9 +210,29 @@ if __name__ == '__main__':
             p.join()
 
     if int(sys.argv[3]):
-        print("Classifying stage 1 weekly data with KNN")
-        knn(case, True, True)
+        print("Clustering stage 1 weekly data with random forest")
+        processes = [
+            multiprocessing.Process(target=forest,
+                                    name="Forest Customer",
+                                    args=(case, True, False)),
+            multiprocessing.Process(target=forest,
+                                    name="Forest Postcode",
+                                    args=(case, False, True))]
+        for p in processes:
+            p.start()
+        for p in processes:
+            p.join()
 
     if int(sys.argv[4]):
-        print("Clustering stage 1 weekly data with KMeans")
-        kms(case)
+        print("Classifying stage 1 weekly data with KNN")
+        processes = [
+            multiprocessing.Process(target=knn,
+                                    name="KNN Customer",
+                                    args=(case, True, False)),
+            multiprocessing.Process(target=knn,
+                                    name="Process Postcode",
+                                    args=(case, False, True))]
+        for p in processes:
+            p.start()
+        for p in processes:
+            p.join()
