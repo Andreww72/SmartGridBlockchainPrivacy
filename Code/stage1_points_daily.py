@@ -220,9 +220,9 @@ def coint():
     for i in range(3, 300+1):
         df_x = pd.read_csv(f"{i}_blockchain.csv")
         for j in range(i+1, 300+1):
-                df_y = pd.read_csv(f"{j}_blockchain.csv")
-                result = ts.coint(df_x['Amount'], df_y['Amount'])
-                print(f"{i}-{j}: {result}")
+            df_y = pd.read_csv(f"{j}_blockchain.csv")
+            result = ts.coint(df_x['Amount'], df_y['Amount'])
+            print(f"{i}-{j}: {result}")
 
 
 if __name__ == '__main__':

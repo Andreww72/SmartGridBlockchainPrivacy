@@ -215,7 +215,7 @@ def knn(case, year, customer, postcode):
         knn_post.fit(X_train_post, Y_train_post)
         knn_predictions_post = knn_post.predict(X_test_post)
         print("KNN postcode weekly accuracy information")
-        print("KNN postcode weekly accuracy: ", accuracy_score(Y_test_num, knn_predictions_post))
+        print("KNN postcode weekly accuracy: ", accuracy_score(Y_test_post, knn_predictions_post))
         print(classification_report(Y_test_post, knn_predictions_post))
 
 
@@ -226,9 +226,9 @@ def coint():
     for i in range(3, 300+1):
         df_x = pd.read_csv(f"{i}_blockchain.csv")
         for j in range(i+1, 300+1):
-                df_y = pd.read_csv(f"{j}_blockchain.csv")
-                result = ts.coint(df_x['Amount'], df_y['Amount'])
-                print(f"{i}-{j}: {result}")
+            df_y = pd.read_csv(f"{j}_blockchain.csv")
+            result = ts.coint(df_x['Amount'], df_y['Amount'])
+            print(f"{i}-{j}: {result}")
 
 
 if __name__ == '__main__':
