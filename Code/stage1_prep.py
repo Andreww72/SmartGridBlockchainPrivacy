@@ -153,7 +153,6 @@ def daily():
 ##      Prepare weekly data      ##
 ###################################
 def weekly():
-
     weekly_to_combine = []
     # Can include customer two for classification
     # Loop on remaining files to append to first
@@ -174,6 +173,14 @@ def weekly():
     print(f"Concatenate and save weekly")
     combined_weekly = pd.concat(weekly_to_combine)
     combined_weekly.to_csv('0_1a_combined_weekly.csv', index=False)
+
+
+###################################
+##         Visualise data        ##
+###################################
+def visual():
+    # Create visuals for report here
+    pass
 
 
 if __name__ == '__main__':

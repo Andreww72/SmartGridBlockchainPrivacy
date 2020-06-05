@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_points_weekly.py [case] [MLP] [FOR] [KNN] [COINT]
+Use: python ./stage1_hourly.py [case] [MLP] [FOR] [KNN] [COINT]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
@@ -47,21 +47,27 @@ import seaborn as sns
 ###################################
 ##         Preprocessing         ##
 ###################################
-def preprocessing(case=1, strip_zeros=False):
-    print("Preprocessing stage 1 weekly data")
+def preprocessing(case=1, strip_zeros=False, year=0):
+    print("Preprocessing stage 1 hourly data")
+    hourly_data = []
 
-    weekly_data = pd.read_csv('0_1a_combined_weekly.csv', header=0)
+    if year == 0:
+        hourly_data = pd.read_csv('0_1a_combined_hourly_2010-11.csv', header=0)
+    elif year == 1:
+        hourly_data = pd.read_csv('0_1a_combined_hourly_2011-12.csv', header=0)
+    elif year == 2:
+        hourly_data = pd.read_csv('0_1a_combined_hourly_2012-13.csv', header=0)
 
     # Convert categorical columns to numeric
-    weekly_data['Type'] = weekly_data['Type'].astype('category').cat.codes
+    hourly_data['Type'] = hourly_data['Type'].astype('category').cat.codes
 
-    weekly_data['Timestamp'] = pd.to_datetime(weekly_data['Timestamp'], dayfirst=True)
-    weekly_data['Timestamp'] = (weekly_data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
+    hourly_data['Timestamp'] = pd.to_datetime(hourly_data['Timestamp'], dayfirst=True)
+    hourly_data['Timestamp'] = (hourly_data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
     if case == 0:
         print("Preprocessing data for worst case")
         # Drop the PK and hash information
-        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1, inplace=True)
+        hourly_data.drop(['Hash', 'PHash', 'PK'], axis=1, inplace=True)
         # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
     elif case == 1:
         print("Preprocessing data for best case")
@@ -69,17 +75,17 @@ def preprocessing(case=1, strip_zeros=False):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1_points_weekly.py [case] [MLP] [FOR] [KNN] [COINT]")
+        print("Invalid usage: python ./stage1_hourly.py [case] [year] [MLP] [FOR] [KNN] [COINT]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
 
     if strip_zeros:
-        weekly_data = weekly_data[weekly_data['Amount'] != 0]
+        hourly_data = hourly_data[hourly_data['Amount'] != 0]
 
-    x_num = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
-    y_num = weekly_data['Customer']
-    x_post = weekly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
-    y_post = weekly_data['Postcode']
+    x_num = hourly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
+    y_num = hourly_data['Customer']
+    x_post = hourly_data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
+    y_post = hourly_data['Postcode']
 
     global X_train_num, X_test_num, Y_train_num, Y_test_num
     global X_train_post, X_test_post, Y_train_post, Y_test_post
@@ -106,16 +112,16 @@ def preprocessing(case=1, strip_zeros=False):
 ###################################
 ##         Classify MLP          ##
 ###################################
-def mlp(case, customer, postcode):
-    preprocessing(case, True)
+def mlp(case, year, customer, postcode):
+    preprocessing(case, year, True)
 
     if customer:
         print("Applying MLP for customer")
         mlp_num = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_num.fit(X_train_num, Y_train_num)
         mlp_predictions_num = mlp_num.predict(X_test_num)
-        print("MLP customer weekly accuracy information")
-        print("MLP number weekly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
+        print("MLP customer hourly accuracy information")
+        print("MLP number hourly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
         print(classification_report(Y_test_num, mlp_predictions_num))
 
     if postcode:
@@ -123,8 +129,8 @@ def mlp(case, customer, postcode):
         mlp_post = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_post.fit(X_train_post, Y_train_post)
         mlp_predictions_post = mlp_post.predict(X_test_post)
-        print("MLP postcode weekly accuracy information")
-        print("MLP postcode weekly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post))
+        print("MLP postcode hourly accuracy information")
+        print("MLP postcode hourly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post))
         print(classification_report(Y_test_post, mlp_predictions_post))
 
 
@@ -145,7 +151,7 @@ def forest(case, customer, postcode):
         forest_num.fit(X_train_num, Y_train_num)
         forest_predictions_num = np.round(forest_num.predict(X_test_num))
 
-        print("Forest customer weekly accuracy information")
+        print("Forest customer hourly accuracy information")
         print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
         print(classification_report(Y_test_num, forest_predictions_num))
         feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
@@ -155,12 +161,12 @@ def forest(case, customer, postcode):
         # Add labels to your graph
         plt.xlabel('Feature Importance Score')
         plt.ylabel('Features')
-        plt.title("RF Weekly Customer")
+        plt.title("RF Hourly Customer")
         plt.legend()
         if case == 0:
-            plt.savefig('C:\\results\\weekly_worst_customer_rf.png')
+            plt.savefig('C:\\results\\hourly_worst_customer_rf.png')
         elif case == 1:
-            plt.savefig('C:\\results\\weekly_best_customer_rf.png')
+            plt.savefig('C:\\results\\hourly_best_customer_rf.png')
 
     if postcode:
         print("Applying forest for postcode")
@@ -168,7 +174,7 @@ def forest(case, customer, postcode):
         forest_post.fit(X_train_post, Y_train_post)
         forest_predictions_post = np.round(forest_post.predict(X_test_post))
 
-        print("Forest postcode weekly accuracy information")
+        print("Forest postcode hourly accuracy information")
         print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
         print(classification_report(Y_test_post, forest_predictions_post))
         feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
@@ -178,19 +184,19 @@ def forest(case, customer, postcode):
         # Add labels to your graph
         plt.xlabel('Feature Importance Score')
         plt.ylabel('Features')
-        plt.title("RF Weekly Postcode")
+        plt.title("RF Hourly Postcode")
         plt.legend()
         if case == 0:
-            plt.savefig('C:\\results\\weekly_worst_postcode_rf.png')
+            plt.savefig('C:\\results\\hourly_worst_postcode_rf.png')
         elif case == 1:
-            plt.savefig('C:\\results\\weekly_best_postcode_rf.png')
+            plt.savefig('C:\\results\\hourly_best_postcode_rf.png')
 
 
 ###################################
 ##         Classify KNN          ##
 ###################################
-def knn(case, customer, postcode):
-    preprocessing(case, True)
+def knn(case, year, customer, postcode):
+    preprocessing(case, year, False)
 
     if customer:
         k = 1
@@ -227,32 +233,35 @@ def coint():
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 6:
-        print("Invalid usage: python ./stage1_points_weekly.py [case] [MLP] [FOR] [KNN] [COINT]")
+    if not len(sys.argv) == 7:
+        print("Invalid usage: python ./stage1_hourly.py [case] [year] [MLP] [FOR] [KNN] [COINT]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
         exit()
 
     case = int(sys.argv[1])
+    year = int(sys.argv[2])
 
-    os.chdir("../BlockchainData/Weekly")
+    os.chdir("../BlockchainData/Hourly")
 
-    if int(sys.argv[2]):
-        # Classifying stage 1 weekly data with MLP
+    if int(sys.argv[3]):
+        print("Classifying stage 1 hourly data with MLP")
+
+        print("Creating 2 processes for MLP analysis")
         processes = [
             multiprocessing.Process(target=mlp,
-                                    name="MLP Customer",
-                                    args=(case, True, False)),
+                                    name="Process Customer",
+                                    args=(case, year, True, False)),
             multiprocessing.Process(target=mlp,
-                                    name="MLP Postcode",
-                                    args=(case, False, True))]
+                                    name="Process Postcode",
+                                    args=(case, year, False, True))]
         for p in processes:
             p.start()
         for p in processes:
             p.join()
 
-    if int(sys.argv[3]):
-        # Classifying stage 1 weekly data with random forest
+    if int(sys.argv[4]):
+        print("Clustering stage 1 weekly data with random forest")
         processes = [
             multiprocessing.Process(target=forest,
                                     name="Forest Customer",
@@ -265,8 +274,8 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
 
-    if int(sys.argv[4]):
-        # Classifying stage 1 weekly data with KNN
+    if int(sys.argv[5]):
+        # Classifying stage 1 daily data with KNN
         processes = [
             multiprocessing.Process(target=knn,
                                     name="KNN Customer",
@@ -279,6 +288,6 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
 
-    if int(sys.argv[5]):
+    if int(sys.argv[6]):
         # Performing cointegration analysis
         coint()
