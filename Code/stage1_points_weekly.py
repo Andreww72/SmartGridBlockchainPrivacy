@@ -61,7 +61,7 @@ def preprocessing(case=1, strip_zeros=False):
     if case == 0:
         print("Preprocessing data for worst case")
         # Drop the PK and hash information
-        weekly_data.drop(['PK'], axis=1, inplace=True)
+        weekly_data.drop(['Hash', 'PHash', 'PK'], axis=1, inplace=True)
         # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
     elif case == 1:
         print("Preprocessing data for best case")
