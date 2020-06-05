@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_points_hourly.py [case] [MLP] [FOR] [KNN]
+Use: python ./stage1_points_hourly.py [case] [MLP] [FOR] [KNN] [COINT]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
@@ -15,9 +15,10 @@ Cases
     Best case: Household has one PK, all transactions linked
 
 Classifiers
-    Neural network MLP classification
-    Random forest classification
+    Neural network - MLP classification
+    Decision tree - Random forest classification
     KNN classification
+    Cointegration analysis
 
 Classify
     Include consumer number, generator, and postcode for training set
@@ -38,6 +39,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score
+import statsmodels.tsa.stattools as ts
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -73,7 +75,7 @@ def preprocessing(case=1, strip_zeros=False, year=0):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1_points_hourly.py [case] [year] [MLP] [FOR] [KNN]")
+        print("Invalid usage: python ./stage1_points_hourly.py [case] [year] [MLP] [FOR] [KNN] [COINT]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
 
@@ -118,14 +120,18 @@ def mlp(case, year, customer, postcode):
         mlp_num = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_num.fit(X_train_num, Y_train_num)
         mlp_predictions_num = mlp_num.predict(X_test_num)
+        print("MLP customer hourly accuracy information")
         print("MLP number hourly accuracy: ", accuracy_score(Y_test_num, mlp_predictions_num))
+        print(classification_report(Y_test_num, mlp_predictions_num))
 
     if postcode:
         print("Applying MLP for postcode")
         mlp_post = MLPClassifier(hidden_layer_sizes=(10, 10, 10), max_iter=500)
         mlp_post.fit(X_train_post, Y_train_post)
         mlp_predictions_post = mlp_post.predict(X_test_post)
-        print("MLP postcode hourly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post, normalize=True))
+        print("MLP postcode hourly accuracy information")
+        print("MLP postcode hourly accuracy: ", accuracy_score(Y_test_post, mlp_predictions_post))
+        print(classification_report(Y_test_post, mlp_predictions_post))
 
 
 ###################################
@@ -134,7 +140,6 @@ def mlp(case, year, customer, postcode):
 def forest(case, customer, postcode):
     preprocessing(case, True)
     features = []
-
     if case == 0:
         features = ['Timestamp', 'Type', 'Amount']
     elif case == 1:
@@ -147,9 +152,8 @@ def forest(case, customer, postcode):
         forest_predictions_num = np.round(forest_num.predict(X_test_num))
 
         print("Forest customer hourly accuracy information")
-        print(classification_report(Y_test_num, forest_predictions_num))
         print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
-        print(forest_num.feature_importances_)
+        print(classification_report(Y_test_num, forest_predictions_num))
         feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
         # Creating a bar plot
@@ -159,7 +163,10 @@ def forest(case, customer, postcode):
         plt.ylabel('Features')
         plt.title("RF Hourly Customer")
         plt.legend()
-        plt.show()
+        if case == 0:
+            plt.savefig('C:\\results\\hourly_worst_customer_rf.png')
+        elif case == 1:
+            plt.savefig('C:\\results\\hourly_best_customer_rf.png')
 
     if postcode:
         print("Applying forest for postcode")
@@ -168,8 +175,8 @@ def forest(case, customer, postcode):
         forest_predictions_post = np.round(forest_post.predict(X_test_post))
 
         print("Forest postcode hourly accuracy information")
-        print(classification_report(Y_test_post, forest_predictions_post))
         print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
+        print(classification_report(Y_test_post, forest_predictions_post))
         feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
 
         # Creating a bar plot
@@ -179,32 +186,49 @@ def forest(case, customer, postcode):
         plt.ylabel('Features')
         plt.title("RF Hourly Postcode")
         plt.legend()
-        plt.show()
+        if case == 0:
+            plt.savefig('C:\\results\\hourly_worst_postcode_rf.png')
+        elif case == 1:
+            plt.savefig('C:\\results\\hourly_best_postcode_rf.png')
 
 
 ###################################
 ##         Classify KNN          ##
 ###################################
 def knn(case, year, customer, postcode):
-
-    print("KNN with k values 1 and 50")
     preprocessing(case, year, False)
 
     if customer:
+        k = 1
         print("Applying KNN for customer")
-        knn_num = KNeighborsClassifier(n_neighbors=1)
+        knn_num = KNeighborsClassifier(n_neighbors=k)
         knn_num.fit(X_train_num, Y_train_num)
         knn_predictions_num = knn_num.predict(X_test_num)
-        result = accuracy_score(Y_test_num, knn_predictions_num)
-        print(f"Best KNN number hourly accuracy (k=1: {result}")
+        print("KNN customer weekly accuracy information")
+        print("KNN customer weekly accuracy: ", accuracy_score(Y_test_num, knn_predictions_num))
+        print(classification_report(Y_test_num, knn_predictions_num))
 
     if postcode:
+        k = 50
         print("Applying KNN for postcode")
-        knn_post = KNeighborsClassifier(n_neighbors=50)
+        knn_post = KNeighborsClassifier(n_neighbors=k)
         knn_post.fit(X_train_post, Y_train_post)
         knn_predictions_post = knn_post.predict(X_test_post)
-        result = accuracy_score(Y_test_post, knn_predictions_post)
-        print(f"KNN postcode hourly accuracy (k=50: {result}")
+        print("KNN postcode weekly accuracy information")
+        print("KNN postcode weekly accuracy: ", accuracy_score(Y_test_num, knn_predictions_post))
+        print(classification_report(Y_test_post, knn_predictions_post))
+
+
+###################################
+##         Cointegration         ##
+###################################
+def coint():
+    for i in range(3, 300+1):
+        df_x = pd.read_csv(f"{i}_blockchain.csv")
+        for j in range(i+1, 300+1):
+                df_y = pd.read_csv(f"{j}_blockchain.csv")
+                result = ts.coint(df_x['Amount'], df_y['Amount'])
+                print(f"{i}-{j}: {result}")
 
 
 if __name__ == '__main__':
@@ -251,15 +275,5 @@ if __name__ == '__main__':
             p.join()
 
     if int(sys.argv[5]):
-        print("Classifying stage 1 weekly data with KNN")
-        processes = [
-            multiprocessing.Process(target=knn,
-                                    name="KNN Customer",
-                                    args=(case, True, False)),
-            multiprocessing.Process(target=knn,
-                                    name="Process Postcode",
-                                    args=(case, False, True))]
-        for p in processes:
-            p.start()
-        for p in processes:
-            p.join()
+        # Performing cointegration analysis
+        coint()
