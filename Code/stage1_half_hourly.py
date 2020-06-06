@@ -138,8 +138,8 @@ def mlp(case, year, customer, postcode):
 ###################################
 ##        Classify Forest        ##
 ###################################
-def forest(case, customer, postcode):
-    preprocessing(case, True)
+def forest(case, year, customer, postcode):
+    preprocessing(case, True, year)
     features = []
     if case == 0:
         features = ['Timestamp', 'Type', 'Amount']
@@ -197,7 +197,7 @@ def forest(case, customer, postcode):
 ##         Classify KNN          ##
 ###################################
 def knn(case, year, customer, postcode):
-    preprocessing(case, year, False)
+    preprocessing(case, False, year)
 
     if customer:
         k = 1
@@ -252,10 +252,10 @@ if __name__ == '__main__':
         processes = [
             multiprocessing.Process(target=forest,
                                     name="Forest Customer",
-                                    args=(case, True, False)),
+                                    args=(case, year, True, False)),
             multiprocessing.Process(target=forest,
                                     name="Forest Postcode",
-                                    args=(case, False, True))]
+                                    args=(case, year, False, True))]
         for p in processes:
             p.start()
         for p in processes:
