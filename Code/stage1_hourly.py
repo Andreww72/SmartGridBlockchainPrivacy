@@ -113,7 +113,7 @@ def preprocessing(case=1, strip_zeros=False, year=0):
 ##         Classify MLP          ##
 ###################################
 def mlp(case, year, customer, postcode):
-    preprocessing(case, year, True)
+    preprocessing(case, True, year)
 
     if customer:
         print("Applying MLP for customer")
@@ -204,8 +204,8 @@ def knn(case, year, customer, postcode):
         knn_num = KNeighborsClassifier(n_neighbors=k)
         knn_num.fit(X_train_num, Y_train_num)
         knn_predictions_num = knn_num.predict(X_test_num)
-        print("KNN customer weekly accuracy information")
-        print("KNN customer weekly accuracy: ", accuracy_score(Y_test_num, knn_predictions_num))
+        print("KNN customer hourly accuracy information")
+        print("KNN customer hourly accuracy: ", accuracy_score(Y_test_num, knn_predictions_num))
         print(classification_report(Y_test_num, knn_predictions_num))
 
     if postcode:
@@ -214,8 +214,8 @@ def knn(case, year, customer, postcode):
         knn_post = KNeighborsClassifier(n_neighbors=k)
         knn_post.fit(X_train_post, Y_train_post)
         knn_predictions_post = knn_post.predict(X_test_post)
-        print("KNN postcode weekly accuracy information")
-        print("KNN postcode weekly accuracy: ", accuracy_score(Y_test_post, knn_predictions_post))
+        print("KNN postcode hourly accuracy information")
+        print("KNN postcode hourly accuracy: ", accuracy_score(Y_test_post, knn_predictions_post))
         print(classification_report(Y_test_post, knn_predictions_post))
 
 
@@ -245,9 +245,7 @@ if __name__ == '__main__':
     os.chdir("../BlockchainData/Hourly")
 
     if int(sys.argv[3]):
-        print("Classifying stage 1 hourly data with MLP")
-
-        print("Creating 2 processes for MLP analysis")
+        # Classifying stage 1 hourly data with MLP
         processes = [
             multiprocessing.Process(target=mlp,
                                     name="Process Customer",
@@ -261,7 +259,7 @@ if __name__ == '__main__':
             p.join()
 
     if int(sys.argv[4]):
-        print("Clustering stage 1 weekly data with random forest")
+        # Classifying stage 1 hourly data with random forest")
         processes = [
             multiprocessing.Process(target=forest,
                                     name="Forest Customer",
@@ -275,14 +273,14 @@ if __name__ == '__main__':
             p.join()
 
     if int(sys.argv[5]):
-        # Classifying stage 1 daily data with KNN
+        # Classifying stage 1 hourly data with KNN
         processes = [
             multiprocessing.Process(target=knn,
                                     name="KNN Customer",
-                                    args=(case, True, False)),
+                                    args=(case, year, True, False)),
             multiprocessing.Process(target=knn,
                                     name="Process Postcode",
-                                    args=(case, False, True))]
+                                    args=(case, year, False, True))]
         for p in processes:
             p.start()
         for p in processes:

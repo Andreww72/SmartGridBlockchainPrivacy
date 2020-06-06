@@ -75,8 +75,13 @@ def half_hourly():
 
     split_year = combined_half_hourly[
         (combined_half_hourly['Timestamp'] >= pd.Timestamp(2012, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2012, 12, 31))]
+    split_year.to_csv('0_1a_combined_half_hourly_2012-13a.csv', index=False)
+
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2013, 1, 1)) &
         (combined_half_hourly['Timestamp'] <= pd.Timestamp(2013, 6, 30))]
-    split_year.to_csv('0_1a_combined_half_hourly_2012-13.csv', index=False)
+    split_year.to_csv('0_1a_combined_half_hourly_2012-13b.csv', index=False)
 
 
 ###################################
