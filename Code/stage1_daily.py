@@ -5,7 +5,7 @@
 ML analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_daily.py [case] [MLP] [FOR] [KNN] [COINT]
+Use: python ./stage1_daily.py [case] [MLP] [FOR] [KNN]
 Use a 0 for worst case, 1 for best case for case argument
 Use a 1 or 0 indicator for method arguments
 
@@ -18,7 +18,6 @@ Classifiers
     Neural network - MLP classification
     Decision tree - Random forest classification
     KNN classification
-    Cointegration analysis
 
 Classify
     Include consumer number, generator, and postcode for training set
@@ -69,7 +68,7 @@ def preprocessing(case=1, strip_zeros=False):
         # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
     else:
         print("Invalid case selected")
-        print("Invalid usage: python ./stage1_daily.py [case] [MLP] [FOR] [KNN] [COINT]")
+        print("Invalid usage: python ./stage1_daily.py [case] [MLP] [FOR] [KNN]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
 
@@ -213,22 +212,10 @@ def knn(case, customer, postcode):
         print(classification_report(Y_test_post, knn_predictions_post))
 
 
-###################################
-##         Cointegration         ##
-###################################
-def coint():
-    for i in range(3, 300+1):
-        df_x = pd.read_csv(f"{i}_blockchain.csv")
-        for j in range(i+1, 300+1):
-            df_y = pd.read_csv(f"{j}_blockchain.csv")
-            result = ts.coint(df_x['Amount'], df_y['Amount'])
-            print(f"{i}-{j}: {result}")
-
-
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 6:
-        print("Invalid usage: python ./stage1_daily.py [case] [MLP] [FOR] [KNN] [COINT]")
+    if not len(sys.argv) == 5:
+        print("Invalid usage: python ./stage1_daily.py [case] [MLP] [FOR] [KNN]")
         print("Use a 0 for worst case, 1 for best case for case argument")
         print("Use a 1 or 0 indicator for method arguments")
         exit()
@@ -279,6 +266,3 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
 
-    if int(sys.argv[5]):
-        # Performing cointegration analysis
-        coint()
