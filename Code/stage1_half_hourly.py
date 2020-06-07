@@ -39,7 +39,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score
-import statsmodels.tsa.stattools as ts
 import matplotlib.pyplot as plt
 import seaborn as sns
 

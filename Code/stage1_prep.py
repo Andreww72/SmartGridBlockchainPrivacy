@@ -5,7 +5,7 @@
 ML data preparation for analysis
 1a) Grid data only, informed attacker: classification
 
-Use: python ./stage1_prep.py [half-hourly] [hourly] [daily] [weekly]
+Use: python ./stage1_prep.py [half-hourly] [hourly] [daily] [weekly] [visual]
 Use a 1 or 0 indicator for each argument
 
 Cases
@@ -28,6 +28,8 @@ Classify
 import os
 import sys
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Table of customers, postcodes, and generator sizes
 generator_col = 1
@@ -184,14 +186,127 @@ def weekly():
 ##         Visualise data        ##
 ###################################
 def visual():
-    # Create visuals for report here
-    pass
+    # Visualise some weekly data
+    df37 = pd.read_csv(f"{37}_blockchain.csv", header=0)
+    df59 = pd.read_csv(f"{59}_blockchain.csv", header=0)
+    df102 = pd.read_csv(f"{102}_blockchain.csv", header=0)
+    df226 = pd.read_csv(f"{226}_blockchain.csv", header=0)
+
+    data_preproc_use = pd.DataFrame({
+        'Time': list(range(0, df37.query("Type=='GC'")['Amount'].size)),
+        'C 37': df37.query("Type=='GC'")['Amount'],
+        'C 59': df59.query("Type=='GC'")['Amount'],
+        'C 102': df102.query("Type=='GC'")['Amount'],
+        'C 226': df226.query("Type=='GC'")['Amount']
+    })
+    data_preproc_gen = pd.DataFrame({
+        'Time': list(range(0, df37.query("Type=='GG'")['Amount'].size)),
+        'C 37': df37.query("Type=='GG'")['Amount'],
+        'C 59': df59.query("Type=='GG'")['Amount'],
+        'C 102': df102.query("Type=='GG'")['Amount'],
+        'C 226': df226.query("Type=='GG'")['Amount']
+    })
+
+    plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    sns.lineplot(x='Time', y='value', hue='variable', ax=ax1,
+                 data=pd.melt(data_preproc_use, ['Time']))
+    ax1.set_title("Weekly consumption")
+    ax1.set_xlabel('Time (weeks)')
+    ax1.set_ylabel('Energy (kWh)')
+    ax1.legend()
+
+    sns.lineplot(x='Time', y='value', hue='variable', ax=ax2,
+                 data=pd.melt(data_preproc_gen, ['Time']))
+    ax2.set_title("Weekly generation")
+    ax2.set_xlabel('Time (weeks)')
+    ax2.set_ylabel('Energy (kWh)')
+    ax2.legend()
+    plt.show()
+
+    # Visualise some daily data
+    os.chdir("../Daily")
+    df37 = pd.read_csv(f"{37}_blockchain.csv", header=0)
+    df59 = pd.read_csv(f"{59}_blockchain.csv", header=0)
+    df102 = pd.read_csv(f"{102}_blockchain.csv", header=0)
+    df226 = pd.read_csv(f"{226}_blockchain.csv", header=0)
+
+    data_preproc_use = pd.DataFrame({
+        'Time': list(range(0, df37.query("Type=='GC'")['Amount'].size)),
+        'C 37': df37.query("Type=='GC'")['Amount'],
+        'C 59': df59.query("Type=='GC'")['Amount'],
+        'C 102': df102.query("Type=='GC'")['Amount'],
+        'C 226': df226.query("Type=='GC'")['Amount']
+    })
+    data_preproc_gen = pd.DataFrame({
+        'Time': list(range(0, df37.query("Type=='GG'")['Amount'].size)),
+        'C 37': df37.query("Type=='GG'")['Amount'],
+        'C 59': df59.query("Type=='GG'")['Amount'],
+        'C 102': df102.query("Type=='GG'")['Amount'],
+        'C 226': df226.query("Type=='GG'")['Amount']
+    })
+
+    plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    sns.lineplot(x='Time', y='value', hue='variable', ax=ax1,
+                 data=pd.melt(data_preproc_use, ['Time']))
+    ax1.set_title("Daily consumption")
+    ax1.set_xlabel('Time (weeks)')
+    ax1.set_ylabel('Energy (kWh)')
+    ax1.legend()
+
+    sns.lineplot(x='Time', y='value', hue='variable', ax=ax2,
+                 data=pd.melt(data_preproc_gen, ['Time']))
+    ax2.set_title("Daily generation")
+    ax2.set_xlabel('Time (weeks)')
+    ax2.set_ylabel('Energy (kWh)')
+    ax2.legend()
+    plt.show()
+
+    # Visualise a single day
+    os.chdir("../HalfHourly")
+    df37 = pd.read_csv(f"{37}_blockchain.csv", header=0)
+    df59 = pd.read_csv(f"{59}_blockchain.csv", header=0)
+    df102 = pd.read_csv(f"{102}_blockchain.csv", header=0)
+    df226 = pd.read_csv(f"{226}_blockchain.csv", header=0)
+
+    data_preproc_use = pd.DataFrame({
+        'Time': list(range(0, df37.query("Type=='GC'")['Amount'][:48].size)),
+        'C 37': df37.query("Type=='GC'")['Amount'][:48],
+        'C 59': df59.query("Type=='GC'")['Amount'][:48],
+        'C 102': df102.query("Type=='GC'")['Amount'][:48],
+        'C 226': df226.query("Type=='GC'")['Amount'][:48]
+    })
+    data_preproc_gen = pd.DataFrame({
+        'Time': list(range(0, df37.query("Type=='GG'")['Amount'][:48].size)),
+        'C 37': df37.query("Type=='GG'")['Amount'][:48],
+        'C 59': df59.query("Type=='GG'")['Amount'][:48],
+        'C 102': df102.query("Type=='GG'")['Amount'][:48],
+        'C 226': df226.query("Type=='GG'")['Amount'][:48]
+    })
+
+    plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    sns.lineplot(x='Time', y='value', hue='variable', ax=ax1,
+                 data=pd.melt(data_preproc_use, ['Time']))
+    ax1.set_title("Day consumption")
+    ax1.set_xlabel('Time (weeks)')
+    ax1.set_ylabel('Energy (kWh)')
+    ax1.legend()
+
+    sns.lineplot(x='Time', y='value', hue='variable', ax=ax2,
+                 data=pd.melt(data_preproc_gen, ['Time']))
+    ax2.set_title("Day generation")
+    ax2.set_xlabel('Time (weeks)')
+    ax2.set_ylabel('Energy (kWh)')
+    ax2.legend()
+    plt.show()
 
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 5:
-        print("Use: python ./stage1_prep.py [half-hourly] [hourly] [daily] [weekly]")
+    if not len(sys.argv) == 6:
+        print("Use: python ./stage1_prep.py [half-hourly] [hourly] [daily] [weekly] [visual]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
@@ -216,3 +331,7 @@ if __name__ == '__main__':
         os.chdir("../Weekly")
         print("Preparing weekly data")
         weekly()
+
+    if int(sys.argv[5]):
+        os.chdir("../Weekly")
+        visual()

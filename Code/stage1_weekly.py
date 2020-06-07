@@ -39,7 +39,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score
-import statsmodels.tsa.stattools as ts
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -151,20 +150,20 @@ def forest(case, customer, postcode):
 
         print("Forest customer weekly accuracy information")
         print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
-        #print(classification_report(Y_test_num, forest_predictions_num))
-        #feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
+        print(classification_report(Y_test_num, forest_predictions_num))
+        feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
-        # # Creating a bar plot
-        # sns.barplot(x=feature_imp, y=feature_imp.index)
-        # # Add labels to your graph
-        # plt.xlabel('Feature Importance Score')
-        # plt.ylabel('Features')
-        # plt.title("RF Weekly Customer")
-        # plt.legend()
-        # if case == 0:
-        #     plt.savefig('C:\\results\\weekly_worst_customer_rf.png')
-        # elif case == 1:
-        #     plt.savefig('C:\\results\\weekly_best_customer_rf.png')
+        # Creating a bar plot
+        sns.barplot(x=feature_imp, y=feature_imp.index)
+        # Add labels to your graph
+        plt.xlabel('Feature Importance Score')
+        plt.ylabel('Features')
+        plt.title("RF Weekly Customer")
+        plt.legend()
+        if case == 0:
+            plt.savefig('C:\\results\\weekly_worst_customer_rf.png')
+        elif case == 1:
+            plt.savefig('C:\\results\\weekly_best_customer_rf.png')
 
     if postcode:
         print("Applying forest for postcode")
@@ -174,20 +173,20 @@ def forest(case, customer, postcode):
 
         print("Forest postcode weekly accuracy information")
         print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
-        #print(classification_report(Y_test_post, forest_predictions_post))
-        #feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
+        print(classification_report(Y_test_post, forest_predictions_post))
+        feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
 
-        # # Creating a bar plot
-        # sns.barplot(x=feature_imp, y=feature_imp.index)
-        # # Add labels to your graph
-        # plt.xlabel('Feature Importance Score')
-        # plt.ylabel('Features')
-        # plt.title("RF Weekly Postcode")
-        # plt.legend()
-        # if case == 0:
-        #     plt.savefig('C:\\results\\weekly_worst_postcode_rf.png')
-        # elif case == 1:
-        #     plt.savefig('C:\\results\\weekly_best_postcode_rf.png')
+        # Creating a bar plot
+        sns.barplot(x=feature_imp, y=feature_imp.index)
+        # Add labels to your graph
+        plt.xlabel('Feature Importance Score')
+        plt.ylabel('Features')
+        plt.title("RF Weekly Postcode")
+        plt.legend()
+        if case == 0:
+            plt.savefig('C:\\results\\weekly_worst_postcode_rf.png')
+        elif case == 1:
+            plt.savefig('C:\\results\\weekly_best_postcode_rf.png')
 
 
 ###################################
