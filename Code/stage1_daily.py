@@ -28,6 +28,7 @@ Classify
 
 import os
 import sys
+import random
 import multiprocessing
 import pandas as pd
 import numpy as np
@@ -87,7 +88,7 @@ def preprocessing(case=1, strip_zeros=False):
 
     # Make test set PKs differ from training set so random forest can't cheat
     if case == 1:
-        X_test_num.loc[:, 'PK'] += 11111111
+        X_test_num.PK = X_test_num.PK + random.randint(0, 10000000)
 
     # Preprocess
     scaler_num = StandardScaler()
