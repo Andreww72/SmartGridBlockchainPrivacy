@@ -85,6 +85,10 @@ def preprocessing(case=1, strip_zeros=False):
     X_train_num, X_test_num, Y_train_num, Y_test_num = train_test_split(x_num, y_num)
     X_train_post, X_test_post, Y_train_post, Y_test_post = train_test_split(x_post, y_post)
 
+    # Make test set PKs differ from training set so random forest can't cheat
+    if case == 1:
+        X_test_num.loc[:, 'PK'] += 11111111
+
     # Preprocess
     scaler_num = StandardScaler()
     scaler_post = StandardScaler()
@@ -146,20 +150,20 @@ def forest(case, customer, postcode):
 
         print("Forest customer weekly accuracy information")
         print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
-        print(classification_report(Y_test_num, forest_predictions_num))
-        feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
+        #print(classification_report(Y_test_num, forest_predictions_num))
+        #feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
-        # Creating a bar plot
-        sns.barplot(x=feature_imp, y=feature_imp.index)
-        # Add labels to your graph
-        plt.xlabel('Feature Importance Score')
-        plt.ylabel('Features')
-        plt.title("RF Weekly Customer")
-        plt.legend()
-        if case == 0:
-            plt.savefig('C:\\results\\weekly_worst_customer_rf.png')
-        elif case == 1:
-            plt.savefig('C:\\results\\weekly_best_customer_rf.png')
+        # # Creating a bar plot
+        # sns.barplot(x=feature_imp, y=feature_imp.index)
+        # # Add labels to your graph
+        # plt.xlabel('Feature Importance Score')
+        # plt.ylabel('Features')
+        # plt.title("RF Weekly Customer")
+        # plt.legend()
+        # if case == 0:
+        #     plt.savefig('C:\\results\\weekly_worst_customer_rf.png')
+        # elif case == 1:
+        #     plt.savefig('C:\\results\\weekly_best_customer_rf.png')
 
     if postcode:
         print("Applying forest for postcode")
@@ -169,20 +173,20 @@ def forest(case, customer, postcode):
 
         print("Forest postcode weekly accuracy information")
         print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
-        print(classification_report(Y_test_post, forest_predictions_post))
-        feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
+        #print(classification_report(Y_test_post, forest_predictions_post))
+        #feature_imp = pd.Series(forest_post.feature_importances_, index=features).sort_values(ascending=False)
 
-        # Creating a bar plot
-        sns.barplot(x=feature_imp, y=feature_imp.index)
-        # Add labels to your graph
-        plt.xlabel('Feature Importance Score')
-        plt.ylabel('Features')
-        plt.title("RF Weekly Postcode")
-        plt.legend()
-        if case == 0:
-            plt.savefig('C:\\results\\weekly_worst_postcode_rf.png')
-        elif case == 1:
-            plt.savefig('C:\\results\\weekly_best_postcode_rf.png')
+        # # Creating a bar plot
+        # sns.barplot(x=feature_imp, y=feature_imp.index)
+        # # Add labels to your graph
+        # plt.xlabel('Feature Importance Score')
+        # plt.ylabel('Features')
+        # plt.title("RF Weekly Postcode")
+        # plt.legend()
+        # if case == 0:
+        #     plt.savefig('C:\\results\\weekly_worst_postcode_rf.png')
+        # elif case == 1:
+        #     plt.savefig('C:\\results\\weekly_best_postcode_rf.png')
 
 
 ###################################

@@ -85,6 +85,10 @@ def preprocessing(case=1, strip_zeros=False):
     X_train_num, X_test_num, Y_train_num, Y_test_num = train_test_split(x_num, y_num)
     X_train_post, X_test_post, Y_train_post, Y_test_post = train_test_split(x_post, y_post)
 
+    # Make test set PKs differ from training set so random forest can't cheat
+    if case == 1:
+        X_test_num.loc[:, 'PK'] += 11111111
+
     # Preprocess
     scaler_num = StandardScaler()
     scaler_post = StandardScaler()
