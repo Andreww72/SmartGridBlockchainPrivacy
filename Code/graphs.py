@@ -80,7 +80,7 @@ plot_mlp_spread = pd.DataFrame({
 })
 sns.lineplot(x='cats', y='value', hue='variable', sort=False,
              data=pd.melt(plot_mlp_spread, ['cats']))
-plt.title("Multilayer Perceptron Results")
+plt.title("Multilayer Perceptron Spread")
 plt.xlabel('Transaction Frequency')
 plt.ylabel('Spread (STDEV %)')
 plt.legend()

@@ -251,14 +251,14 @@ def visual():
     sns.lineplot(x='Time', y='value', hue='variable', ax=ax1,
                  data=pd.melt(data_preproc_use, ['Time']))
     ax1.set_title("Daily consumption")
-    ax1.set_xlabel('Time (weeks)')
+    ax1.set_xlabel('Time (days)')
     ax1.set_ylabel('Energy (kWh)')
     ax1.legend()
 
     sns.lineplot(x='Time', y='value', hue='variable', ax=ax2,
                  data=pd.melt(data_preproc_gen, ['Time']))
     ax2.set_title("Daily generation")
-    ax2.set_xlabel('Time (weeks)')
+    ax2.set_xlabel('Time (days)')
     ax2.set_ylabel('Energy (kWh)')
     ax2.legend()
     plt.show()
@@ -290,14 +290,14 @@ def visual():
     sns.lineplot(x='Time', y='value', hue='variable', ax=ax1,
                  data=pd.melt(data_preproc_use, ['Time']))
     ax1.set_title("Day consumption")
-    ax1.set_xlabel('Time (weeks)')
+    ax1.set_xlabel('Time (half hours)')
     ax1.set_ylabel('Energy (kWh)')
     ax1.legend()
 
     sns.lineplot(x='Time', y='value', hue='variable', ax=ax2,
                  data=pd.melt(data_preproc_gen, ['Time']))
     ax2.set_title("Day generation")
-    ax2.set_xlabel('Time (weeks)')
+    ax2.set_xlabel('Time (half hours)')
     ax2.set_ylabel('Energy (kWh)')
     ax2.legend()
     plt.show()
