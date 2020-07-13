@@ -41,7 +41,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score
 
 from keras.models import Model
-from keras.layers import Conv1D, Dense, MaxPool1D, Flatten, Input, Dropout
+from keras.layers import Conv1D, Dense, MaxPool1D, Flatten, Input
 from keras.utils import to_categorical
 
 import matplotlib.pyplot as plt
@@ -144,25 +144,23 @@ def cnn(case, customer, postcode):
 
     if customer:
         print("Applying CNN for customer")
-        global x_train_num, x_test_num, y_train_num, y_test_num
-        x_train_num = np.expand_dims(x_train_num, axis=2)
-        x_test_num = np.expand_dims(x_test_num, axis=2)
-        n_timesteps, n_features = x_train_num.shape[0], x_train_num.shape[1]
-        y_train_num = to_categorical(y_train_num)
-        y_test_num = to_categorical(y_test_num)
+        x_train_num_cnn = np.expand_dims(x_train_num, axis=2)
+        x_test_num_cnn = np.expand_dims(x_test_num, axis=2)
+        n_timesteps, n_features = x_train_num_cnn.shape[0], x_train_num_cnn.shape[1]
+        y_train_num_cnn = to_categorical(y_train_num)
+        y_test_num_cnn = to_categorical(y_test_num)
 
         inp = Input(shape=(n_features, 1))
-        conv1 = Conv1D(filters=64, kernel_size=1)(inp)
-        conv2 = Conv1D(filters=64, kernel_size=1)(conv1)
-        dropout = Dropout(0.5)(conv2)
-        pool = MaxPool1D(pool_size=2)(dropout)
+        conv1 = Conv1D(filters=128, kernel_size=1)(inp)
+        conv2 = Conv1D(filters=128, kernel_size=1)(conv1)
+        pool = MaxPool1D(pool_size=2)(conv2)
         flat = Flatten()(pool)
         dense1 = Dense(301, activation='relu')(flat)
         dense2 = Dense(301, activation='softmax')(dense1)
         model = Model(inp, dense2)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train_num, y_train_num, batch_size=64, epochs=10, validation_split=0.2)
-        print(model.evaluate(x_test_num, y_test_num)[1])
+        model.fit(x_train_num_cnn, y_train_num_cnn, batch_size=128, epochs=10, validation_split=0.2)
+        print(model.evaluate(x_test_num_cnn, y_test_num_cnn)[1])
 
     if postcode:
         print("Applying CNN for postcode")
@@ -175,8 +173,7 @@ def cnn(case, customer, postcode):
         inp = Input(shape=(n_features, 1))
         conv1 = Conv1D(filters=64, kernel_size=1)(inp)
         conv2 = Conv1D(filters=64, kernel_size=1)(conv1)
-        dropout = Dropout(0.5)(conv2)
-        pool = MaxPool1D(pool_size=2)(dropout)
+        pool = MaxPool1D(pool_size=2)(conv2)
         flat = Flatten()(pool)
         dense1 = Dense(301, activation='relu')(flat)
         dense2 = Dense(2331, activation='softmax')(dense1)
