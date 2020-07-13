@@ -144,7 +144,7 @@ def forest(case, customer, postcode):
 
     if customer:
         print("Applying forest for customer")
-        forest_num = RandomForestClassifier(random_state=0)
+        forest_num = RandomForestClassifier(n_jobs=1, max_depth=6, random_state=0)
         forest_num.fit(X_train_num, Y_train_num)
         forest_predictions_num = forest_num.predict(X_test_num)
 
@@ -167,7 +167,7 @@ def forest(case, customer, postcode):
 
     if postcode:
         print("Applying forest for postcode")
-        forest_post = RandomForestClassifier(random_state=0)
+        forest_post = RandomForestClassifier(n_jobs=1, max_depth=6, random_state=0)
         forest_post.fit(X_train_post, Y_train_post)
         forest_predictions_post = forest_post.predict(X_test_post)
 
