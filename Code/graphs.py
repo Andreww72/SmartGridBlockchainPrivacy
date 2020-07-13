@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 
 # Visualise results
 x_cats = ['Weekly', 'Daily', 'Hourly', 'Half Hourly']

@@ -36,7 +36,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score
 import matplotlib.pyplot as plt
@@ -144,9 +144,9 @@ def forest(case, customer, postcode):
 
     if customer:
         print("Applying forest for customer")
-        forest_num = RandomForestRegressor(n_estimators=20, random_state=0)
+        forest_num = RandomForestClassifier(random_state=0)
         forest_num.fit(X_train_num, Y_train_num)
-        forest_predictions_num = np.round(forest_num.predict(X_test_num))
+        forest_predictions_num = forest_num.predict(X_test_num)
 
         print("Forest customer daily accuracy information")
         print(accuracy_score(Y_test_num, forest_predictions_num, normalize=True))
@@ -167,9 +167,9 @@ def forest(case, customer, postcode):
 
     if postcode:
         print("Applying forest for postcode")
-        forest_post = RandomForestRegressor(n_estimators=20, random_state=0)
+        forest_post = RandomForestClassifier(random_state=0)
         forest_post.fit(X_train_post, Y_train_post)
-        forest_predictions_post = np.round(forest_post.predict(X_test_post))
+        forest_predictions_post = forest_post.predict(X_test_post)
 
         print("Forest postcode daily accuracy information")
         print(accuracy_score(Y_test_post, forest_predictions_post, normalize=True))
