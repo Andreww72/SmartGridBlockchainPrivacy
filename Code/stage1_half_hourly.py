@@ -28,7 +28,6 @@ Classify
 
 import os
 import sys
-import random
 import multiprocessing
 import pandas as pd
 import numpy as np
@@ -98,10 +97,6 @@ def preprocessing(case=1, strip_zeros=False, year=0):
     x_train_num, x_test_num, y_train_num, y_test_num = train_test_split(x_num, y_num)
     x_train_post, x_test_post, y_train_post, y_test_post = train_test_split(x_post, y_post)
 
-    # Make test set PKs differ from training set so random forest can't cheat
-    if case == 1:
-        x_test_num.PK = x_test_num.PK + random.randint(0, 10000000)
-
     # Preprocess
     scaler_num = StandardScaler()
     scaler_post = StandardScaler()
@@ -147,8 +142,10 @@ def mlp(case, year, customer, postcode):
 ###################################
 ##         Classify CNN          ##
 ###################################
-def cnn(case, customer, postcode):
-    preprocessing(case, True)
+def cnn(case, year, customer, postcode):
+    preprocessing(case, True, year)
+    filter_size = 128
+    batch_size = 128
 
     if customer:
         print("Applying CNN for customer")
@@ -159,15 +156,14 @@ def cnn(case, customer, postcode):
         y_test_num_cnn = to_categorical(y_test_num)
 
         inp = Input(shape=(n_features, 1))
-        conv1 = Conv1D(filters=128, kernel_size=1)(inp)
-        conv2 = Conv1D(filters=128, kernel_size=1)(conv1)
-        pool = MaxPool1D(pool_size=2)(conv2)
-        flat = Flatten()(pool)
-        dense1 = Dense(301, activation='relu')(flat)
-        dense2 = Dense(301, activation='softmax')(dense1)
-        model = Model(inp, dense2)
+        t = Conv1D(filters=filter_size, kernel_size=1)(inp)
+        t = Conv1D(filters=filter_size, kernel_size=1)(t)
+        t = Flatten()(t)
+        t = Dense(301, activation='relu')(t)
+        t = Dense(301, activation='softmax')(t)
+        model = Model(inp, t)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train_num_cnn, y_train_num_cnn, batch_size=128, epochs=10, validation_split=0.2)
+        model.fit(x_train_num_cnn, y_train_num_cnn, batch_size=batch_size, epochs=10, validation_split=0.2)
         print(model.evaluate(x_test_num_cnn, y_test_num_cnn)[1])
 
     if postcode:
@@ -175,19 +171,20 @@ def cnn(case, customer, postcode):
         x_train_post_cnn = np.expand_dims(x_train_post, axis=2)
         x_test_post_cnn = np.expand_dims(x_test_post, axis=2)
         n_timesteps, n_features = x_train_post_cnn.shape[0], x_train_post_cnn.shape[1]
-        y_train_post_cnn = to_categorical(y_train_post)
-        y_test_post_cnn = to_categorical(y_test_post)
+
+        # Subtract 2000 from every postcode to reduce to_categorical output size
+        y_train_post_cnn = to_categorical(np.subtract(y_train_post, [2000] * len(y_train_post)))
+        y_test_post_cnn = to_categorical(np.subtract(y_test_post, [2000] * len(y_test_post)))
 
         inp = Input(shape=(n_features, 1))
-        conv1 = Conv1D(filters=64, kernel_size=1)(inp)
-        conv2 = Conv1D(filters=64, kernel_size=1)(conv1)
-        pool = MaxPool1D(pool_size=2)(conv2)
-        flat = Flatten()(pool)
-        dense1 = Dense(301, activation='relu')(flat)
-        dense2 = Dense(301, activation='softmax')(dense1)
-        model = Model(inp, dense2)
+        t = Conv1D(filters=filter_size, kernel_size=1)(inp)
+        t = Conv1D(filters=filter_size, kernel_size=1)(t)
+        t = Flatten()(t)
+        t = Dense(331, activation='relu')(t)
+        t = Dense(331, activation='softmax')(t)
+        model = Model(inp, t)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train_post_cnn, y_train_post_cnn, batch_size=64, epochs=10, validation_split=0.2)
+        model.fit(x_train_post_cnn, y_train_post_cnn, batch_size=batch_size, epochs=10, validation_split=0.2)
         print(model.evaluate(x_test_post_cnn, y_test_post_cnn)[1])
 
 
@@ -305,7 +302,7 @@ if __name__ == '__main__':
 
     if int(sys.argv[4]):
         # Classifying stage 1 half hourly data with CNN
-        cnn(case, True, True)
+        cnn(case, year, True, True)
 
     if int(sys.argv[5]):
         # Classifying stage 1 half hourly data with random forest")
