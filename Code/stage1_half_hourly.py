@@ -146,6 +146,7 @@ def cnn(case, year, customer, postcode):
     preprocessing(case, True, year)
     filter_size = 128
     batch_size = 128
+    epochs = 50
 
     if customer:
         print("Applying CNN for customer")
@@ -163,7 +164,7 @@ def cnn(case, year, customer, postcode):
         t = Dense(301, activation='softmax')(t)
         model = Model(inp, t)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train_num_cnn, y_train_num_cnn, batch_size=batch_size, epochs=10, validation_split=0.2)
+        model.fit(x_train_num_cnn, y_train_num_cnn, batch_size=batch_size, epochs=epochs, validation_split=0.2)
         print(model.evaluate(x_test_num_cnn, y_test_num_cnn)[1])
 
     if postcode:
@@ -184,7 +185,7 @@ def cnn(case, year, customer, postcode):
         t = Dense(331, activation='softmax')(t)
         model = Model(inp, t)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.fit(x_train_post_cnn, y_train_post_cnn, batch_size=batch_size, epochs=10, validation_split=0.2)
+        model.fit(x_train_post_cnn, y_train_post_cnn, batch_size=batch_size, epochs=epochs, validation_split=0.2)
         print(model.evaluate(x_test_post_cnn, y_test_post_cnn)[1])
 
 
