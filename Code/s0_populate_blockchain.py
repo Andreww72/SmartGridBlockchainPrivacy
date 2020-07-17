@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 Wrangle the energy data into a format resembling what would be available publicly on a blockchain ledger.
 Warning this will take while despite running in parallel :)
 
-Use: python ./populate_blockchain.py [half-hourly] [hourly] [daily+weekly]
+Use: python ./s0_populate_blockchain.py [half-hourly] [hourly] [daily+weekly]
 Use a 1 or 0 indicator for each argument
 """
 
@@ -22,6 +21,8 @@ years = ['Jul10-Jun11', 'Jul11-Jun12', 'Jul12-Jun13']
 datasets = ['EnergyData_1Jul10-30Jun11.csv',
             'EnergyData_1Jul11-30Jun12.csv',
             'EnergyData_1Jul12-30Jun13.csv']
+generator_col = 1
+postcode_col = 2
 
 
 def create_hash(s):
@@ -107,11 +108,11 @@ def wrangle_blockchain_data(set_num, dataset, incl_zeroes=True, freq=0):
     #################################
     # Second, populate the blockchain
     if freq == 2:
-        os.chdir('../BlockchainData/Daily')
+        os.chdir('../BlockchainData/daily')
     elif freq == 1:
-        os.chdir('../BlockchainData/Hourly')
+        os.chdir('../BlockchainData/hourly')
     elif freq == 0:
-        os.chdir('../BlockchainData/HalfHourly')
+        os.chdir('../BlockchainData/half_hourly')
 
     # Loop on wrangled data to create blockchain transaction format.
     for num, ledger in enumerate(wrangled_ledgers):
@@ -201,7 +202,7 @@ def create_weekly():
         week_and_type_splits.append(weekly_data)
 
     # Save blockchains!
-    os.chdir("../Weekly")
+    os.chdir("../weekly")
     print("Saving weekly files")
 
     for num, week in enumerate(week_and_type_splits):
@@ -212,21 +213,158 @@ def create_weekly():
             writer.writerows(week)
 
 
+def post_half_hourly():
+    half_hourly_to_combine = []
+    extra_info = pd.read_csv(f"../../OriginalEnergyData/Solutions.csv", header=0)
+
+    # Loop on remaining files to append to first
+    for num in range(num_customers):
+        print(f"Load and adjust half hourly {num+1}")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+
+        # Add columns needed
+        row_count = df.shape[0]
+        postcode = extra_info.iloc[num, postcode_col]
+        generator = extra_info.iloc[num, generator_col]
+        df.insert(loc=0, column='Customer', value=[num+1] * row_count)
+        df.insert(loc=1, column='Postcode', value=[postcode] * row_count)
+        df.insert(loc=2, column='Generator', value=[generator] * row_count)
+
+        half_hourly_to_combine.append(df)
+
+    print("Concatenate half hourly")
+    combined_half_hourly = pd.concat(half_hourly_to_combine)
+    print("Convert timestamp str to timestamp for spitting")
+    combined_half_hourly['Timestamp'] = pd.to_datetime(combined_half_hourly['Timestamp'], dayfirst=True)
+
+    print("Splitting and saving half hourly")
+    # Hourly data is unmanageable when all together, split into financial years
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2010, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2011, 6, 30))]
+    split_year.to_csv('0_combined_half_hourly_2010-11.csv', index=False)
+
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2011, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2012, 6, 30))]
+    split_year.to_csv('0_combined_half_hourly_2011-12.csv', index=False)
+
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2012, 7, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2012, 12, 31))]
+    split_year.to_csv('0_combined_half_hourly_2012-13a.csv', index=False)
+
+    split_year = combined_half_hourly[
+        (combined_half_hourly['Timestamp'] >= pd.Timestamp(2013, 1, 1)) &
+        (combined_half_hourly['Timestamp'] <= pd.Timestamp(2013, 6, 30))]
+    split_year.to_csv('0_combined_half_hourly_2012-13b.csv', index=False)
+
+
+def post_hourly():
+    hourly_to_combine = []
+    extra_info = pd.read_csv(f"../../OriginalEnergyData/Solutions.csv", header=0)
+
+    # Loop on remaining files to append to first
+    for num in range(num_customers):
+        print(f"Load and adjust hourly {num+1}")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+
+        # Add columns needed
+        row_count = df.shape[0]
+        postcode = extra_info.iloc[num, postcode_col]
+        generator = extra_info.iloc[num, generator_col]
+        df.insert(loc=0, column='Customer', value=[num+1] * row_count)
+        df.insert(loc=1, column='Postcode', value=[postcode] * row_count)
+        df.insert(loc=2, column='Generator', value=[generator] * row_count)
+
+        hourly_to_combine.append(df)
+
+    print("Concatenate hourly")
+    combined_hourly = pd.concat(hourly_to_combine)
+    print("Convert timestamp str to timestamp for spitting")
+    combined_hourly['Timestamp'] = pd.to_datetime(combined_hourly['Timestamp'], dayfirst=True)
+
+    print("Splitting and saving hourly")
+    # Hourly data is unmanageable when all together, split into financial years
+    split_year = combined_hourly[
+        (combined_hourly['Timestamp'] >= pd.Timestamp(2010, 7, 1)) &
+        (combined_hourly['Timestamp'] <= pd.Timestamp(2011, 6, 30))]
+    split_year.to_csv('0_combined_hourly_2010-11.csv', index=False)
+
+    split_year = combined_hourly[
+        (combined_hourly['Timestamp'] >= pd.Timestamp(2011, 7, 1)) &
+        (combined_hourly['Timestamp'] <= pd.Timestamp(2012, 6, 30))]
+    split_year.to_csv('0_combined_hourly_2011-12.csv', index=False)
+
+    split_year = combined_hourly[
+        (combined_hourly['Timestamp'] >= pd.Timestamp(2012, 7, 1)) &
+        (combined_hourly['Timestamp'] <= pd.Timestamp(2013, 6, 30))]
+    split_year.to_csv('0_combined_hourly_2012-13.csv', index=False)
+
+
+def post_daily():
+    daily_to_combine = []
+    extra_info = pd.read_csv(f"../../OriginalEnergyData/Solutions.csv", header=0)
+
+    # Loop on remaining files to append to first
+    for num in range(num_customers):
+        print(f"Load and adjust daily {num+1}")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+
+        # Add columns needed
+        row_count = df.shape[0]
+        postcode = extra_info.iloc[num, postcode_col]
+        generator = extra_info.iloc[num, generator_col]
+        df.insert(loc=0, column='Customer', value=[num+1] * row_count)
+        df.insert(loc=1, column='Postcode', value=[postcode] * row_count)
+        df.insert(loc=2, column='Generator', value=[generator] * row_count)
+
+        daily_to_combine.append(df)
+
+    print(f"Concatenate and save daily")
+    combined_daily = pd.concat(daily_to_combine)
+    combined_daily.to_csv('0_combined_daily.csv', index=False)
+
+
+def post_weekly():
+    weekly_to_combine = []
+    extra_info = pd.read_csv(f"../../OriginalEnergyData/Solutions.csv", header=0)
+
+    # Loop on remaining files to append to first
+    for num in range(num_customers):
+        print(f"Load and adjust weekly {num+1}")
+        df = pd.read_csv(f"{num+1}_blockchain.csv", header=0)
+
+        # Add columns needed
+        row_count = df.shape[0]
+        postcode = extra_info.iloc[num, postcode_col]
+        generator = extra_info.iloc[num, generator_col]
+        df.insert(loc=0, column='Customer', value=[num+1] * row_count)
+        df.insert(loc=1, column='Postcode', value=[postcode] * row_count)
+        df.insert(loc=2, column='Generator', value=[generator] * row_count)
+
+        weekly_to_combine.append(df)
+
+    print(f"Concatenate and save weekly")
+    combined_weekly = pd.concat(weekly_to_combine)
+    combined_weekly.to_csv('0_combined_weekly.csv', index=False)
+
+
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 4:
-        print("Invalid usage: python ./populate_blockchain.py [half-hourly] [hourly] [daily+weekly]")
+        print("Invalid usage: python ./s0_populate_blockchain.py [half-hourly] [hourly] [daily+weekly]")
         print("Use a true or false indicator for each argument")
         exit()
 
-    if not os.path.exists('../BlockchainData/HalfHourly'):
-        os.makedirs('../BlockchainData/HalfHourly')
-    if not os.path.exists('../BlockchainData/Hourly'):
-        os.makedirs('../BlockchainData/Hourly')
-    if not os.path.exists('../BlockchainData/Daily'):
-        os.makedirs('../BlockchainData/Daily')
-    if not os.path.exists('../BlockchainData/Weekly'):
-        os.makedirs('../BlockchainData/Weekly')
+    if not os.path.exists('../BlockchainData/half_hourly'):
+        os.makedirs('../BlockchainData/half_hourly')
+    if not os.path.exists('../BlockchainData/hourly'):
+        os.makedirs('../BlockchainData/hourly')
+    if not os.path.exists('../BlockchainData/daily'):
+        os.makedirs('../BlockchainData/daily')
+    if not os.path.exists('../BlockchainData/weekly'):
+        os.makedirs('../BlockchainData/weekly')
 
     # Parallel process setup
     # Python's Global Interpreter Lock means threads cannot run in parallel, but processes can!
@@ -248,8 +386,9 @@ if __name__ == '__main__':
             p.join()
 
         # Combine the files of the same customer number
-        os.chdir('../BlockchainData/HalfHourly/')
+        os.chdir('../BlockchainData/half_hourly/')
         combine_years()
+        post_half_hourly()
 
     if int(sys.argv[2]):
         if int(sys.argv[1]):
@@ -270,8 +409,9 @@ if __name__ == '__main__':
             p.join()
 
         # Combine the files of the same customer number
-        os.chdir('../BlockchainData/Hourly/')
+        os.chdir('../BlockchainData/hourly/')
         combine_years()
+        post_hourly()
 
     if int(sys.argv[3]):
         if int(sys.argv[1]) or int(sys.argv[2]):
@@ -292,11 +432,13 @@ if __name__ == '__main__':
             p.join()
 
         # Combine the files of the same customer number
-        os.chdir('../BlockchainData/Daily/')
+        os.chdir('../BlockchainData/daily/')
         combine_years()
+        post_daily()
 
         # Take daily and create weekly data
         print(f"Creating weekly blockchains")
         create_weekly()
+        post_weekly()
 
     print(f"Speedy boi now :)")
