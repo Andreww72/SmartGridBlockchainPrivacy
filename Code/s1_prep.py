@@ -17,18 +17,20 @@ def preprocessing(data_freq, class_type, case, year, strip_zeros=True):
     """
 
     print(f"Preprocessing {data_freq} {case} data")
-    datafile = f"0_combined_{data_freq}.csv"
+
+    ledger = 'postcode' if case == 'ledger_per_postcode' else 'customer'
+    datafile = f"0_{ledger}_{data_freq}.csv"
     if data_freq == 'hourly' or data_freq == 'half_hourly':
         if year == 0:
-            datafile = f"0_combined_{data_freq}_2010-11.csv"
+            datafile = f"0_{ledger}_{data_freq}_2010-11.csv"
         elif year == 1:
-            datafile = f"0_combined_{data_freq}_2011-12.csv"
+            datafile = f"0_{ledger}_{data_freq}_2011-12.csv"
         elif year == 2 and data_freq == 'hourly':
-            datafile = f"0_combined_{data_freq}_2012-13.csv"
+            datafile = f"0_{ledger}_{data_freq}_2012-13.csv"
         elif year == 2 and data_freq == 'half_hourly':
-            datafile = f"0_combined_{data_freq}_2012-13a.csv"
+            datafile = f"0_{ledger}_{data_freq}_2012-13a.csv"
         elif year == 3:
-            datafile = f"0_combined_{data_freq}_2012-13b.csv"
+            datafile = f"0_{ledger}_{data_freq}_2012-13b.csv"
     data = pd.read_csv(datafile, header=0)
 
     # Convert categorical columns to numeric
