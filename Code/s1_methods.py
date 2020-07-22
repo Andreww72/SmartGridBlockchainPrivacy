@@ -46,16 +46,21 @@ def cnn(data_freq, class_type, case, year):
     from keras.layers import Input, Conv1D, Flatten, Dense
     from keras.utils import to_categorical
 
-    elements = 301 if class_type == 'customer' else 331
-
     print(f"CNN for {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
     x_train_cnn = np.expand_dims(x_train, axis=2)
     x_test_cnn = np.expand_dims(x_test, axis=2)
     n_timesteps, n_features = x_train_cnn.shape[0], x_train_cnn.shape[1]
-    y_train_cnn = to_categorical(y_train)
-    y_test_cnn = to_categorical(y_test)
+
+    if class_type == 'customer':
+        elements = 301
+        y_train_cnn = to_categorical(y_train)
+        y_test_cnn = to_categorical(y_test)
+    else:
+        elements = 331
+        y_train_cnn = to_categorical(np.subtract(y_train, [2000] * len(y_train)))
+        y_test_cnn = to_categorical(np.subtract(y_test, [2000] * len(y_test)))
 
     inp = Input(shape=(n_features, 1))
     t = Conv1D(filters=cnn_filter_size, kernel_size=1)(inp)
