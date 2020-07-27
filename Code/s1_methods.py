@@ -24,7 +24,7 @@ def mlp(data_freq, class_type, case, year):
     """
     from sklearn.neural_network import MLPClassifier
 
-    print(f"MLP for {data_freq} {class_type}")
+    print(f"MLP for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
     mlp_num = MLPClassifier(hidden_layer_sizes=mlp_layers, max_iter=mlp_iterations)
@@ -32,7 +32,7 @@ def mlp(data_freq, class_type, case, year):
     mlp_predictions_num = mlp_num.predict(x_test)
 
     print(f"MLP {class_type} {data_freq} accuracy: ", accuracy_score(y_test, mlp_predictions_num))
-    print(classification_report(y_test, mlp_predictions_num))
+    #print(classification_report(y_test, mlp_predictions_num))
 
 
 def cnn(data_freq, class_type, case, year):
@@ -46,7 +46,7 @@ def cnn(data_freq, class_type, case, year):
     from keras.layers import Input, Conv1D, Flatten, Dense
     from keras.utils import to_categorical
 
-    print(f"CNN for {data_freq} {class_type}")
+    print(f"CNN for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
     x_train_cnn = np.expand_dims(x_train, axis=2)
@@ -88,18 +88,18 @@ def rdf(data_freq, class_type, case, year):
     if case == 'one_ledger':
         features = ['Timestamp', 'Type', 'Amount']
     else:
-        features = ['Hash', 'PHash', 'PK', 'Timestamp', 'Type', 'Amount']
+        features = ['PK', 'Timestamp', 'Type', 'Amount']
 
-    print(f"RDF for {data_freq} {class_type}")
+    print(f"RDF for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
     forest_num = RandomForestClassifier(n_jobs=1, max_depth=6, random_state=0)
     forest_num.fit(x_train, y_train)
     forest_predictions_num = np.round(forest_num.predict(x_test))
 
-    print(f"Forest {class_type} {data_freq} accuracy information")
+    print(f"Forest {class_type} {case} {data_freq} accuracy information")
     print(accuracy_score(y_test, forest_predictions_num, normalize=True))
-    print(classification_report(y_test, forest_predictions_num))
+    #print(classification_report(y_test, forest_predictions_num))
     feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
     # Creating a bar plot
@@ -109,10 +109,7 @@ def rdf(data_freq, class_type, case, year):
     plt.ylabel('Features')
     plt.title(f"RDF {data_freq} {class_type}")
     plt.legend()
-    if case == 0:
-        plt.savefig(f"C:\\results\\{data_freq}_{case}_{class_type}_rf.png")
-    elif case == 1:
-        plt.savefig(f"C:\\results\\{data_freq}_{case}_{class_type}_rf.png")
+    plt.savefig(f"C:\\results\\{data_freq}_{case}_{class_type}_rdf.png")
 
 
 def knn(data_freq, class_type, case, year):
@@ -126,11 +123,11 @@ def knn(data_freq, class_type, case, year):
 
     k = knn_k_customer if class_type == 'customer' else knn_k_postcode
 
-    print(f"KNN for {data_freq} {class_type}")
+    print(f"KNN for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
     knn_num = KNeighborsClassifier(n_neighbors=k)
     knn_num.fit(x_train, y_train)
     knn_predictions = knn_num.predict(x_test)
-    print(f"KNN {class_type} {data_freq} accuracy: ", accuracy_score(y_test, knn_predictions))
-    print(classification_report(y_test, knn_predictions))
+    print(f"KNN {class_type} {case} {data_freq} accuracy: ", accuracy_score(y_test, knn_predictions))
+    #print(classification_report(y_test, knn_predictions))

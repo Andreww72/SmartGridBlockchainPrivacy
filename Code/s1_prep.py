@@ -16,8 +16,6 @@ def preprocessing(data_freq, class_type, case, year, strip_zeros=True):
     :returns return x_train, x_test, y_train, y_test
     """
 
-    print(f"Preprocessing {data_freq} {case} data")
-
     ledger = 'postcode' if case == 'ledger_per_postcode' else 'customer'
     datafile = f"0_{ledger}_{data_freq}.csv"
     if data_freq == 'hourly' or data_freq == 'half_hourly':
@@ -39,21 +37,21 @@ def preprocessing(data_freq, class_type, case, year, strip_zeros=True):
     data['Timestamp'] = (data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
     if case == 'one_ledger':
-        # Drop the PK and hash information
-        data.drop(['Hash', 'PHash', 'PK'], axis=1, inplace=True)
-        # Structure: Customer | Postcode | Generator | Timestamp | Type | Amount
-    else:
-        pass
-        # Structure: Customer | Postcode | Generator | Hash | PHash | PK | Timestamp | Type | Amount
+        # Drop the PK and ledger information
+        data.drop(['Ledger', 'PK'], axis=1, inplace=True)
+    elif case == 'ledger_per_customer':
+        data.drop(['Ledger'], axis=1, inplace=True)
+    elif case == 'ledger_per_postcode':
+        data.drop(['Ledger'], axis=1, inplace=True)
 
     if strip_zeros:
         data = data[data['Amount'] != 0]
 
+    x = data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
+    y = None
     if class_type == 'customer':
-        x = data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
         y = data['Customer']
     elif class_type == 'postcode':
-        x = data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
         y = data['Postcode']
 
     # Preprocess
