@@ -5,9 +5,9 @@ ML analysis
 Grid data only, informed attacker: classification
 Use: python ./s1_stage -h for usage
 Cases
-    One mixed ledger: Households use a new PK every transaction, no links between transactions
     Ledger per customer: Households have one PK and their transactions on a unique ledger
     Ledger per postcode: Households have one PK and their transactions on a ledger by postcode
+    One mixed ledger: Households use a new PK every transaction, no links between transactions
 Classifiers
     Neural network - MLP classification
     Neural network - CNN classification
