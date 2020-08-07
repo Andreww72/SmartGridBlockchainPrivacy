@@ -31,8 +31,8 @@ def mlp(data_freq, class_type, case, year):
     mlp_num.fit(x_train, y_train)
     mlp_predictions_num = mlp_num.predict(x_test)
 
-    print(f"MLP {class_type} {data_freq} accuracy: ", accuracy_score(y_test, mlp_predictions_num))
-    #print(classification_report(y_test, mlp_predictions_num))
+    print(f"MLP {case} {data_freq} {class_type} accuracy: {accuracy_score(y_test, mlp_predictions_num)}")
+    # print(classification_report(y_test, mlp_predictions_num))
 
 
 def cnn(data_freq, class_type, case, year):
@@ -71,7 +71,7 @@ def cnn(data_freq, class_type, case, year):
     model = Model(inp, t)
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
-    print(model.evaluate(x_test_cnn, y_test_cnn)[1])
+    print(f"CNN {case} {data_freq} {class_type} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
 
 
 def rdf(data_freq, class_type, case, year):
@@ -97,9 +97,9 @@ def rdf(data_freq, class_type, case, year):
     forest_num.fit(x_train, y_train)
     forest_predictions_num = np.round(forest_num.predict(x_test))
 
-    print(f"Forest {class_type} {case} {data_freq} accuracy information")
-    print(accuracy_score(y_test, forest_predictions_num, normalize=True))
-    #print(classification_report(y_test, forest_predictions_num))
+    print(f"RDF {case} {data_freq} {class_type} accuracy: "
+          f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
+    # print(classification_report(y_test, forest_predictions_num))
     feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
     # Creating a bar plot
@@ -129,5 +129,5 @@ def knn(data_freq, class_type, case, year):
     knn_num = KNeighborsClassifier(n_neighbors=k)
     knn_num.fit(x_train, y_train)
     knn_predictions = knn_num.predict(x_test)
-    print(f"KNN {class_type} {case} {data_freq} accuracy: ", accuracy_score(y_test, knn_predictions))
-    #print(classification_report(y_test, knn_predictions))
+    print(f"KNN {case} {data_freq} {class_type} accuracy: ", accuracy_score(y_test, knn_predictions))
+    # print(classification_report(y_test, knn_predictions))
