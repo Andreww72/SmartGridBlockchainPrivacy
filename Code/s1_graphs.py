@@ -129,32 +129,32 @@ def results():
     x_cats = ['Weekly', 'Daily', 'Hourly', 'Half Hourly']
 
     # Enter results
-    mlp_cust_lpc = [45.38, 67.84, 71.76, 86.23]
-    mlp_cust_lpp = [45.55, 59.78, 74.03, 80.60]
-    mlp_cust_aol = [2.28, 1.93, 1.78, 1.91]
-    mlp_post_lpc = [22.85, 33.79, 43.83, 38.68]
-    mlp_post_lpp = [25.00, 34.43, 30.71, 34.70]
+    mlp_cust_lpc = [45.72, 64.18, 75.26, 73.73]
+    mlp_cust_lpp = [47.88, 66.11, 77.03, 76.10]
+    mlp_cust_aol = [2.28, 1.93, 1.83, 1.86]
+    mlp_post_lpc = [22.52, 31.45, 40.33, 36.68]
+    mlp_post_lpp = [25.00, 34.43, 43.21, 38.70]
     mlp_post_aol = [11.48, 11.31, 10.20, 9.86]
 
-    cnn_cust_lpc = [58.03, 69.91, 78.92, 78.98]
-    cnn_cust_lpp = [57.54, 70.71, 78.90, 79.71]
+    cnn_cust_lpc = [58.03, 69.91, 78.92, 83.98]
+    cnn_cust_lpp = [59.21, 71.05, 79.40, 85.21]
     cnn_cust_aol = [2.47, 2.39, 2.33, 2.48]
     cnn_post_lpc = [42.85, 53.96, 61.84, 61.78]
-    cnn_post_lpp = [44.98, 55.11, 61.79, 62.44]
+    cnn_post_lpp = [45.65, 55.77, 62.79, 63.44]
     cnn_post_aol = [11.46, 11.47, 10.12, 10.03]
 
-    rfc_cust_lpc = [43.84, 39.99, 37.57, 33.39]
-    rfc_cust_lpp = [42.63, 42.58, 34.80, 35.01]
-    rfc_cust_aol = [1.99, 2.10, 2.06, 2.12]
+    rfc_cust_lpc = [43.84, 39.99, 36.57, 33.39]
+    rfc_cust_lpp = [44.30, 42.58, 37.30, 33.51]
+    rfc_cust_aol = [1.99, 2.10, 2.55, 2.12]
     rfc_post_lpc = [23.55, 26.95, 23.27, 22.70]
-    rfc_post_lpp = [26.14, 26.90, 23.57, 25.42]
-    rfc_post_aol = [11.42, 11.43, 7.10, 9.89]
+    rfc_post_lpp = [26.14, 28.23, 23.57, 25.42]
+    rfc_post_aol = [11.42, 11.43, 10.65, 9.89]
 
-    knn_cust_lpc = [35.97, 47.82, 54.52, 55.40]
-    knn_cust_lpp = [34.91, 47.83, 54.54, 55.46]
+    knn_cust_lpc = [35.97, 47.82, 54.52, 50.40]
+    knn_cust_lpp = [34.91, 47.83, 54.54, 51.46]
     knn_cust_aol = [0.95, 1.86, 2.22, 2.39]
-    knn_post_lpc = [23.06, 37.94, 43.39, 43.56]
-    knn_post_lpp = [26.44, 37.92, 43.46, 43.57]
+    knn_post_lpc = [23.06, 37.94, 43.39, 38.56]
+    knn_post_lpp = [26.44, 37.92, 43.46, 39.57]
     knn_post_aol = [10.30, 10.75, 9.22, 9.52]
 
     plot_mlp_cust = pd.DataFrame({
@@ -217,7 +217,6 @@ def results():
     grapher("K-Nearest Neighbours", [plot_knn_cust, plot_knn_post])
 
     # Compare ledger per customer results
-    x_cats = ['MLP', 'CNN', 'RFC', 'KNN']
     plot_comp_cust = pd.DataFrame({
         'cats': x_cats,
         'MLP': mlp_cust_lpc,
