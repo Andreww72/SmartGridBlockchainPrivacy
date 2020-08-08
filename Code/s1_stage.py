@@ -23,12 +23,12 @@ Classify
 import os
 import argparse
 import multiprocessing
-from s1_methods import mlp, cnn, rdf, knn
+from s1_methods import mlp, cnn, rfc, knn
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process parameters for analysis to perform')
-    parser.add_argument("method", type=str, choices=['mlp', 'cnn', 'rdf', 'knn'],
-                        help="Analysis methods of 'mlp', 'cnn', 'rdf', or 'knn'")
+    parser.add_argument("method", type=str, choices=['mlp', 'cnn', 'rfc', 'knn'],
+                        help="Analysis methods of 'mlp', 'cnn', 'rfc', or 'knn'")
     parser.add_argument("data_freq", type=str, choices=['weekly', 'daily', 'hourly', 'half_hourly'],
                         help="Data resolution of 'weekly', 'daily', 'hourly', or 'half_hourly'")
     parser.add_argument("class_type", choices=['customer', 'postcode', 'both'],
@@ -76,12 +76,12 @@ if __name__ == '__main__':
         else:
             cnn(data_freq, class_type, case, year)
 
-    elif method == 'rdf':
+    elif method == 'rfc':
         if class_type == 'both':
             processes = [
-                multiprocessing.Process(target=rdf, name="Forest Customer",
+                multiprocessing.Process(target=rfc, name="Forest Customer",
                                         args=(data_freq, 'customer', case, year)),
-                multiprocessing.Process(target=rdf, name="Forest Postcode",
+                multiprocessing.Process(target=rfc, name="Forest Postcode",
                                         args=(data_freq, 'postcode', case, year))
             ]
             for p in processes:
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             for p in processes:
                 p.join()
         else:
-            rdf(data_freq, class_type, case, year)
+            rfc(data_freq, class_type, case, year)
 
     elif method == 'knn':
         if class_type == 'both':

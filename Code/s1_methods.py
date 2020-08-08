@@ -74,7 +74,7 @@ def cnn(data_freq, class_type, case, year):
     print(f"CNN {case} {data_freq} {class_type} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
 
 
-def rdf(data_freq, class_type, case, year):
+def rfc(data_freq, class_type, case, year):
     """Perform random forest ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -90,14 +90,14 @@ def rdf(data_freq, class_type, case, year):
     else:
         features = ['PK', 'Timestamp', 'Type', 'Amount']
 
-    print(f"RDF for {case} {data_freq} {class_type}")
+    print(f"RFC for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
     forest_num = RandomForestClassifier(n_jobs=1, max_depth=6, random_state=0)
     forest_num.fit(x_train, y_train)
     forest_predictions_num = np.round(forest_num.predict(x_test))
 
-    print(f"RDF {case} {data_freq} {class_type} accuracy: "
+    print(f"RFC {case} {data_freq} {class_type} accuracy: "
           f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
     # print(classification_report(y_test, forest_predictions_num))
     feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
@@ -107,9 +107,9 @@ def rdf(data_freq, class_type, case, year):
     # Add labels to your graph
     plt.xlabel('Feature Importance Score')
     plt.ylabel('Features')
-    plt.title(f"RDF {data_freq} {class_type}")
+    plt.title(f"RFC {data_freq} {class_type}")
     plt.legend()
-    plt.savefig(f"C:\\results\\{data_freq}_{case}_{class_type}_rdf.png")
+    plt.savefig(f"C:\\results\\{data_freq}_{case}_{class_type}_rfc.png")
 
 
 def knn(data_freq, class_type, case, year):
