@@ -128,84 +128,159 @@ def results():
     # Visualise results
     x_cats = ['Weekly', 'Daily', 'Hourly', 'Half Hourly']
 
-    mlp_cust_best = [38.31, 61.85, 77.01, 86.66]
-    mlp_cust_worst = [2.28, 1.93, 1.78, 1.95]
-    mlp_post_best = [23.74, 32.8, 45.46, 34.55]
-    mlp_post_worst = [11.48, 11.31, 10.2, 9.85]
+    # Enter results
+    mlp_cust_lpc = [45.38, 67.84, 71.76, 86.23]
+    mlp_cust_lpp = [45.55, 59.78, 74.03, 80.60]
+    mlp_cust_aol = [2.28, 1.93, 1.78, 1.91]
+    mlp_post_lpc = [22.85, 33.79, 43.83, 38.68]
+    mlp_post_lpp = [25.00, 34.43, 30.71, 34.70]
+    mlp_post_aol = [11.48, 11.31, 10.20, 9.86]
 
-    plot_mlp = pd.DataFrame({
+    cnn_cust_lpc = [58.03, 69.91, 78.92, 78.98]
+    cnn_cust_lpp = [57.54, 70.71, 78.90, 79.71]
+    cnn_cust_aol = [2.47, 2.39, 2.33, 2.48]
+    cnn_post_lpc = [42.85, 53.96, 61.84, 61.78]
+    cnn_post_lpp = [44.98, 55.11, 61.79, 62.44]
+    cnn_post_aol = [11.46, 11.47, 10.12, 10.03]
+
+    rfc_cust_lpc = [43.84, 39.99, 37.57, 33.39]
+    rfc_cust_lpp = [42.63, 42.58, 34.80, 35.01]
+    rfc_cust_aol = [1.99, 2.10, 2.06, 2.12]
+    rfc_post_lpc = [23.55, 26.95, 23.27, 22.70]
+    rfc_post_lpp = [26.14, 26.90, 23.57, 25.42]
+    rfc_post_aol = [11.42, 11.43, 7.10, 9.89]
+
+    knn_cust_lpc = [35.97, 47.82, 54.52, 55.40]
+    knn_cust_lpp = [34.91, 47.83, 54.54, 55.46]
+    knn_cust_aol = [0.95, 1.86, 2.22, 2.39]
+    knn_post_lpc = [23.06, 37.94, 43.39, 43.56]
+    knn_post_lpp = [26.44, 37.92, 43.46, 43.57]
+    knn_post_aol = [10.30, 10.75, 9.22, 9.52]
+
+    plot_mlp_cust = pd.DataFrame({
         'cats': x_cats,
-        'MLP Customer best case': mlp_cust_best,
-        'MLP Customer worst case': mlp_cust_worst,
-        'MLP Postcode best case': mlp_post_best,
-        'MLP Postcode worst case': mlp_post_worst
+        'MLP ledger/customer': mlp_cust_lpc,
+        'MLP ledger/postcode': mlp_cust_lpp,
+        'MLP one ledger': mlp_cust_aol
     })
-    sns.lineplot(x='cats', y='value', hue='variable', sort=False,
-                 data=pd.melt(plot_mlp, ['cats']))
-    plt.title("Multilayer Perceptron Results")
-    plt.xlabel('Transaction Frequency')
-    plt.ylabel('Accuracy (%)')
-    plt.legend()
-    plt.show()
-
-    rf_cust_best = [98.02, 98.75, 100.00, 100.00]
-    rf_cust_worst = [0.37, 0.51, 0.71, 0.58]
-    rf_post_best = [97.87, 98.70, 100.00, 100.00]
-    rf_post_worst = [0.47, 0.65, 0.87, 0.75]
-
-    plot_rf = pd.DataFrame({
+    plot_mlp_post = pd.DataFrame({
         'cats': x_cats,
-        'RF Customer best case': rf_cust_best,
-        'RF Customer worst case': rf_cust_worst,
-        'RF Postcode best case': rf_post_best,
-        'RF Postcde worst case': rf_post_worst
+        'MLP ledger/customer': mlp_post_lpc,
+        'MLP ledger/postcode': mlp_post_lpp,
+        'MLP one ledger': mlp_post_aol
     })
-    sns.lineplot(x='cats', y='value', hue='variable', sort=False,
-                 data=pd.melt(plot_rf, ['cats']))
-    plt.title("Random Forest Results")
-    plt.xlabel('Transaction Frequency')
-    plt.ylabel('Accuracy (%)')
-    plt.legend()
-    plt.show()
+    grapher("Multilayer Percecptron", [plot_mlp_cust, plot_mlp_post])
 
-    knn_cust_best = [10.68, 12.75, 14.08, 8.55]
-    knn_cust_worst = [0.95, 1.86, 2.22, 1.21]
-    knn_post_best = [13.84, 15.75, 17.56, 15.78]
-    knn_post_worst = [10.30, 10.75, 9.22, 8.37]
-
-    plot_knn = pd.DataFrame({
+    # CNN RESULTS
+    plot_cnn_cust = pd.DataFrame({
         'cats': x_cats,
-        'KNN Customer best case': knn_cust_best,
-        'KNN Customer worst case': knn_cust_worst,
-        'KNN Postcode best case': knn_post_best,
-        'KNN Postcode worst case': knn_post_worst
+        'CNN ledger/customer': cnn_cust_lpc,
+        'CNN ledger/postcode': cnn_cust_lpp,
+        'CNN one ledger': cnn_cust_aol
     })
-    sns.lineplot(x='cats', y='value', hue='variable', sort=False,
-                 data=pd.melt(plot_knn, ['cats']))
-    plt.title("K-Nearest Neighbours Results")
-    plt.xlabel('Transaction Frequency')
-    plt.ylabel('Accuracy (%)')
-    plt.legend()
-    plt.show()
-
-    mlp_cust_best = [29.97, 31.94, 27.94, 27.87]
-    mlp_cust_worst = [5.4, 3.65, 4.95, 5.66]
-    mlp_post_best = [24.64, 32.71, 35.37, 35.11]
-    mlp_post_worst = [5.23, 10.4, 10.05, 8.03]
-
-    plot_mlp_spread = pd.DataFrame({
+    plot_cnn_post = pd.DataFrame({
         'cats': x_cats,
-        'MLP Customer best case': mlp_cust_best,
-        'MLP Customer worst case': mlp_cust_worst,
-        'MLP Postcode best case': mlp_post_best,
-        'MLP Postcode worst case': mlp_post_worst
+        'CNN ledger/customer': cnn_post_lpc,
+        'CNN ledger/postcode': cnn_post_lpp,
+        'CNN one ledger': cnn_post_aol
     })
-    sns.lineplot(x='cats', y='value', hue='variable', sort=False,
-                 data=pd.melt(plot_mlp_spread, ['cats']))
-    plt.title("Multilayer Perceptron Spread")
-    plt.xlabel('Transaction Frequency')
-    plt.ylabel('Spread (STDEV %)')
-    plt.legend()
+    grapher("Convolutional Neural Network", [plot_cnn_cust, plot_cnn_post])
+
+    # RFC RESULTS
+    plot_rfc_cust = pd.DataFrame({
+        'cats': x_cats,
+        'RFC ledger/customer': rfc_cust_lpc,
+        'RFC ledger/postcode': rfc_cust_lpp,
+        'RFC one ledger': rfc_cust_aol
+    })
+    plot_rfc_post = pd.DataFrame({
+        'cats': x_cats,
+        'RFC ledger/customer': rfc_post_lpc,
+        'RFC ledger/postcode': rfc_post_lpp,
+        'RFC one ledger': rfc_post_aol
+    })
+    grapher("Random Forest Classifier", [plot_rfc_cust, plot_rfc_post])
+
+    # KNN RESULTS
+    plot_knn_cust = pd.DataFrame({
+        'cats': x_cats,
+        'KNN ledger/customer': knn_cust_lpc,
+        'KNN ledger/postcode': knn_cust_lpp,
+        'KNN one ledger': knn_cust_aol
+    })
+    plot_knn_post = pd.DataFrame({
+        'cats': x_cats,
+        'KNN ledger/customer': knn_post_lpc,
+        'KNN ledger/postcode': knn_post_lpp,
+        'KNN one ledger': knn_post_aol
+    })
+    grapher("K-Nearest Neighbours", [plot_knn_cust, plot_knn_post])
+
+    # Compare ledger per customer results
+    x_cats = ['MLP', 'CNN', 'RFC', 'KNN']
+    plot_comp_cust = pd.DataFrame({
+        'cats': x_cats,
+        'MLP': mlp_cust_lpc,
+        'CNN': cnn_cust_lpc,
+        'RFC': rfc_cust_lpc,
+        'KNN': knn_cust_lpc
+    })
+    plot_comp_post = pd.DataFrame({
+        'cats': x_cats,
+        'MLP': mlp_post_lpc,
+        'CNN': cnn_post_lpc,
+        'RFC': rfc_post_lpc,
+        'KNN': knn_post_lpc
+    })
+    grapher("Compare LPC", [plot_comp_cust, plot_comp_post])
+
+    # Compare ledger per postcode results
+    plot_comp_cust = pd.DataFrame({
+        'cats': x_cats,
+        'MLP': mlp_cust_lpp,
+        'CNN': cnn_cust_lpp,
+        'RFC': rfc_cust_lpp,
+        'KNN': knn_cust_lpp
+    })
+    plot_comp_post = pd.DataFrame({
+        'cats': x_cats,
+        'MLP': mlp_post_lpp,
+        'CNN': cnn_post_lpp,
+        'RFC': rfc_post_lpp,
+        'KNN': knn_post_lpp
+    })
+    grapher("Compare LPP", [plot_comp_cust, plot_comp_post])
+
+    # Compare one ledger results
+    plot_comp_cust = pd.DataFrame({
+        'cats': x_cats,
+        'MLP': mlp_cust_aol,
+        'CNN': cnn_cust_aol,
+        'RFC': rfc_cust_aol,
+        'KNN': knn_cust_aol
+    })
+    plot_comp_post = pd.DataFrame({
+        'cats': x_cats,
+        'MLP': mlp_post_aol,
+        'CNN': cnn_post_aol,
+        'RFC': rfc_post_aol,
+        'KNN': knn_post_aol
+    })
+    grapher("Compare AOL", [plot_comp_cust, plot_comp_post])
+
+
+def grapher(title, data):
+    fig, axes = plt.subplots(nrows=1, ncols=len(data), sharey='row')
+
+    for i, line in enumerate(data):
+        ax = axes[i]
+        sns.lineplot(x='cats', y='value', hue='variable', palette='bright', sort=False, ax=ax,
+                     data=pd.melt(line, ['cats']), markers=True)
+        ax.set_title(title)
+        ax.set_xlabel("Transaction Frequency")
+        ax.set_ylabel("Accuracy (%)")
+        ax.legend()
+
     plt.show()
 
 
