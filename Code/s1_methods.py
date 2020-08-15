@@ -93,7 +93,7 @@ def rfc(data_freq, class_type, case, year):
     print(f"RFC for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
 
-    forest_num = RandomForestClassifier(n_jobs=1, max_depth=6, random_state=0)
+    forest_num = RandomForestClassifier(n_jobs=1, max_depth=8, random_state=0)
     forest_num.fit(x_train, y_train)
     forest_predictions_num = np.round(forest_num.predict(x_test))
 

@@ -143,12 +143,12 @@ def results():
     cnn_post_lpp = [45.65, 55.77, 62.79, 63.44]
     cnn_post_aol = [11.46, 11.47, 10.12, 10.03]
 
-    rfc_cust_lpc = [43.84, 39.99, 36.57, 33.39]
-    rfc_cust_lpp = [44.30, 42.58, 37.30, 33.51]
-    rfc_cust_aol = [1.99, 2.10, 2.55, 2.12]
-    rfc_post_lpc = [23.55, 26.95, 23.27, 22.70]
-    rfc_post_lpp = [26.14, 28.23, 23.57, 25.42]
-    rfc_post_aol = [11.42, 11.43, 10.65, 9.89]
+    rfc_cust_lpc = [62.63, 63.10, 56.74, 56.98]
+    rfc_cust_lpp = [64.81, 65.14, 57.39, 53.04]
+    rfc_cust_aol = [2.14, 2.63, 2.55, 2.68]
+    rfc_post_lpc = [39.23, 36.94, 33.10, 33.90]
+    rfc_post_lpp = [39.69, 36.52, 33.23, 32.89]
+    rfc_post_aol = [11.86, 11.67, 10.43, 10.30]
 
     knn_cust_lpc = [35.97, 47.82, 54.52, 50.40]
     knn_cust_lpp = [34.91, 47.83, 54.54, 51.46]
@@ -169,7 +169,9 @@ def results():
         'MLP ledger/postcode': mlp_post_lpp,
         'MLP one ledger': mlp_post_aol
     })
-    grapher("Multilayer Percecptron", [plot_mlp_cust, plot_mlp_post])
+    grapher(["Multilayer Percecptron - Customer",
+             "Multilayer Percecptron - Postcode"],
+            [plot_mlp_cust, plot_mlp_post])
 
     # CNN RESULTS
     plot_cnn_cust = pd.DataFrame({
@@ -184,7 +186,9 @@ def results():
         'CNN ledger/postcode': cnn_post_lpp,
         'CNN one ledger': cnn_post_aol
     })
-    grapher("Convolutional Neural Network", [plot_cnn_cust, plot_cnn_post])
+    grapher(["Convolutional Neural Network - Customer",
+             "Convolutional Neural Network - Postcode"],
+            [plot_cnn_cust, plot_cnn_post])
 
     # RFC RESULTS
     plot_rfc_cust = pd.DataFrame({
@@ -199,7 +203,9 @@ def results():
         'RFC ledger/postcode': rfc_post_lpp,
         'RFC one ledger': rfc_post_aol
     })
-    grapher("Random Forest Classifier", [plot_rfc_cust, plot_rfc_post])
+    grapher(["Random Forest Classifier - Customer",
+            "Random Forest Classifier - Postcode"],
+            [plot_rfc_cust, plot_rfc_post])
 
     # KNN RESULTS
     plot_knn_cust = pd.DataFrame({
@@ -214,7 +220,9 @@ def results():
         'KNN ledger/postcode': knn_post_lpp,
         'KNN one ledger': knn_post_aol
     })
-    grapher("K-Nearest Neighbours", [plot_knn_cust, plot_knn_post])
+    grapher(["K-Nearest Neighbours - Customer",
+             "K-Nearest Neighbours - Postcode"],
+             [plot_knn_cust, plot_knn_post])
 
     # Compare ledger per customer results
     plot_comp_cust = pd.DataFrame({
@@ -231,7 +239,9 @@ def results():
         'RFC': rfc_post_lpc,
         'KNN': knn_post_lpc
     })
-    grapher("Compare LPC", [plot_comp_cust, plot_comp_post])
+    grapher(["Compare LPC - Customer",
+             "Compare LPC - Postcode"],
+            [plot_comp_cust, plot_comp_post])
 
     # Compare ledger per postcode results
     plot_comp_cust = pd.DataFrame({
@@ -248,7 +258,9 @@ def results():
         'RFC': rfc_post_lpp,
         'KNN': knn_post_lpp
     })
-    grapher("Compare LPP", [plot_comp_cust, plot_comp_post])
+    grapher(["Compare LPP - Customer",
+             "Compare LPP - Postcode"],
+            [plot_comp_cust, plot_comp_post])
 
     # Compare one ledger results
     plot_comp_cust = pd.DataFrame({
@@ -265,7 +277,9 @@ def results():
         'RFC': rfc_post_aol,
         'KNN': knn_post_aol
     })
-    grapher("Compare AOL", [plot_comp_cust, plot_comp_post])
+    grapher(["Compare AOL - Customer",
+             "Compare AOL - Postcode"],
+            [plot_comp_cust, plot_comp_post])
 
 
 def grapher(title, data):
@@ -275,7 +289,7 @@ def grapher(title, data):
         ax = axes[i]
         sns.lineplot(x='cats', y='value', hue='variable', palette='bright', sort=False, ax=ax,
                      data=pd.melt(line, ['cats']), markers=True)
-        ax.set_title(title)
+        ax.set_title(title[i])
         ax.set_xlabel("Transaction Frequency")
         ax.set_ylabel("Accuracy (%)")
         ax.legend()
