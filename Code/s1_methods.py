@@ -11,8 +11,8 @@ mlp_iterations = 500
 cnn_filter_size = 128
 cnn_batch_size = 128
 cnn_epochs = 50
-knn_k_customer = 2
-knn_k_postcode = 50
+knn_k_customer = 3
+knn_k_postcode = 2
 
 
 def mlp(data_freq, class_type, case, year):
@@ -69,9 +69,10 @@ def cnn(data_freq, class_type, case, year):
     t = Dense(elements, activation='relu')(t)
     t = Dense(elements, activation='softmax')(t)
     model = Model(inp, t)
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', 'top_k_categorical_accuracy'])
     model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
     print(f"CNN {case} {data_freq} {class_type} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
+    print(f"CNN {case} {data_freq} {class_type} top-5 ac: {model.evaluate(x_test_cnn, y_test_cnn)[2]}")
 
 
 def rfc(data_freq, class_type, case, year):
@@ -88,7 +89,7 @@ def rfc(data_freq, class_type, case, year):
     if case == 'one_ledger':
         features = ['Timestamp', 'Type', 'Amount']
     else:
-        features = ['PK', 'Timestamp', 'Type', 'Amount']
+        features = ['Ledger', 'PK', 'Timestamp', 'Type', 'Amount']
 
     print(f"RFC for {case} {data_freq} {class_type}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
@@ -109,7 +110,7 @@ def rfc(data_freq, class_type, case, year):
     plt.ylabel('Features')
     plt.title(f"RFC {data_freq} {class_type}")
     plt.legend()
-    plt.savefig(f"C:\\results\\{data_freq}_{case}_{class_type}_rfc.png")
+    plt.savefig(f"/home/andrew/results/{data_freq}_{case}_{class_type}_rfc.png")
 
 
 def knn(data_freq, class_type, case, year):
