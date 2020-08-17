@@ -18,13 +18,21 @@ Classification methods
 import os
 import re
 
-os.chdir("../WeatherData/")
 
-for postcode in os.listdir():
-    for item in os.listdir(postcode):
-        if item.endswith(".txt"):
-            os.remove(f"{postcode}/{item}")
-        else:
-            station = re.search(r'[0-9]{6}', item).group(0)
-            new_name = f"{postcode}_{station}.csv"
-            os.rename(f"{postcode}/{item}", new_name)
+def rearrange_data():
+    for postcode in os.listdir():
+        for item in os.listdir(postcode):
+            if item.endswith(".txt"):
+                os.remove(f"{postcode}/{item}")
+            else:
+                station = re.search(r'[0-9]{6}', item).group(0)
+                new_name = f"{postcode}_{station}.csv"
+                os.rename(f"{postcode}/{item}", new_name)
+
+
+def crop_years():
+    pass
+
+
+if __name__ == '__main__':
+    os.chdir("../WeatherData/")
