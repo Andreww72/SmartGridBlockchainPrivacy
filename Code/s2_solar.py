@@ -16,8 +16,15 @@ Classification methods
 """
 
 import os
-import json
+import re
 
-import pandas as pd
+os.chdir("../WeatherData/")
 
-os.chdir("../BlockchainData/")
+for postcode in os.listdir():
+    for item in os.listdir(postcode):
+        if item.endswith(".txt"):
+            os.remove(f"{postcode}/{item}")
+        else:
+            station = re.search(r'[0-9]{6}', item).group(0)
+            new_name = f"{postcode}_{station}.csv"
+            os.rename(f"{postcode}/{item}", new_name)

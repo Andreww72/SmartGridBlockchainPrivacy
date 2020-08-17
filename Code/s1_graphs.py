@@ -157,6 +157,7 @@ def results():
     knn_post_lpp = [26.44, 37.92, 43.46, 39.57]
     knn_post_aol = [10.30, 10.75, 9.22, 9.52]
 
+    # MLP RESULTS
     plot_mlp_cust = pd.DataFrame({
         'cats': x_cats,
         'MLP ledger/customer': mlp_cust_lpc,
