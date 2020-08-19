@@ -17,6 +17,7 @@ Classification methods
 
 import os
 import re
+import pandas as pd
 
 
 def rearrange_data():
@@ -31,8 +32,24 @@ def rearrange_data():
 
 
 def crop_years():
-    pass
+    # Only want 1 July 2010 to 30 June 2013
+    for postcode in os.listdir():
+        data = pd.read_csv(postcode, header=0)
+        print(postcode)
+
+        try:
+            data.drop(['Product code', 'Bureau of Meteorology station number'], axis=1, inplace=True)
+        except KeyError:
+            pass
+
+        data = data[data['Year'].isin([2010, 2011, 2012, 2013])]
+        data = data.loc[~((data['Year'] == 2010) & (data['Month'].isin([1, 2, 3, 4, 5, 6]))), :]
+        data = data.loc[~((data['Year'] == 2013) & (data['Month'].isin([7, 8, 9, 10, 11, 12]))), :]
+
+        data.to_csv(postcode, index=False)
 
 
 if __name__ == '__main__':
     os.chdir("../WeatherData/")
+
+    # Run something
