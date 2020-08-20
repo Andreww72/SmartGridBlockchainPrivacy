@@ -14,8 +14,7 @@ Classifiers
     Decision tree - Random forest classification
     KNN classification
 Classify
-    Include consumer number, generator, and postcode for training set
-    Drop those three from the test set
+    Drop consumer number, generator, and postcode for training and test sets
     Predictions for a) weekly, b) daily, c) hourly, & d) half_hourly
         Predictions for i) consumer number, ii) postcode
 """

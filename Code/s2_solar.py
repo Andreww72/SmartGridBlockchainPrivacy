@@ -3,20 +3,24 @@
 
 """
 ML analysis
-2a) Grid + solar data, informed attacker: classification
-
-This treats all households on a single ledger
-
-Classification methods
-    Technique that yields greatest accuracy for each
-    Include consumer number, generator, and postcode in for training
-    Predictions for i) hourly, ii) daily, iii) weekly, iv) monthly data
+Grid + solar data, informed attacker: classification
+Use: python ./s1_stage -h for usage
+Cases
+    Ledger per customer: Households have one PK and their transactions on a unique ledger
+    Ledger per postcode: Households have one PK and their transactions on a ledger by postcode
+    One mixed ledger: Households use a new PK every transaction, no links between transactions
+Classifiers
+    Neural network - CNN classification
+    Decision tree - Random forest classification
+Classify
+    Drop consumer number, generator, and postcode for training and test sets
+    Predictions for a) weekly, & b) daily
         Predictions for i) consumer number, ii) postcode
-            i) Split and k-fold training/validation
 """
 
 import os
 import re
+import glob
 import pandas as pd
 
 
@@ -49,7 +53,46 @@ def crop_years():
         data.to_csv(postcode, index=False)
 
 
+def solar_add_daily():
+    # Add in solar data
+    os.chdir("../BlockchainData/daily")
+    for data in ["0_customer_daily.csv"]:
+        print(data)
+        energy_data = pd.read_csv(data, header=0)
+        os.chdir("../../WeatherData/")
+
+        energy_data['Solar'] = 0
+        current_solar_open = None
+        solar_data = None
+
+        for index, row in energy_data.iterrows():
+            if row['Type'] == "GG":
+                postcode = row['Postcode']
+
+                if not postcode == current_solar_open:
+                    current_solar_open = postcode
+                    for file in glob.glob(f"{postcode}_*.csv"):
+                        solar_data = pd.read_csv(file, header=0)
+
+                timestamp = row['Timestamp']
+                year = int(timestamp.split('/')[2])
+                month = int(timestamp.split('/')[1])
+                day = int(timestamp.split('/')[0])
+
+                # Find corresponding date in solar_data
+                solar_row = solar_data.loc[((solar_data['Year'] == year) &
+                                            (solar_data['Month'] == month) &
+                                            (solar_data['Day'] == day)), :]
+
+                solar_value = solar_row['Daily global solar exposure (MJ/m*m)'].values[0]
+                energy_data.iloc[index, energy_data.columns.get_loc('Solar')] = solar_value
+
+        os.chdir("../BlockchainData/daily")
+        energy_data.to_csv(f"{data}_solar.csv", index=False)
+        os.chdir("../../BlockchainData/daily")
+
+
 if __name__ == '__main__':
     os.chdir("../WeatherData/")
 
-    # Run something
+    solar_add_daily()
