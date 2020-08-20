@@ -15,39 +15,41 @@ knn_k_customer = 3
 knn_k_postcode = 2
 
 
-def mlp(data_freq, class_type, case, year):
+def mlp(data_freq, class_type, case, year, solar):
     """Perform multilayer perceptron ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
     :parameter case --> 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger' analysis.
     :parameter year --> 0 (2010-11), 1 (2011-12), 2 (2012-13 or 1st half if hourly), or 3 (2012-13 2nd half).
+    :parameter solar --> Boolean if to load data file with solar attribute
     """
     from sklearn.neural_network import MLPClassifier
 
-    print(f"MLP for {case} {data_freq} {class_type}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
+    print(f"MLP for {case} {data_freq} {class_type} solar {solar}")
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
 
     mlp_num = MLPClassifier(hidden_layer_sizes=mlp_layers, max_iter=mlp_iterations)
     mlp_num.fit(x_train, y_train)
     mlp_predictions_num = mlp_num.predict(x_test)
 
-    print(f"MLP {case} {data_freq} {class_type} accuracy: {accuracy_score(y_test, mlp_predictions_num)}")
+    print(f"MLP {case} {data_freq} {class_type} solar {solar} accuracy: {accuracy_score(y_test, mlp_predictions_num)}")
     # print(classification_report(y_test, mlp_predictions_num))
 
 
-def cnn(data_freq, class_type, case, year):
+def cnn(data_freq, class_type, case, year, solar):
     """Perform convolutional neural network ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
     :parameter case --> 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger' analysis.
     :parameter year --> 0 (2010-11), 1 (2011-12), 2 (2012-13 or 1st half if hourly), or 3 (2012-13 2nd half).
+    :parameter solar --> Boolean if to load data file with solar attribute
     """
     from keras.models import Model
     from keras.layers import Input, Conv1D, Flatten, Dense
     from keras.utils import to_categorical
 
-    print(f"CNN for {case} {data_freq} {class_type}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
+    print(f"CNN for {case} {data_freq} {class_type} solar {solar}")
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
 
     x_train_cnn = np.expand_dims(x_train, axis=2)
     x_test_cnn = np.expand_dims(x_test, axis=2)
@@ -71,16 +73,17 @@ def cnn(data_freq, class_type, case, year):
     model = Model(inp, t)
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', 'top_k_categorical_accuracy'])
     model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
-    print(f"CNN {case} {data_freq} {class_type} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
-    print(f"CNN {case} {data_freq} {class_type} top-5 ac: {model.evaluate(x_test_cnn, y_test_cnn)[2]}")
+    print(f"CNN {case} {data_freq} {class_type} solar {solar} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
+    print(f"CNN {case} {data_freq} {class_type} solar {solar} top-5 ac: {model.evaluate(x_test_cnn, y_test_cnn)[2]}")
 
 
-def rfc(data_freq, class_type, case, year):
+def rfc(data_freq, class_type, case, year, solar):
     """Perform random forest ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
     :parameter case --> 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger' analysis.
     :parameter year --> 0 (2010-11), 1 (2011-12), 2 (2012-13 or 1st half if hourly), or 3 (2012-13 2nd half).
+    :parameter solar --> Boolean if to load data file with solar attribute
     """
     from sklearn.ensemble import RandomForestClassifier
     import matplotlib.pyplot as plt
@@ -89,16 +92,18 @@ def rfc(data_freq, class_type, case, year):
     if case == 'one_ledger':
         features = ['Timestamp', 'Type', 'Amount']
     else:
-        features = ['Ledger', 'PK', 'Timestamp', 'Type', 'Amount']
+        features = ['PK', 'Timestamp', 'Type', 'Amount']
+    if solar:
+        features.append('Solar')
 
-    print(f"RFC for {case} {data_freq} {class_type}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
+    print(f"RFC for {case} {data_freq} {class_type} solar {solar}")
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
 
     forest_num = RandomForestClassifier(n_jobs=1, max_depth=8, random_state=0)
     forest_num.fit(x_train, y_train)
     forest_predictions_num = np.round(forest_num.predict(x_test))
 
-    print(f"RFC {case} {data_freq} {class_type} accuracy: "
+    print(f"RFC {case} {data_freq} {class_type} solar {solar} accuracy: "
           f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
     # print(classification_report(y_test, forest_predictions_num))
     feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
@@ -113,22 +118,23 @@ def rfc(data_freq, class_type, case, year):
     plt.savefig(f"/home/andrew/results/{data_freq}_{case}_{class_type}_rfc.png")
 
 
-def knn(data_freq, class_type, case, year):
+def knn(data_freq, class_type, case, year, solar):
     """Perform K-nearest neighbours ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
     :parameter case --> 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger' analysis.
     :parameter year --> 0 (2010-11), 1 (2011-12), 2 (2012-13 or 1st half if hourly), or 3 (2012-13 2nd half).
+    :parameter solar --> Boolean if to load data file with solar attribute
     """
     from sklearn.neighbors import KNeighborsClassifier
 
     k = knn_k_customer if class_type == 'customer' else knn_k_postcode
 
-    print(f"KNN for {case} {data_freq} {class_type}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year)
+    print(f"KNN for {case} {data_freq} {class_type} solar {solar}")
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
 
     knn_num = KNeighborsClassifier(n_neighbors=k)
     knn_num.fit(x_train, y_train)
     knn_predictions = knn_num.predict(x_test)
-    print(f"KNN {case} {data_freq} {class_type} accuracy: ", accuracy_score(y_test, knn_predictions))
+    print(f"KNN {case} {data_freq} {class_type} solar {solar} accuracy: ", accuracy_score(y_test, knn_predictions))
     # print(classification_report(y_test, knn_predictions))

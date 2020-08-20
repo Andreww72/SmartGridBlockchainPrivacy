@@ -36,17 +36,24 @@ if __name__ == '__main__':
                         help="Security case of 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger'")
     parser.add_argument("-y", "--year", type=int, choices=[0, 1, 2, 3],
                         help="Year of data to use if hourly or half_hourly chosen. 0, 1, 2, or 3")
+    parser.add_argument("-s", "--solar", action='store_true',
+                        help="Use solar data in analysis?")
 
     args = parser.parse_args()
     method = args.method
     data_freq = args.data_freq
     class_type = args.class_type
     case = args.case
+    solar = args.solar
+    print(solar)
 
     if data_freq == 'hourly' or data_freq == 'half_hourly':
         year = args.year
         if not year:
             print("Provide a year when using hourly or half_hourly resolution")
+            exit()
+        if solar:
+            print("Solar is not available for hourly or half_hourly resolution")
             exit()
     else:
         year = None
@@ -57,53 +64,54 @@ if __name__ == '__main__':
         if class_type == 'both':
             processes = [
                 multiprocessing.Process(target=mlp, name="MLP Customer",
-                                        args=(data_freq, 'customer', case, year)),
+                                        args=(data_freq, 'customer', case, year, solar)),
                 multiprocessing.Process(target=mlp, name="MLP Postcode",
-                                        args=(data_freq, 'postcode', case, year))
+                                        args=(data_freq, 'postcode', case, year, solar))
             ]
             for p in processes:
                 p.start()
             for p in processes:
                 p.join()
         else:
-            mlp(data_freq, class_type, case, year)
+            mlp(data_freq, class_type, case, year, solar)
 
     elif method == 'cnn':
         if class_type == 'both':
-            cnn(data_freq, 'customer', case, year)
-            cnn(data_freq, 'postcode', case, year)
+            cnn(data_freq, 'customer', case, year, solar)
+            cnn(data_freq, 'postcode', case, year, solar)
         else:
-            cnn(data_freq, class_type, case, year)
+            cnn(data_freq, class_type, case, year, solar)
 
     elif method == 'rfc':
         if class_type == 'both':
             processes = [
                 multiprocessing.Process(target=rfc, name="Forest Customer",
-                                        args=(data_freq, 'customer', case, year)),
+                                        args=(data_freq, 'customer', case, year, solar)),
                 multiprocessing.Process(target=rfc, name="Forest Postcode",
-                                        args=(data_freq, 'postcode', case, year))
+                                        args=(data_freq, 'postcode', case, year, solar))
             ]
             for p in processes:
                 p.start()
             for p in processes:
                 p.join()
         else:
-            rfc(data_freq, class_type, case, year)
+            rfc(data_freq, class_type, case, year, solar)
 
     elif method == 'knn':
         if class_type == 'both':
             processes = [
                 multiprocessing.Process(target=knn, name="KNN Customer",
-                                        args=(data_freq, 'customer', case, year)),
+                                        args=(data_freq, 'customer', case, year, solar)),
                 multiprocessing.Process(target=knn, name="Process Postcode",
-                                        args=(data_freq, 'postcode', case, year))
+                                        args=(data_freq, 'postcode', case, year, solar))
             ]
             for p in processes:
                 p.start()
             for p in processes:
                 p.join()
         else:
-            knn(data_freq, class_type, case, year)
+            knn(data_freq, class_type, case, year, solar)
 
     else:
         print("Pick a valid analysis method")
+        exit()

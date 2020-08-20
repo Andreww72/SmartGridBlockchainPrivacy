@@ -6,19 +6,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def preprocessing(data_freq, class_type, case, year, strip_zeros=True):
+def preprocessing(data_freq, class_type, case, year, solar, strip_zeros=True):
     """Preprocess fully setup blockchain data for the ML analysis
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
     :parameter case --> 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger' analysis.
     :parameter year --> 0 (2010-11), 1 (2011-12), 2 (2012-13 or 1st half if hourly), or 3 (2012-13 2nd half).
+    :parameter solar --> Boolean if to load data file with solar attribute
     :parameter strip_zeros --> bool to remove rows with 0 amounts
     :returns return x_train, x_test, y_train, y_test
     """
 
-    ledger = 'postcode' if case == 'ledger_per_postcode' else 'customer'
-    datafile = f"0_{ledger}_{data_freq}.csv"
-    if data_freq == 'hourly' or data_freq == 'half_hourly':
+    ledger = "postcode" if case == "ledger_per_postcode" else "customer"
+    solar_n = "_solar" if solar else ""
+    datafile = f"0_{ledger}_{data_freq}{solar_n}.csv"
+
+    if data_freq == "hourly" or data_freq == "half_hourly":
         if year == 0:
             datafile = f"0_{ledger}_{data_freq}_2010-11.csv"
         elif year == 1:
@@ -29,6 +32,7 @@ def preprocessing(data_freq, class_type, case, year, strip_zeros=True):
             datafile = f"0_{ledger}_{data_freq}_2012-13a.csv"
         elif year == 3:
             datafile = f"0_{ledger}_{data_freq}_2012-13b.csv"
+
     data = pd.read_csv(datafile, header=0)
 
     # Convert categorical columns to numeric
