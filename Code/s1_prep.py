@@ -17,9 +17,10 @@ def preprocessing(data_freq, class_type, case, year, solar, strip_zeros=True):
     :returns return x_train, x_test, y_train, y_test
     """
 
-    ledger = "postcode" if case == "ledger_per_postcode" else "customer"
+    ledger = "postcode" if case == "lpp" else "customer"
     solar_n = "_solar" if solar else ""
     datafile = f"0_{ledger}_{data_freq}{solar_n}.csv"
+    print(datafile)
 
     if data_freq == "hourly" or data_freq == "half_hourly":
         if year == 0:
@@ -34,18 +35,19 @@ def preprocessing(data_freq, class_type, case, year, solar, strip_zeros=True):
             datafile = f"0_{ledger}_{data_freq}_2012-13b.csv"
 
     data = pd.read_csv(datafile, header=0)
+    data = data[data['Type'] == 'GG']
 
     # Convert categorical columns to numeric
     data['Type'] = data['Type'].astype('category').cat.codes
     data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
     data['Timestamp'] = (data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
-    if case == 'one_ledger':
+    if case == 'aol':
         # Drop the PK and ledger information
         data.drop(['Ledger', 'PK'], axis=1, inplace=True)
-    elif case == 'ledger_per_customer':
+    elif case == 'lpc':
         data.drop(['Ledger'], axis=1, inplace=True)
-    elif case == 'ledger_per_postcode':
+    elif case == 'lpp':
         data.drop(['Ledger'], axis=1, inplace=True)
 
     if strip_zeros:

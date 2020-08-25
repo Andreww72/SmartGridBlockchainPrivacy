@@ -32,8 +32,8 @@ if __name__ == '__main__':
                         help="Data resolution of 'weekly', 'daily', 'hourly', or 'half_hourly'")
     parser.add_argument("class_type", choices=['customer', 'postcode', 'both'],
                         help="Classification target of 'customer' or 'postcode' or 'both'")
-    parser.add_argument("case", choices=['ledger_per_customer', 'ledger_per_postcode', 'one_ledger'],
-                        help="Security case of 'ledger_per_customer', 'ledger_per_postcode', or 'one_ledger'")
+    parser.add_argument("case", choices=['lpc', 'lpp', 'aol'],
+                        help="Security case of 'ledger_per_customer', 'ledger_per_postcode', or 'all_one_ledger'")
     parser.add_argument("-y", "--year", type=int, choices=[0, 1, 2, 3],
                         help="Year of data to use if hourly or half_hourly chosen. 0, 1, 2, or 3")
     parser.add_argument("-s", "--solar", action='store_true',
@@ -45,7 +45,6 @@ if __name__ == '__main__':
     class_type = args.class_type
     case = args.case
     solar = args.solar
-    print(solar)
 
     if data_freq == 'hourly' or data_freq == 'half_hourly':
         year = args.year

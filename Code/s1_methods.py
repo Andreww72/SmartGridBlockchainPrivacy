@@ -89,7 +89,7 @@ def rfc(data_freq, class_type, case, year, solar):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
-    if case == 'one_ledger':
+    if case == 'aol':
         features = ['Timestamp', 'Type', 'Amount']
     else:
         features = ['PK', 'Timestamp', 'Type', 'Amount']

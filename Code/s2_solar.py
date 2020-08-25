@@ -66,57 +66,56 @@ def solar_add_weekly():
         solar_data = None
 
         for index, row in energy_data.iterrows():
-            if row['Type'] == "GG":
-                postcode = row['Postcode']
+            postcode = row['Postcode']
 
-                if not postcode == current_solar_open:
-                    current_solar_open = postcode
-                    for file in glob.glob(f"{postcode}_*.csv"):
-                        solar_data = pd.read_csv(file, header=0)
+            if not postcode == current_solar_open:
+                current_solar_open = postcode
+                for file in glob.glob(f"{postcode}_*.csv"):
+                    solar_data = pd.read_csv(file, header=0)
 
-                timestamp = row['Timestamp']
-                year = int(timestamp.split('-')[0])
-                month = int(timestamp.split('-')[1])
-                day = int(timestamp.split('-')[2].split(" ")[0])
+            timestamp = row['Timestamp']
+            year = int(timestamp.split('-')[0])
+            month = int(timestamp.split('-')[1])
+            day = int(timestamp.split('-')[2].split(" ")[0])
 
-                if year == 2010 and month == 7 and day == 5:
-                    # Find corresponding date in solar_data
-                    solar_row = solar_data.loc[((solar_data['Year'] == year) &
-                                                (solar_data['Month'] == month) &
-                                                (solar_data['Day'] == day)), :]
+            if year == 2010 and month == 7 and day == 5:
+                # Find corresponding date in solar_data
+                solar_row = solar_data.loc[((solar_data['Year'] == year) &
+                                            (solar_data['Month'] == month) &
+                                            (solar_data['Day'] == day)), :]
 
-                    # Add dates back to 2010-07-01
-                    week_end_index = solar_row.index.values.astype(int)[0]
-                    range_wanted = range(week_end_index-4, week_end_index+1, 1)
+                # Add dates back to 2010-07-01
+                week_end_index = solar_row.index.values.astype(int)[0]
+                range_wanted = range(week_end_index-4, week_end_index+1, 1)
 
-                elif year == 2013 and month == 7 and day == 1:
-                    month = 6
-                    day = 30
-                    # Find corresponding date in solar_data
-                    solar_row = solar_data.loc[((solar_data['Year'] == year) &
-                                                (solar_data['Month'] == month) &
-                                                (solar_data['Day'] == day)), :]
+            elif year == 2013 and month == 7 and day == 1:
+                month = 6
+                day = 30
+                # Find corresponding date in solar_data
+                solar_row = solar_data.loc[((solar_data['Year'] == year) &
+                                            (solar_data['Month'] == month) &
+                                            (solar_data['Day'] == day)), :]
 
-                    # Add dates back a week but ignore 2013-07-01
-                    week_end_index = solar_row.index.values.astype(int)[0]
-                    range_wanted = range(week_end_index-5, week_end_index+1, 1)
+                # Add dates back a week but ignore 2013-07-01
+                week_end_index = solar_row.index.values.astype(int)[0]
+                range_wanted = range(week_end_index-5, week_end_index+1, 1)
 
-                else:
-                    # Find corresponding date in solar_data
-                    solar_row = solar_data.loc[((solar_data['Year'] == year) &
-                                                (solar_data['Month'] == month) &
-                                                (solar_data['Day'] == day)), :]
-                    # Add dates back a week
-                    week_end_index = solar_row.index.values.astype(int)[0]
-                    range_wanted = range(week_end_index-6, week_end_index+1, 1)
+            else:
+                # Find corresponding date in solar_data
+                solar_row = solar_data.loc[((solar_data['Year'] == year) &
+                                            (solar_data['Month'] == month) &
+                                            (solar_data['Day'] == day)), :]
+                # Add dates back a week
+                week_end_index = solar_row.index.values.astype(int)[0]
+                range_wanted = range(week_end_index-6, week_end_index+1, 1)
 
-                solar_value = 0
-                solar_col = 3
-                for thing in range_wanted:
-                    solar_value += solar_data.iloc[thing, solar_col]
-                solar_value = round(solar_value, 2)
+            solar_value = 0
+            solar_col = 3
+            for thing in range_wanted:
+                solar_value += solar_data.iloc[thing, solar_col]
+            solar_value = round(solar_value, 2)
 
-                energy_data.iloc[index, energy_data.columns.get_loc('Solar')] = solar_value
+            energy_data.iloc[index, energy_data.columns.get_loc('Solar')] = solar_value
 
         os.chdir("../BlockchainData/weekly")
         energy_data.to_csv(f"{data}_solar.csv", index=False)
@@ -126,7 +125,7 @@ def solar_add_weekly():
 def solar_add_daily():
     # Add in solar data
     os.chdir("../BlockchainData/daily")
-    for data in ["0_customer_daily.csv"]:
+    for data in ["0_postcode_daily.csv"]:
         print(data)
         energy_data = pd.read_csv(data, header=0)
         os.chdir("../../WeatherData/")
@@ -136,26 +135,25 @@ def solar_add_daily():
         solar_data = None
 
         for index, row in energy_data.iterrows():
-            if row['Type'] == "GG":
-                postcode = row['Postcode']
+            postcode = row['Postcode']
 
-                if not postcode == current_solar_open:
-                    current_solar_open = postcode
-                    for file in glob.glob(f"{postcode}_*.csv"):
-                        solar_data = pd.read_csv(file, header=0)
+            if not postcode == current_solar_open:
+                current_solar_open = postcode
+                for file in glob.glob(f"{postcode}_*.csv"):
+                    solar_data = pd.read_csv(file, header=0)
 
-                timestamp = row['Timestamp']
-                year = int(timestamp.split('/')[2])
-                month = int(timestamp.split('/')[1])
-                day = int(timestamp.split('/')[0])
+            timestamp = row['Timestamp']
+            year = int(timestamp.split('/')[2])
+            month = int(timestamp.split('/')[1])
+            day = int(timestamp.split('/')[0])
 
-                # Find corresponding date in solar_data
-                solar_row = solar_data.loc[((solar_data['Year'] == year) &
-                                            (solar_data['Month'] == month) &
-                                            (solar_data['Day'] == day)), :]
+            # Find corresponding date in solar_data
+            solar_row = solar_data.loc[((solar_data['Year'] == year) &
+                                        (solar_data['Month'] == month) &
+                                        (solar_data['Day'] == day)), :]
 
-                solar_value = solar_row['Daily global solar exposure (MJ/m*m)'].values[0]
-                energy_data.iloc[index, energy_data.columns.get_loc('Solar')] = solar_value
+            solar_value = solar_row['Daily global solar exposure (MJ/m*m)'].values[0]
+            energy_data.iloc[index, energy_data.columns.get_loc('Solar')] = solar_value
 
         os.chdir("../BlockchainData/daily")
         energy_data.to_csv(f"{data}_solar.csv", index=False)
@@ -165,4 +163,4 @@ def solar_add_daily():
 if __name__ == '__main__':
     os.chdir("../WeatherData/")
 
-    solar_add_weekly()
+    solar_add_daily()
