@@ -10,7 +10,7 @@ mlp_layers = (10, 10, 10)
 mlp_iterations = 500
 cnn_filter_size = 128
 cnn_batch_size = 128
-cnn_epochs = 50
+cnn_epochs = 100
 knn_k_customer = 3
 knn_k_postcode = 2
 
@@ -99,7 +99,7 @@ def rfc(data_freq, class_type, case, year, solar):
     print(f"RFC for {case} {data_freq} {class_type} solar {solar}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
 
-    forest_num = RandomForestClassifier(n_jobs=1, max_depth=8, random_state=0)
+    forest_num = RandomForestClassifier(max_depth=12, random_state=0)
     forest_num.fit(x_train, y_train)
     forest_predictions_num = np.round(forest_num.predict(x_test))
 
