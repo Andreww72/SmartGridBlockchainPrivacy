@@ -21,7 +21,9 @@ Classify
 import os
 import re
 import glob
+import numpy as np
 import pandas as pd
+import statsmodels.tsa.stattools as ts
 
 
 def rearrange_data():
@@ -160,7 +162,35 @@ def solar_add_daily():
         os.chdir("../../BlockchainData/daily")
 
 
-if __name__ == '__main__':
-    os.chdir("../WeatherData/")
+def compare_data(coint, correl):
+    # For daily data
+    os.chdir("../BlockchainData/daily/")
 
-    solar_add_daily()
+    data_file = "3_blockchain.csv"
+    data = pd.read_csv(data_file)
+    data = data[data['Type'] == "GG"]
+    data = data['Amount'].round(3)
+    data = data.to_list()
+
+    os.chdir("../../WeatherData/")
+
+    print(f"{data_file} on:")
+    corr_results = []
+    coint_results = []
+
+    postcodes = os.listdir()
+    for postcode in postcodes:
+        solar = pd.read_csv(postcode)
+        solar = solar['Daily global solar exposure (MJ/m*m)'].round(1)
+        solar = solar.to_list()
+
+        coint_results.append(ts.coint(data, solar))
+        corr_results.append(np.corrcoef(data, solar)[0][1])
+
+    best_result = max(corr_results)
+    best_postcode = postcodes[corr_results.index(max(corr_results))]
+    print(f"Best {best_postcode} {best_result}")
+
+
+if __name__ == '__main__':
+    compare_data(False, True)
