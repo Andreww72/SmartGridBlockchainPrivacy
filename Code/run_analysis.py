@@ -22,7 +22,7 @@ Classify
 import os
 import argparse
 import multiprocessing
-from s1_methods import mlp, cnn, rfc, knn
+from ml_methods import mlp, cnn, rfc, knn
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process parameters for analysis to perform')

@@ -4,13 +4,13 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics import classification_report, accuracy_score
-from s1_prep import preprocessing
+from preprocess import preprocessing
 
 mlp_layers = (10, 10, 10)
 mlp_iterations = 500
 cnn_filter_size = 128
 cnn_batch_size = 128
-cnn_epochs = 100
+cnn_epochs = 50
 knn_k_customer = 3
 knn_k_postcode = 2
 
