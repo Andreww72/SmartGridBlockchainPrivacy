@@ -4,7 +4,7 @@
 """
 ML analysis
 Grid + solar data, informed attacker: classification
-Use: python ./s1_stage -h for usage
+Use: python ./solar -h for usage
 Cases
     Ledger per customer: Households have one PK and their transactions on a unique ledger
     Ledger per postcode: Households have one PK and their transactions on a ledger by postcode
@@ -164,32 +164,75 @@ def solar_add_daily():
 
 def compare_data(coint, correl):
     # For daily data
+    os.chdir("../OriginalEnergyData/")
+    solutions = pd.read_csv("Solutions.csv")
+    solutions = dict(zip(solutions['Customer'], solutions['Postcode']))
+
     os.chdir("../BlockchainData/daily/")
+    corrs, coints = [], []
+    all_results = {}
+    count = 0
 
-    data_file = "3_blockchain.csv"
-    data = pd.read_csv(data_file)
-    data = data[data['Type'] == "GG"]
-    data = data['Amount'].round(3)
-    data = data.to_list()
+    for customer in os.listdir():
+        customer_num = customer.split("_")[0]
+        if customer[5] == 'b' or "daily" in customer:
+            continue
+        print(customer)
+        data = pd.read_csv(customer)
+        data = data[data['Type'] == "GG"]
+        data = data['Amount'].round(3)
+        data = data.to_list()
 
-    os.chdir("../../WeatherData/")
+        os.chdir("../../WeatherData/")
+        corr_results = []
+        coint_results = []
 
-    print(f"{data_file} on:")
-    corr_results = []
-    coint_results = []
+        postcodes = os.listdir()
+        postcode_nums = []
+        for postcode in postcodes:
+            postcode_nums.append(postcode.split("_")[0])
+            solar = pd.read_csv(postcode)
+            solar = solar['Daily global solar exposure (MJ/m*m)'].round(1)
+            solar = solar.to_list()
 
-    postcodes = os.listdir()
-    for postcode in postcodes:
-        solar = pd.read_csv(postcode)
-        solar = solar['Daily global solar exposure (MJ/m*m)'].round(1)
-        solar = solar.to_list()
+            corr_results.append(np.corrcoef(data, solar)[0][1])
+            coint_results.append(ts.coint(data, solar)[0])
 
-        coint_results.append(ts.coint(data, solar))
-        corr_results.append(np.corrcoef(data, solar)[0][1])
+        # Order them
+        df_corr = pd.DataFrame({'Postcode': postcode_nums, 'Correlation': corr_results})
+        df_coint = pd.DataFrame({'Postcode': postcode_nums, 'Cointegration': coint_results})
+        df_corr.sort_values(by=["Correlation"], ascending=False, inplace=True)
+        df_coint.sort_values(by=["Cointegration"], ascending=True, inplace=True)
+        df_corr.reset_index(drop=True, inplace=True)
+        df_coint.reset_index(drop=True, inplace=True)
 
-    best_result = max(corr_results)
-    best_postcode = postcodes[corr_results.index(max(corr_results))]
-    print(f"Best {best_postcode} {best_result}")
+        # Find position of correct postcode
+        position_corr = df_corr[df_corr['Postcode'] == str(solutions[int(customer_num)])].index[0]
+        position_coint = df_coint[df_coint['Postcode'] == str(solutions[int(customer_num)])].index[0]
+
+        all_results[customer_num] = [position_corr, position_coint]
+        corrs.append(position_corr)
+        coints.append(position_coint)
+        count += 1
+        if count > 20:
+            break
+
+        os.chdir("../BlockchainData/daily/")
+
+    # Average results
+    corrs = np.array(corrs)
+    average_corr = corrs.mean()
+    spread_corr = corrs.std()
+    coints = np.array(coints)
+    average_coint = coints.mean()
+    spread_coint = corrs.std()
+
+    print(corrs)
+    print(coints)
+    print(f"Average correlation position: {average_corr}")
+    print(f"Spread correlation position: {spread_corr}")
+    print(f"Average cointegration position: {average_coint}")
+    print(f"Spread correlation position: {spread_coint}")
 
 
 if __name__ == '__main__':
