@@ -3,7 +3,7 @@
 """
 Wrangle the energy data into a format resembling what would be available publicly on a blockchain ledger.
 Warning this will take while despite running in parallel :)
-Use: python ./s0_blockchain.py -h for usage
+Use: python ./pop_blockchain.py -h for usage
 """
 
 import os
