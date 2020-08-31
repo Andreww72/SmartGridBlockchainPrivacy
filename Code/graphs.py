@@ -160,15 +160,15 @@ def results():
     # MLP RESULTS
     plot_mlp_cust = pd.DataFrame({
         'cats': x_cats,
-        'MLP ledger/customer': mlp_cust_lpc,
-        'MLP ledger/postcode': mlp_cust_lpp,
-        'MLP one ledger': mlp_cust_aol
+        'MLP LPC': mlp_cust_lpc,
+        'MLP LPP': mlp_cust_lpp,
+        'MLP AOL': mlp_cust_aol
     })
     plot_mlp_post = pd.DataFrame({
         'cats': x_cats,
-        'MLP ledger/customer': mlp_post_lpc,
-        'MLP ledger/postcode': mlp_post_lpp,
-        'MLP one ledger': mlp_post_aol
+        'MLP LPC': mlp_post_lpc,
+        'MLP LPP': mlp_post_lpp,
+        'MLP AOL': mlp_post_aol
     })
     grapher(["Multilayer Percecptron - Customer",
              "Multilayer Percecptron - Postcode"],
@@ -177,15 +177,15 @@ def results():
     # CNN RESULTS
     plot_cnn_cust = pd.DataFrame({
         'cats': x_cats,
-        'CNN ledger/customer': cnn_cust_lpc,
-        'CNN ledger/postcode': cnn_cust_lpp,
-        'CNN one ledger': cnn_cust_aol
+        'CNN LPC': cnn_cust_lpc,
+        'CNN LPP': cnn_cust_lpp,
+        'CNN AOL': cnn_cust_aol
     })
     plot_cnn_post = pd.DataFrame({
         'cats': x_cats,
-        'CNN ledger/customer': cnn_post_lpc,
-        'CNN ledger/postcode': cnn_post_lpp,
-        'CNN one ledger': cnn_post_aol
+        'CNN LPC': cnn_post_lpc,
+        'CNN LPP': cnn_post_lpp,
+        'CNN AOL': cnn_post_aol
     })
     grapher(["Convolutional Neural Network - Customer",
              "Convolutional Neural Network - Postcode"],
@@ -194,15 +194,15 @@ def results():
     # RFC RESULTS
     plot_rfc_cust = pd.DataFrame({
         'cats': x_cats,
-        'RFC ledger/customer': rfc_cust_lpc,
-        'RFC ledger/postcode': rfc_cust_lpp,
-        'RFC one ledger': rfc_cust_aol
+        'RFC LPC': rfc_cust_lpc,
+        'RFC LPP': rfc_cust_lpp,
+        'RFC AOL': rfc_cust_aol
     })
     plot_rfc_post = pd.DataFrame({
         'cats': x_cats,
-        'RFC ledger/customer': rfc_post_lpc,
-        'RFC ledger/postcode': rfc_post_lpp,
-        'RFC one ledger': rfc_post_aol
+        'RFC LPC': rfc_post_lpc,
+        'RFC LPP': rfc_post_lpp,
+        'RFC AOL': rfc_post_aol
     })
     grapher(["Random Forest Classifier - Customer",
             "Random Forest Classifier - Postcode"],
@@ -211,15 +211,15 @@ def results():
     # KNN RESULTS
     plot_knn_cust = pd.DataFrame({
         'cats': x_cats,
-        'KNN ledger/customer': knn_cust_lpc,
-        'KNN ledger/postcode': knn_cust_lpp,
-        'KNN one ledger': knn_cust_aol
+        'KNN LPC': knn_cust_lpc,
+        'KNN LPP': knn_cust_lpp,
+        'KNN AOL': knn_cust_aol
     })
     plot_knn_post = pd.DataFrame({
         'cats': x_cats,
-        'KNN ledger/customer': knn_post_lpc,
-        'KNN ledger/postcode': knn_post_lpp,
-        'KNN one ledger': knn_post_aol
+        'KNN LPC': knn_post_lpc,
+        'KNN LPP': knn_post_lpp,
+        'KNN AOL': knn_post_aol
     })
     grapher(["K-Nearest Neighbours - Customer",
              "K-Nearest Neighbours - Postcode"],
@@ -263,7 +263,7 @@ def results():
              "Compare LPP - Postcode"],
             [plot_comp_cust, plot_comp_post])
 
-    # Compare one ledger results
+    # Compare AOL results
     plot_comp_cust = pd.DataFrame({
         'cats': x_cats,
         'MLP': mlp_cust_aol,
@@ -288,11 +288,11 @@ def grapher(title, data):
 
     for i, line in enumerate(data):
         ax = axes[i]
-        sns.lineplot(x='cats', y='value', hue='variable', palette='bright', sort=False, ax=ax,
-                     data=pd.melt(line, ['cats']), markers=True)
+        sns.barplot(x='cats', y='value', hue='variable', palette='bright', ax=ax, data=pd.melt(line, ['cats']))
         ax.set_title(title[i])
         ax.set_xlabel("Transaction Frequency")
         ax.set_ylabel("Accuracy (%)")
+        ax.set(ylim=(0, 100))
         ax.legend()
 
     plt.show()
@@ -301,7 +301,7 @@ def grapher(title, data):
 if __name__ == '__main__':
     # Check usage
     if not len(sys.argv) == 3:
-        print("Use: python ./s1_graphs.py [visual] [results]")
+        print("Use: python ./graphs.py [visual] [results]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
