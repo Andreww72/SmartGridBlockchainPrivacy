@@ -171,7 +171,6 @@ def compare_data(coint, correl):
     os.chdir("../BlockchainData/daily/")
     corrs, coints = [], []
     all_results = {}
-    count = 0
 
     for customer in os.listdir():
         customer_num = customer.split("_")[0]
@@ -213,9 +212,6 @@ def compare_data(coint, correl):
         all_results[customer_num] = [position_corr, position_coint]
         corrs.append(position_corr)
         coints.append(position_coint)
-        count += 1
-        if count > 20:
-            break
 
         os.chdir("../BlockchainData/daily/")
 
@@ -225,7 +221,7 @@ def compare_data(coint, correl):
     spread_corr = corrs.std()
     coints = np.array(coints)
     average_coint = coints.mean()
-    spread_coint = corrs.std()
+    spread_coint = coints.std()
 
     print(corrs)
     print(coints)
