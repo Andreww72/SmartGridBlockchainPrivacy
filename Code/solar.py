@@ -174,7 +174,7 @@ def compare_data(coint, correl):
 
     for customer in os.listdir():
         customer_num = customer.split("_")[0]
-        if customer[5] == 'b' or "daily" in customer:
+        if customer[5] == 'b' or "daily" in customer or "2_blockchain" in customer:
             continue
         print(customer)
         data = pd.read_csv(customer)
