@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def visual():
+def graphs_obj1():
     # Visualise some weekly data
     os.chdir("../BlockchainData/weekly")
     df37 = pd.read_csv(f"{37}_blockchain.csv", header=0)
@@ -124,7 +124,7 @@ def visual():
     plt.show()
 
 
-def results():
+def graphs_obj2():
     # Visualise results
     x_cats = ['Weekly', 'Daily', 'Hourly', 'Half Hourly']
 
@@ -205,7 +205,7 @@ def results():
         'RFC AOL': rfc_post_aol
     })
     grapher(["Random Forest Classifier - Customer",
-            "Random Forest Classifier - Postcode"],
+             "Random Forest Classifier - Postcode"],
             [plot_rfc_cust, plot_rfc_post])
 
     # KNN RESULTS
@@ -223,7 +223,7 @@ def results():
     })
     grapher(["K-Nearest Neighbours - Customer",
              "K-Nearest Neighbours - Postcode"],
-             [plot_knn_cust, plot_knn_post])
+            [plot_knn_cust, plot_knn_post])
 
     # Compare ledger per customer results
     plot_comp_cust = pd.DataFrame({
@@ -283,12 +283,76 @@ def results():
             [plot_comp_cust, plot_comp_post])
 
 
-def grapher(title, data):
+def graphs_obj3():
+    # Visualise results
+    x_cats = ['Weekly', 'Daily']
+
+    # Data copied from graphs_obj2 for delta to solar results
+    cnn_cust_lpc = [58.03, 69.91]
+    cnn_cust_lpp = [59.21, 71.05]
+    cnn_cust_aol = [2.47, 2.39]
+    cnn_post_lpc = [42.85, 53.96]
+    cnn_post_lpp = [45.65, 55.77]
+    cnn_post_aol = [11.46, 11.47]
+
+    rfc_cust_lpc = [62.63, 63.10]
+    rfc_cust_lpp = [64.81, 65.14]
+    rfc_cust_aol = [2.14, 2.63]
+    rfc_post_lpc = [39.23, 36.94]
+    rfc_post_lpp = [39.69, 36.52]
+    rfc_post_aol = [11.86, 11.67]
+
+    # Solar results
+    cnn_cust_lpc_s = [67.98, 76.36]
+    cnn_cust_lpp_s = [67.87, 76.58]
+    cnn_cust_aol_s = [3.05, 2.84]
+    cnn_post_lpc_s = [55.06, 62.49]
+    cnn_post_lpp_s = [52.27, 59.47]
+    cnn_post_aol_s = [12.04, 11.94]
+
+    rfc_cust_lpc_s = [71.77, 72.90]
+    rfc_cust_lpp_s = [75.89, 74.55]
+    rfc_cust_aol_s = [2.84, 3.70]
+    rfc_post_lpc_s = [57.69, 52.11]
+    rfc_post_lpp_s = [58.38, 52.45]
+    rfc_post_aol_s = [14.43, 13.03]
+
+    bright_cols = sns.color_palette("bright", 10)
+    dark_cols = sns.color_palette("colorblind", 10)
+    palette = [dark_cols[1], bright_cols[1], dark_cols[2], bright_cols[2]]
+
+    # Compare ledger per customer results
+    plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN': cnn_cust_lpc, 'CNN solar': cnn_cust_lpc_s,
+                                   'RFC': rfc_cust_lpc, 'RFC solar': rfc_cust_lpc_s})
+    plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_lpc, 'CNN solar': cnn_post_lpc_s,
+                                   'RFC': rfc_post_lpc, 'RFC solar': rfc_post_lpc_s})
+    grapher(["Compare LPC - Customer", "Compare LPC - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+
+    # Compare ledger per postcode results
+    plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN': cnn_cust_lpp, 'CNN solar': cnn_cust_lpp_s,
+                                   'RFC': rfc_cust_lpp, 'RFC solar': rfc_cust_lpp_s})
+    plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_lpp, 'CNN solar': cnn_post_lpp_s,
+                                   'RFC': rfc_post_lpp, 'RFC solar': rfc_post_lpp_s})
+    grapher(["Compare LPP - Customer", "Compare LPP - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+
+    # Compare AOL results
+    plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN': cnn_cust_aol, 'CNN solar': cnn_cust_aol_s,
+                                   'RFC': rfc_cust_aol, 'RFC solar': rfc_cust_aol_s})
+    plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_aol, 'CNN solar': cnn_post_aol_s,
+                                   'RFC': rfc_post_aol, 'RFC solar': rfc_post_aol_s})
+    grapher(["Compare AOL - Customer", "Compare AOL - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+
+
+def graphs_obj4():
+    pass
+
+
+def grapher(title, data, palette='bright'):
     fig, axes = plt.subplots(nrows=1, ncols=len(data), sharey='row')
 
     for i, line in enumerate(data):
         ax = axes[i]
-        sns.barplot(x='cats', y='value', hue='variable', palette='bright', ax=ax, data=pd.melt(line, ['cats']))
+        sns.barplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(line, ['cats']))
         ax.set_title(title[i])
         ax.set_xlabel("Transaction Frequency")
         ax.set_ylabel("Accuracy (%)")
@@ -300,15 +364,23 @@ def grapher(title, data):
 
 if __name__ == '__main__':
     # Check usage
-    if not len(sys.argv) == 3:
-        print("Use: python ./graphs.py [visual] [results]")
+    if not len(sys.argv) == 5:
+        print("Use: python ./graphs.py [obj1] [obj2] [obj3] [obj4]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
     if int(sys.argv[1]):
-        print("Preparing hourly data")
-        visual()
+        print("Preparing objective one graphs")
+        graphs_obj1()
 
     if int(sys.argv[2]):
-        print("Creating result graphs")
-        results()
+        print("Preparing objective two graphs")
+        graphs_obj2()
+
+    if int(sys.argv[3]):
+        print("Preparing objective three graphs")
+        graphs_obj3()
+
+    if int(sys.argv[4]):
+        print("Preparing objective four graphs")
+        graphs_obj4()
