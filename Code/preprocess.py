@@ -21,18 +21,21 @@ def preprocessing(data_freq, class_type, case, year, solar, strip_zeros=True):
     solar_n = "_solar" if solar else ""
     datafile = f"0_{ledger}_{data_freq}{solar_n}.csv"
 
+    print(year)
+    print(solar_n)
+
     if data_freq == "hourly" or data_freq == "half_hourly":
         if year == 0:
-            datafile = f"0_{ledger}_{data_freq}_2010-11.csv"
+            datafile = f"0_{ledger}_{data_freq}{solar_n}_2010-11.csv"
         elif year == 1:
-            datafile = f"0_{ledger}_{data_freq}_2011-12.csv"
+            datafile = f"0_{ledger}_{data_freq}_2011-12{solar_n}.csv"
         elif year == 2 and data_freq == 'hourly':
-            datafile = f"0_{ledger}_{data_freq}_2012-13.csv"
+            datafile = f"0_{ledger}_{data_freq}_2012-13{solar_n}.csv"
         elif year == 2 and data_freq == 'half_hourly':
-            datafile = f"0_{ledger}_{data_freq}_2012-13a.csv"
+            datafile = f"0_{ledger}_{data_freq}_2012-13a{solar_n}.csv"
         elif year == 3:
-            datafile = f"0_{ledger}_{data_freq}_2012-13b.csv"
-
+            datafile = f"0_{ledger}_{data_freq}_2012-13b{solar_n}.csv"
+    print(datafile)
     data = pd.read_csv(datafile, header=0)
 
     # Convert categorical columns to numeric
