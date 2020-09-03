@@ -20,10 +20,11 @@ Classify
 
 import os
 import re
+import sys
 import glob
 import numpy as np
 import pandas as pd
-import statsmodels.tsa.stattools as ts
+import multiprocessing
 
 
 def rearrange_data():
@@ -127,7 +128,7 @@ def solar_add_weekly():
 def solar_add_daily():
     # Add in solar data
     os.chdir("../BlockchainData/daily")
-    for data in ["0_postcode_daily.csv"]:
+    for data in ["0_customer_daily.csv", "0_postcode_daily.csv"]:
         print(data)
         energy_data = pd.read_csv(data, header=0)
         os.chdir("../../WeatherData/")
@@ -162,7 +163,84 @@ def solar_add_daily():
         os.chdir("../../BlockchainData/daily")
 
 
-def compare_data(coint, correl):
+def solar_add_hourly(users, az):
+
+    # Get postcodes
+    os.chdir("../OriginalEnergyData/")
+    postcodes = pd.read_csv("Solutions.csv")
+    postcodes = dict(zip(postcodes['Customer'], postcodes['Postcode']))
+
+    # Add in solar data
+    os.chdir("../BlockchainData/hourly")
+
+    # Calculate each hour as a portion of the total day
+    # y = -(x-12.5)^2/19 + 1.6
+    t = (0.0193 + 0.7535 + 1.1219 + 1.3851 + 1.5430) * 2 + 1.5956
+    map_portion = {"7": 0.0193/t, "8": 0.7535/t, "9": 1.1219/t, "10": 1.3851/t, "11": 1.5430/t, "12": 1.5956/t,
+                   "13": 1.5430/t, "14": 1.3851/t, "15": 1.1219/t, "16": 0.7535/t, "17": 0.0193/t}
+
+    # Open solar data in advance
+    for file in glob.glob("*_blockchain.csv"):
+        customer = int(file.split("_")[0])
+        if customer not in users or customer > 999:
+            continue
+        print(customer)
+
+        df = pd.read_csv(file, header=0)
+        df = df[df['Timestamp'].str.contains("2012") | df['Timestamp'].str.contains("2013")]
+        df = df.loc[~((df['Timestamp'].str.contains("2012")) &
+                      (df['Timestamp'].str.contains("/01/|/02/|/03/|/04/|/05/|/06/"))), :]
+        df.reset_index(drop=True, inplace=True)
+        df['Solar'] = 0
+
+        os.chdir("../../WeatherData")
+        for weather in glob.glob(f"{str(postcodes[customer])}_*.csv"):
+            sol = pd.read_csv(weather, header=0)
+        os.chdir("../BlockchainData/hourly")
+
+        for index, timestamp in zip(df.index, df['Timestamp']):
+            date = timestamp.split(' ')[0]
+            time = timestamp.split(' ')[1]
+            year = int(date.split('/')[2])
+            month = int(date.split('/')[1])
+            day = int(date.split('/')[0])
+            hour = time.split(":")[0]
+            try:
+                portion = map_portion[hour]
+                value = sol.loc[((sol['Year'] == year) & (sol['Month'] == month) & (sol['Day'] == day)),
+                                'Daily global solar exposure (MJ/m*m)'].values[0] * portion
+            except KeyError:
+                value = 0
+
+            df.iloc[index, 5] = round(value, 3)
+        df['Amount'].round(3)
+        df.to_csv(f"{file}_solar.csv", index=False)
+
+
+def combine_hourly_solar():
+
+    os.chdir("../BlockchainData/hourly")
+    for data in ["0_customer_hourly_2012-13.csv", "0_postcode_hourly_2012-13.csv"]:
+        print(data)
+        energy_data = pd.read_csv(data, header=0)
+        energy_data['Solar'] = 0.0
+        count = 0
+
+        for user in range(1, 300):
+            print(user)
+            df = pd.read_csv(f"{user}_blockchain.csv_solar.csv", header=0)
+
+            for solar in zip(df['Solar']):
+                energy_data.at[count, 'Solar'] = solar[0]
+                count += 1
+
+        print("Saving file")
+        energy_data.to_csv(f"{data}_solar.csv", index=False)
+
+
+def compare_data():
+    import statsmodels.tsa.stattools as ts
+
     # For daily data
     os.chdir("../OriginalEnergyData/")
     solutions = pd.read_csv("Solutions.csv")
@@ -232,4 +310,60 @@ def compare_data(coint, correl):
 
 
 if __name__ == '__main__':
-    compare_data(False, True)
+
+    # Check usage
+    if not len(sys.argv) == 6:
+        print("Use: python ./graphs.py [weekly] [daily] [hourly] [combine hourly] [stats]")
+        print("Use a 1 or 0 indicator for each argument")
+        exit()
+
+    if int(sys.argv[1]):
+        print("Solar add weekly")
+        solar_add_weekly()
+
+    if int(sys.argv[2]):
+        print("Solar add daily")
+        solar_add_daily()
+
+    if int(sys.argv[3]):
+        print("Solar add hourly")
+        processes = [
+            multiprocessing.Process(target=solar_add_hourly, name="Number1",
+                                    args=(list(range(1, 26)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number2",
+                                    args=(list(range(26, 51)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number3",
+                                    args=(list(range(51, 76)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number4",
+                                    args=(list(range(76, 101)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number5",
+                                    args=(list(range(101, 126)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number6",
+                                    args=(list(range(126, 151)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number7",
+                                    args=(list(range(151, 176)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number8",
+                                    args=(list(range(176, 201)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number9",
+                                    args=(list(range(201, 226)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number10",
+                                    args=(list(range(226, 251)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number11",
+                                    args=(list(range(251, 276)), 1)),
+            multiprocessing.Process(target=solar_add_hourly, name="Number12",
+                                    args=(list(range(276, 301)), 1)),
+        ]
+        for p in processes:
+            p.start()
+        for p in processes:
+            p.join()
+
+    if int(sys.argv[4]):
+        print("Combine hourly")
+        combine_hourly_solar()
+
+    if int(sys.argv[5]):
+        print("Correlation and cointegraton")
+        compare_data()
+
+
