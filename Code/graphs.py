@@ -285,37 +285,37 @@ def graphs_obj2():
 
 def graphs_obj3():
     # Visualise results
-    x_cats = ['Weekly', 'Daily']
+    x_cats = ['Weekly', 'Daily', 'Hourly']
 
     # Data copied from graphs_obj2 for delta to solar results
-    cnn_cust_lpc = [58.03, 69.91]
-    cnn_cust_lpp = [59.21, 71.05]
-    cnn_cust_aol = [2.47, 2.39]
-    cnn_post_lpc = [42.85, 53.96]
-    cnn_post_lpp = [45.65, 55.77]
-    cnn_post_aol = [11.46, 11.47]
+    cnn_cust_lpc = [58.03, 69.91, 78.92]
+    cnn_cust_lpp = [59.21, 71.05, 79.40]
+    cnn_cust_aol = [2.47, 2.39, 2.33]
+    cnn_post_lpc = [42.85, 53.96, 61.84]
+    cnn_post_lpp = [45.65, 55.77, 62.79]
+    cnn_post_aol = [11.46, 11.47, 10.12]
 
-    rfc_cust_lpc = [62.63, 63.10]
-    rfc_cust_lpp = [64.81, 65.14]
-    rfc_cust_aol = [2.14, 2.63]
-    rfc_post_lpc = [39.23, 36.94]
-    rfc_post_lpp = [39.69, 36.52]
-    rfc_post_aol = [11.86, 11.67]
+    rfc_cust_lpc = [62.63, 63.10, 56.74]
+    rfc_cust_lpp = [64.81, 65.14, 57.39]
+    rfc_cust_aol = [2.14, 2.63, 2.55]
+    rfc_post_lpc = [39.23, 36.94, 33.10]
+    rfc_post_lpp = [39.69, 36.52, 33.23]
+    rfc_post_aol = [11.86, 11.67, 10.43]
 
     # Solar results
-    cnn_cust_lpc_s = [67.98, 76.36]
-    cnn_cust_lpp_s = [67.87, 76.58]
-    cnn_cust_aol_s = [3.05, 2.84]
-    cnn_post_lpc_s = [55.06, 62.49]
-    cnn_post_lpp_s = [52.27, 59.47]
-    cnn_post_aol_s = [12.04, 11.94]
+    cnn_cust_lpc_s = [67.98, 76.36, 0]
+    cnn_cust_lpp_s = [67.87, 76.58, 0]
+    cnn_cust_aol_s = [3.05, 2.84, 0]
+    cnn_post_lpc_s = [55.06, 62.49, 0]
+    cnn_post_lpp_s = [52.27, 59.47, 0]
+    cnn_post_aol_s = [12.04, 11.94, 0]
 
-    rfc_cust_lpc_s = [71.77, 72.90]
-    rfc_cust_lpp_s = [75.89, 74.55]
-    rfc_cust_aol_s = [2.84, 3.70]
-    rfc_post_lpc_s = [57.69, 52.11]
-    rfc_post_lpp_s = [58.38, 52.45]
-    rfc_post_aol_s = [14.43, 13.03]
+    rfc_cust_lpc_s = [71.77, 72.90, 70.56]
+    rfc_cust_lpp_s = [75.89, 74.55, 71.61]
+    rfc_cust_aol_s = [2.84, 3.70, 5.08]
+    rfc_post_lpc_s = [57.69, 52.11, 47.90]
+    rfc_post_lpp_s = [58.38, 52.45, 47.77]
+    rfc_post_aol_s = [14.43, 13.03, 12.55]
 
     bright_cols = sns.color_palette("bright", 10)
     dark_cols = sns.color_palette("colorblind", 10)

@@ -10,7 +10,7 @@ mlp_layers = (10, 10, 10)
 mlp_iterations = 500
 cnn_filter_size = 128
 cnn_batch_size = 128
-cnn_epochs = 50
+cnn_epochs = 100
 knn_k_customer = 3
 knn_k_postcode = 2
 
