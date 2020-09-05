@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
+from  matplotlib.ticker import PercentFormatter
 import seaborn as sns
 
 
@@ -303,12 +304,12 @@ def graphs_obj3():
     rfc_post_aol = [11.86, 11.67, 10.43]
 
     # Solar results
-    cnn_cust_lpc_s = [67.98, 76.36, 0]
-    cnn_cust_lpp_s = [67.87, 76.58, 0]
-    cnn_cust_aol_s = [3.05, 2.84, 0]
-    cnn_post_lpc_s = [55.06, 62.49, 0]
-    cnn_post_lpp_s = [52.27, 59.47, 0]
-    cnn_post_aol_s = [12.04, 11.94, 0]
+    cnn_cust_lpc_s = [67.98, 76.36, 82.33]
+    cnn_cust_lpp_s = [67.87, 76.58, 83.49]
+    cnn_cust_aol_s = [3.05, 2.84, 3.31]
+    cnn_post_lpc_s = [55.06, 62.49, 66.14]
+    cnn_post_lpp_s = [52.27, 59.47, 65.06]
+    cnn_post_aol_s = [12.04, 11.94, 10.55]
 
     rfc_cust_lpc_s = [71.77, 72.90, 70.56]
     rfc_cust_lpp_s = [75.89, 74.55, 71.61]
@@ -341,6 +342,25 @@ def graphs_obj3():
     plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_aol, 'CNN solar': cnn_post_aol_s,
                                    'RFC': rfc_post_aol, 'RFC solar': rfc_post_aol_s})
     grapher(["Compare AOL - Customer", "Compare AOL - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+
+    # Correlation distribution
+    data = [44, 2, 3, 2, 22, 55, 4, 6, 1, 35, 71, 23, 12, 22, 35, 26, 96, 8, 17, 9, 61, 72, 19, 23, 95, 16, 96, 9, 96,
+            15, 10, 20, 87, 19, 45, 38, 3, 20, 18, 18, 84, 89, 35, 5, 1, 49, 4, 46, 19, 6, 0, 38, 0, 99, 17, 10, 9, 2,
+            0, 19, 4, 22, 40, 11, 14, 31, 15, 12, 38, 37, 0, 21, 1, 5, 10, 35, 34, 25, 96, 2, 8, 81, 5, 0, 16, 65, 81,
+            26, 1, 15, 10, 15, 7, 2, 36, 1, 24, 0, 24, 0, 50, 44, 12, 0, 60, 4, 80, 61, 5, 90, 21, 38, 18, 52, 43, 2,
+            15, 2, 23, 43, 32, 17, 21, 92, 51, 5, 49, 99, 0, 29, 58, 22, 67, 7, 24, 5, 35, 4, 28, 17, 58, 0, 24, 5, 27,
+            26, 15, 0, 94, 50, 12, 3, 73, 24, 24, 0, 4, 79, 66, 0, 3, 22, 3, 45, 9, 0, 4, 33, 11, 40, 0, 8, 10, 4, 1, 2,
+            90, 68, 3, 10, 1, 84, 82, 91, 13, 31, 0, 0, 11, 69, 44, 15, 33, 0, 40, 12, 9, 4, 7, 25, 0, 34, 4, 21, 8, 8,
+            1, 50, 54, 11, 60, 8, 6, 15, 53, 20, 0, 37, 79, 15, 61, 47, 13, 31, 26, 12, 38, 54, 3, 30, 2, 3, 0, 17, 8,
+            0, 2, 20, 1, 57, 21, 20, 92, 5, 4, 95, 12, 2, 3, 2, 7, 6, 19, 1, 14, 51, 2, 33, 97, 8, 30, 9, 11, 1, 12, 49,
+            7, 3, 16, 10]
+
+    ax = sns.distplot(data, bins=100, kde=True)
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
+    ax.set_xlabel("Correlation rank")
+    ax.set_ylabel("Frequency (%)")
+    ax.set(xlim=(0, 100))
+    plt.show()
 
 
 def graphs_obj4():
