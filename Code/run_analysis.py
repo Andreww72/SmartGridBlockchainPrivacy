@@ -50,11 +50,8 @@ if __name__ == '__main__':
     if data_freq == 'hourly' or data_freq == 'half_hourly':
         year = args.year
         if not year:
-            print("Provide a year when using hourly or half_hourly resolution")
+            print("Provide a year when using hourly or half_hourly frequency")
             exit()
-    if data_freq == 'half_hourly' and solar:
-        print("Solar is not available for half_hourly resolution")
-        exit()
 
     os.chdir(f"../BlockchainData/{data_freq}")
 
