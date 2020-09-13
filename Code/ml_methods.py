@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report, accuracy_score
 from preprocess import preprocessing
 
 mlp_layers = (10, 10, 10)
-mlp_iterations = 500
+mlp_iterations = 1000
 cnn_filter_size = 128
 cnn_batch_size = 128
 cnn_epochs = 100

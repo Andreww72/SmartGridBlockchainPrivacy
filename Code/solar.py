@@ -164,7 +164,6 @@ def solar_add_daily():
 
 
 def solar_add_hourly(users, az):
-
     # Get postcodes
     os.chdir("../OriginalEnergyData/")
     postcodes = pd.read_csv("Solutions.csv")
@@ -218,7 +217,6 @@ def solar_add_hourly(users, az):
 
 
 def combine_hourly_solar():
-
     os.chdir("../BlockchainData/hourly")
     for data in ["0_customer_hourly_2012-13.csv", "0_postcode_hourly_2012-13.csv"]:
         print(data)
@@ -227,6 +225,81 @@ def combine_hourly_solar():
         count = 0
 
         for user in range(1, 300):
+            print(user)
+            df = pd.read_csv(f"{user}_blockchain.csv_solar.csv", header=0)
+
+            for solar in zip(df['Solar']):
+                energy_data.at[count, 'Solar'] = solar[0]
+                count += 1
+
+        print("Saving file")
+        energy_data.to_csv(f"{data}_solar.csv", index=False)
+
+
+def solar_add_half_hourly(users, az):
+    # Get postcodes
+    os.chdir("../OriginalEnergyData/")
+    postcodes = pd.read_csv("Solutions.csv")
+    postcodes = dict(zip(postcodes['Customer'], postcodes['Postcode']))
+
+    # Add in solar data
+    os.chdir("../BlockchainData/half_hourly")
+
+    # Calculate each hour as a portion of the total day
+    # y = -(x-12.5)^2/19 + 1.6
+    t = (0.0741 + 0.2057 + 0.3241 + 0.4294 + 0.5215 + 0.6004 + 0.6662 + 0.71886 + 0.7583 + 0.78465 + 0.7978) * 2
+    map_portion = {"7:00": 0.0741/t, "7:30": 0.2057/t, "8:00": 0.3241/t, "8:30": 0.4294/t, "9:00": 0.5215/t,
+                   "9:30": 0.6004/t, "10:00": 0.6662/t, "10:30": 0.71886/t, "11:00": 0.7583/t, "11:30": 0.78465/t,
+                   "12:00": 0.7978/t, "12:30": 0.7978/t, "13:00": 0.78465/t, "13:30": 0.7583/t, "14:00": 0.71886/t,
+                   "14:30": 0.6662/t, "15:00": 0.6004/t, "15:30": 0.5215/t, "16:00": 0.4294/t, "16:30": 0.3241/t,
+                   "17:00": 0.2057/t, "17:30": 0.0741/t}
+
+    # Open solar data in advance
+    for file in glob.glob("*_blockchain.csv"):
+        customer = int(file.split("_")[0])
+        if customer not in users or customer > 999:
+            continue
+        print(customer)
+
+        df = pd.read_csv(file, header=0)
+        df = df[df['Timestamp'].str.contains("2012")]
+        df = df.loc[~((df['Timestamp'].str.contains("2012")) &
+                      (df['Timestamp'].str.contains("/01/|/02/|/03/|/04/|/05/|/06/"))), :]
+        df.reset_index(drop=True, inplace=True)
+        df['Solar'] = 0
+
+        os.chdir("../../WeatherData")
+        for weather in glob.glob(f"{str(postcodes[customer])}_*.csv"):
+            sol = pd.read_csv(weather, header=0)
+        os.chdir("../BlockchainData/half_hourly")
+
+        for index, timestamp in zip(df.index, df['Timestamp']):
+            date = timestamp.split(' ')[0]
+            time = timestamp.split(' ')[1]
+            year = int(date.split('/')[2])
+            month = int(date.split('/')[1])
+            day = int(date.split('/')[0])
+            try:
+                portion = map_portion[time]
+                value = sol.loc[((sol['Year'] == year) & (sol['Month'] == month) & (sol['Day'] == day)),
+                                'Daily global solar exposure (MJ/m*m)'].values[0] * portion
+            except KeyError:
+                value = 0
+
+            df.iloc[index, 5] = round(value, 3)
+        df['Amount'].round(3)
+        df.to_csv(f"{file}_solar.csv", index=False)
+
+
+def combine_half_hourly_solar():
+    os.chdir("../BlockchainData/half_hourly")
+    for data in ["0_customer_half_hourly_2012-13a.csv", "0_postcode_half_hourly_2012-13a.csv"]:
+        print(data)
+        energy_data = pd.read_csv(data, header=0)
+        energy_data['Solar'] = 0.0
+        count = 0
+
+        for user in range(1, 300-1):
             print(user)
             df = pd.read_csv(f"{user}_blockchain.csv_solar.csv", header=0)
 
@@ -309,11 +382,17 @@ def compare_data():
     print(f"Spread correlation position: {spread_coint}")
 
 
+def reconstruct_usage():
+    # Goal: Take household net energy (post meter so generation-usage) and predict usage
+    print("Reconstructor")
+
+
 if __name__ == '__main__':
 
     # Check usage
-    if not len(sys.argv) == 6:
-        print("Use: python ./graphs.py [weekly] [daily] [hourly] [combine hourly] [stats]")
+    if not len(sys.argv) == 9:
+        print("Use: python ./graphs.py [weekly] [daily] [hourly] [combine hourly] [half_hourly] "
+              "[combine half_hourly] [stats] [reconstruct]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
@@ -363,7 +442,46 @@ if __name__ == '__main__':
         combine_hourly_solar()
 
     if int(sys.argv[5]):
+        print("Solar add half hourly")
+        processes = [
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number1",
+                                    args=(list(range(1, 26)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number2",
+                                    args=(list(range(26, 51)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number3",
+                                    args=(list(range(51, 76)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number4",
+                                    args=(list(range(76, 101)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number5",
+                                    args=(list(range(101, 126)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number6",
+                                    args=(list(range(126, 151)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number7",
+                                    args=(list(range(151, 176)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number8",
+                                    args=(list(range(176, 201)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number9",
+                                    args=(list(range(201, 226)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number10",
+                                    args=(list(range(226, 251)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number11",
+                                    args=(list(range(251, 276)), 1)),
+            multiprocessing.Process(target=solar_add_half_hourly, name="Number12",
+                                    args=(list(range(276, 301)), 1)),
+        ]
+        for p in processes:
+            p.start()
+        for p in processes:
+            p.join()
+
+    if int(sys.argv[6]):
+        print("Combine half hourly")
+        combine_half_hourly_solar()
+
+    if int(sys.argv[7]):
         print("Correlation and cointegraton")
         compare_data()
 
-
+    if int(sys.argv[8]):
+        print("Reconstruct usage from generation")
+        reconstruct_usage()
