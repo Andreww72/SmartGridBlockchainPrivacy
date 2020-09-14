@@ -145,7 +145,7 @@ def graphs_obj2():
     cnn_post_aol = [11.46, 11.47, 10.12, 10.03]
 
     rfc_cust_lpc = [62.63, 63.10, 56.74, 56.98]
-    rfc_cust_lpp = [64.81, 65.14, 57.39, 53.04]
+    rfc_cust_lpp = [64.81, 65.14, 57.39, 56.54]
     rfc_cust_aol = [2.14, 2.63, 2.55, 2.68]
     rfc_post_lpc = [39.23, 36.94, 33.10, 33.90]
     rfc_post_lpp = [39.69, 36.52, 33.23, 32.89]
@@ -286,37 +286,37 @@ def graphs_obj2():
 
 def graphs_obj3():
     # Visualise results
-    x_cats = ['Weekly', 'Daily', 'Hourly']
+    x_cats = ['Weekly', 'Daily', 'Hourly', 'Half Hourly']
 
     # Data copied from graphs_obj2 for delta to solar results
-    cnn_cust_lpc = [58.03, 69.91, 78.92]
-    cnn_cust_lpp = [59.21, 71.05, 79.40]
-    cnn_cust_aol = [2.47, 2.39, 2.33]
-    cnn_post_lpc = [42.85, 53.96, 61.84]
-    cnn_post_lpp = [45.65, 55.77, 62.79]
-    cnn_post_aol = [11.46, 11.47, 10.12]
+    cnn_cust_lpc = [58.03, 69.91, 78.92, 83.98]
+    cnn_cust_lpp = [59.21, 71.05, 79.40, 85.21]
+    cnn_cust_aol = [2.47, 2.39, 2.33, 2.48]
+    cnn_post_lpc = [42.85, 53.96, 61.84, 61.78]
+    cnn_post_lpp = [45.65, 55.77, 62.79, 63.44]
+    cnn_post_aol = [11.46, 11.47, 10.12, 10.03]
 
-    rfc_cust_lpc = [62.63, 63.10, 56.74]
-    rfc_cust_lpp = [64.81, 65.14, 57.39]
-    rfc_cust_aol = [2.14, 2.63, 2.55]
-    rfc_post_lpc = [39.23, 36.94, 33.10]
-    rfc_post_lpp = [39.69, 36.52, 33.23]
-    rfc_post_aol = [11.86, 11.67, 10.43]
+    rfc_cust_lpc = [62.63, 63.10, 56.74, 56.98]
+    rfc_cust_lpp = [64.81, 65.14, 57.39, 56.54]
+    rfc_cust_aol = [2.14, 2.63, 2.55, 2.68]
+    rfc_post_lpc = [39.23, 36.94, 33.10, 33.90]
+    rfc_post_lpp = [39.69, 36.52, 33.23, 32.89]
+    rfc_post_aol = [11.86, 11.67, 10.43, 10.30]
 
     # Solar results
-    cnn_cust_lpc_s = [67.98, 76.36, 82.33]
-    cnn_cust_lpp_s = [67.87, 76.58, 83.49]
-    cnn_cust_aol_s = [3.05, 2.84, 3.31]
-    cnn_post_lpc_s = [55.06, 62.49, 66.14]
-    cnn_post_lpp_s = [52.27, 59.47, 65.06]
-    cnn_post_aol_s = [12.04, 11.94, 10.55]
+    cnn_cust_lpc_s = [67.98, 76.36, 82.33, 81.81]
+    cnn_cust_lpp_s = [67.87, 76.58, 83.49, 82.68]
+    cnn_cust_aol_s = [3.05, 2.84, 3.31, 3.50]
+    cnn_post_lpc_s = [55.06, 62.49, 66.14, 64.85]
+    cnn_post_lpp_s = [52.27, 59.47, 65.06, 66.98]
+    cnn_post_aol_s = [12.04, 11.94, 10.55, 10.57]
 
-    rfc_cust_lpc_s = [71.77, 72.90, 70.56]
-    rfc_cust_lpp_s = [75.89, 74.55, 71.61]
-    rfc_cust_aol_s = [2.84, 3.70, 5.08]
-    rfc_post_lpc_s = [57.69, 52.11, 47.90]
-    rfc_post_lpp_s = [58.38, 52.45, 47.77]
-    rfc_post_aol_s = [14.43, 13.03, 12.55]
+    rfc_cust_lpc_s = [71.77, 72.90, 70.56, 67.62]
+    rfc_cust_lpp_s = [75.89, 74.55, 71.61, 68.81]
+    rfc_cust_aol_s = [2.84, 3.70, 5.08, 5.17]
+    rfc_post_lpc_s = [57.69, 52.11, 47.90, 48.52]
+    rfc_post_lpp_s = [58.38, 52.45, 47.77, 48.51]
+    rfc_post_aol_s = [14.43, 13.03, 12.55, 11.48]
 
     bright_cols = sns.color_palette("bright", 10)
     dark_cols = sns.color_palette("colorblind", 10)
