@@ -383,7 +383,9 @@ def compare_data():
 
 
 def reconstruct_usage():
+    from sklearn.linear_model import LinearRegression
     from sklearn.ensemble import RandomForestRegressor
+    from sklearn.neural_network import MLPRegressor
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import r2_score, mean_squared_error
     from sklearn.exceptions import DataConversionWarning
@@ -422,11 +424,12 @@ def reconstruct_usage():
             print(f"ERROR ON {house}")
             continue
 
-        rf_model = RandomForestRegressor()
-        rf_model.fit(x_train, y_train)
+        # Choose LinearRegression, RandomForestRegressor, or MLPRegressor
+        model = MLPRegressor()
+        model.fit(x_train, y_train)
 
         # Test reconstruction
-        y_pred = rf_model.predict(x_test)
+        y_pred = model.predict(x_test)
 
         mse = mean_squared_error(y_test, y_pred)
         rmse = round(np.sqrt(mse), 4)
@@ -434,7 +437,7 @@ def reconstruct_usage():
         rmses.append(rmse)
         r2s.append(r2)
         print(f"{house.split('_')[0]}: RMSE {rmse} and R2 {r2}")
-    print(f"Overall RMSE {sum(rmses)/len(rmses)} and R2 {sum(r2s)/len(r2s)}")
+    print(f"Overall RMSE {round(sum(rmses)/len(rmses), 4)} and R2 {round(sum(r2s)/len(r2s), 4)}")
 
 
 if __name__ == '__main__':
