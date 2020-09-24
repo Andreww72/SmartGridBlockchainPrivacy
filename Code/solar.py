@@ -383,8 +383,58 @@ def compare_data():
 
 
 def reconstruct_usage():
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import r2_score, mean_squared_error
+    from sklearn.exceptions import DataConversionWarning
+    import warnings
+    warnings.filterwarnings(action='ignore', category=DataConversionWarning)
+
     # Goal: Take household net energy (post meter so generation-usage) and predict usage
-    print("Reconstructor")
+    os.chdir("../BlockchainData/half_hourly")
+
+    rmses = []
+    r2s = []
+    # For each households transactions (files contain one year of data)
+    for house in glob.glob(f"*csv_solar.csv"):
+        df = pd.read_csv(house, header=0)
+
+        # Separate into three dataframes by type
+        df_cl = df[df['Type'] == "CL"]
+        df_gc = df[df['Type'] == "GC"]
+        df_gg = df[df['Type'] == "GG"]
+
+        # Drop times without solar generation otherwise accuracy is massive cause usage = net
+        frame = {'CL': df_cl['Amount'].values, 'GC': df_gc['Amount'].values, 'GG': df_gg['Amount'].values}
+        df_comb = pd.DataFrame(frame)
+        df_comb = df_comb[df_comb['GG'] > 0]
+
+        # Calculate net energy consumption (CL + GC - GG) per time period
+        se_use = df_comb['CL'].values + df_comb['GC'].values
+        se_net = se_use - df_comb['GG'].values
+
+        # Learn mapping of net energy to usage
+        x = se_net.reshape(-1, 1)
+        y = se_use.reshape(-1, 1)
+        try:
+            x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=0)
+        except ValueError:
+            print(f"ERROR ON {house}")
+            continue
+
+        rf_model = RandomForestRegressor()
+        rf_model.fit(x_train, y_train)
+
+        # Test reconstruction
+        y_pred = rf_model.predict(x_test)
+
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = round(np.sqrt(mse), 4)
+        r2 = round(r2_score(y_test, y_pred), 4)
+        rmses.append(rmse)
+        r2s.append(r2)
+        print(f"{house.split('_')[0]}: RMSE {rmse} and R2 {r2}")
+    print(f"Overall RMSE {sum(rmses)/len(rmses)} and R2 {sum(r2s)/len(r2s)}")
 
 
 if __name__ == '__main__':
