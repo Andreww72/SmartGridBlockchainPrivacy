@@ -27,17 +27,6 @@ import pandas as pd
 import multiprocessing
 
 
-def rearrange_data():
-    for postcode in os.listdir():
-        for item in os.listdir(postcode):
-            if item.endswith(".txt"):
-                os.remove(f"{postcode}/{item}")
-            else:
-                station = re.search(r'[0-9]{6}', item).group(0)
-                new_name = f"{postcode}_{station}.csv"
-                os.rename(f"{postcode}/{item}", new_name)
-
-
 def crop_years():
     # Only want 1 July 2010 to 30 June 2013
     for postcode in os.listdir():
@@ -425,6 +414,8 @@ def reconstruct_usage():
             continue
 
         # Choose LinearRegression, RandomForestRegressor, or MLPRegressor
+        # model = LinearRegression()
+        # model = RandomForestRegressor()
         model = MLPRegressor()
         model.fit(x_train, y_train)
 
@@ -444,7 +435,7 @@ if __name__ == '__main__':
 
     # Check usage
     if not len(sys.argv) == 9:
-        print("Use: python ./graphs.py [weekly] [daily] [hourly] [combine hourly] [half_hourly] "
+        print("Use: python ./solar.py [weekly] [daily] [hourly] [combine hourly] [half_hourly] "
               "[combine half_hourly] [stats] [reconstruct]")
         print("Use a 1 or 0 indicator for each argument")
         exit()

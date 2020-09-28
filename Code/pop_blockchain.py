@@ -332,7 +332,7 @@ if __name__ == '__main__':
     for p in processes:
         p.join()
 
-    # Weird if because weekly built from daily, whereas daily, hourly, half-hourly built themselves
+    # Weird if, because weekly is built from daily, whereas daily, hourly, half-hourly build themselves
     if data_freq == 'weekly':
         os.chdir("../BlockchainData/daily")
         combine_years()
@@ -344,4 +344,5 @@ if __name__ == '__main__':
         combine_years()
         combine_files(data_freq)
 
+    # Create the postcode split from what was just made
     postcode_ledgers(data_freq)

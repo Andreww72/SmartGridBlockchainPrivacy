@@ -15,7 +15,7 @@ knn_k_customer = 3
 knn_k_postcode = 2
 
 
-def mlp(data_freq, class_type, case, year, solar):
+def mlp(data_freq, class_type, case, year, solar, net_export):
     """Perform multilayer perceptron ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -26,7 +26,7 @@ def mlp(data_freq, class_type, case, year, solar):
     from sklearn.neural_network import MLPClassifier
 
     print(f"MLP for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
 
     mlp_num = MLPClassifier(hidden_layer_sizes=mlp_layers, max_iter=mlp_iterations)
     mlp_num.fit(x_train, y_train)
@@ -36,7 +36,7 @@ def mlp(data_freq, class_type, case, year, solar):
     # print(classification_report(y_test, mlp_predictions_num))
 
 
-def cnn(data_freq, class_type, case, year, solar):
+def cnn(data_freq, class_type, case, year, solar, net_export):
     """Perform convolutional neural network ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -49,7 +49,7 @@ def cnn(data_freq, class_type, case, year, solar):
     from keras.utils import to_categorical
 
     print(f"CNN for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
 
     x_train_cnn = np.expand_dims(x_train, axis=2)
     x_test_cnn = np.expand_dims(x_test, axis=2)
@@ -75,9 +75,10 @@ def cnn(data_freq, class_type, case, year, solar):
     model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
     print(f"CNN {case} {data_freq} {class_type} solar {solar} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
     print(f"CNN {case} {data_freq} {class_type} solar {solar} top-5 ac: {model.evaluate(x_test_cnn, y_test_cnn)[2]}")
+    print(classification_report(y_test_cnn, model.predict_classes(x_test_cnn)))
 
 
-def rfc(data_freq, class_type, case, year, solar):
+def rfc(data_freq, class_type, case, year, solar, net_export):
     """Perform random forest ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -97,7 +98,7 @@ def rfc(data_freq, class_type, case, year, solar):
         features.append('Solar')
 
     print(f"RFC for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
 
     forest_num = RandomForestClassifier(max_depth=12, random_state=0)
     forest_num.fit(x_train, y_train)
@@ -105,7 +106,7 @@ def rfc(data_freq, class_type, case, year, solar):
 
     print(f"RFC {case} {data_freq} {class_type} solar {solar} accuracy: "
           f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
-    # print(classification_report(y_test, forest_predictions_num))
+    print(classification_report(y_test, forest_predictions_num))
     feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
     # Creating a bar plot
@@ -118,7 +119,7 @@ def rfc(data_freq, class_type, case, year, solar):
     plt.savefig(f"/home/andrew/results/{data_freq}_{case}_{class_type}_rfc.png")
 
 
-def knn(data_freq, class_type, case, year, solar):
+def knn(data_freq, class_type, case, year, solar, net_export):
     """Perform K-nearest neighbours ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -131,7 +132,7 @@ def knn(data_freq, class_type, case, year, solar):
     k = knn_k_customer if class_type == 'customer' else knn_k_postcode
 
     print(f"KNN for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
 
     knn_num = KNeighborsClassifier(n_neighbors=k)
     knn_num.fit(x_train, y_train)
