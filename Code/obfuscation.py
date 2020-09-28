@@ -2,17 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-ML analysis
-Grid + solar data, informed attacker: classification
 Use: python ./obfuscation -h for usage
 """
 
 import os
 import sys
-import glob
 import secrets
 import hashlib
-import numpy as np
 import pandas as pd
 
 num_customers = 300
@@ -60,7 +56,7 @@ def multi_pks_ledgers(data_freq, pk_count, per_ledger):
     data['Ledger'] = map_series.map(ledgers)
 
     # Save final ledgers
-    data.to_csv(f"0_pk_{pk_count}_ledger_{per_ledger}_{data_freq}.csv", index=False)
+    data.to_csv(f"0_pk{pk_count}_ledger{per_ledger}_{data_freq}.csv", index=False)
 
 
 if __name__ == '__main__':
