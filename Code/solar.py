@@ -327,8 +327,10 @@ def compare_data(type):
             frame = {'CL': df_cl['Amount'].values, 'GC': df_gc['Amount'].values, 'GG': df_gg['Amount'].values}
             df_comb = pd.DataFrame(frame)
             data = df_gg
-            data['Amount'] = df_comb['CL'].values + df_comb['GC'].values - df_comb['GG'].values
+            data['Amount'] = -df_comb['CL'].values - df_comb['GC'].values + df_comb['GG'].values
             data.drop(['Type'], axis=1, inplace=True)
+        else:
+            data = data[data['Type'] == "GG"]
 
         data = data['Amount'].round(3)
         data = data.to_list()
@@ -446,9 +448,9 @@ def reconstruct_usage():
 if __name__ == '__main__':
 
     # Check usage
-    if not len(sys.argv) == 9:
+    if not len(sys.argv) == 10:
         print("Use: python ./solar.py [weekly] [daily] [hourly] [combine hourly] [half_hourly] "
-              "[combine half_hourly] [stats] [reconstruct]")
+              "[combine half_hourly] [stats gg] [stats nex] [reconstruct]")
         print("Use a 1 or 0 indicator for each argument")
         exit()
 
@@ -539,7 +541,7 @@ if __name__ == '__main__':
         compare_data("gen")
 
     if int(sys.argv[8]):
-        print("Correlation and cointegraton net export")
+        print("Correlation and cointegraton with net export")
         compare_data("nex")
 
     if int(sys.argv[9]):
