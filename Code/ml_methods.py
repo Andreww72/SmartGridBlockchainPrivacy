@@ -106,10 +106,14 @@ def rfc(data_freq, class_type, case, year, solar, net_export, pk, ledger):
 
     if case == 'aol':
         features = ['Timestamp', 'Type', 'Amount']
+    elif case == 'obfs':
+        features = ['Ledger', 'PK', 'Timestamp', 'Type', 'Amount']
     else:
         features = ['PK', 'Timestamp', 'Type', 'Amount']
     if solar:
         features.append('Solar')
+    if net_export:
+        features.remove('Type')
 
     print(f"RFC for {case} {data_freq} {class_type} solar {solar}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export, pk, ledger)
@@ -120,7 +124,7 @@ def rfc(data_freq, class_type, case, year, solar, net_export, pk, ledger):
 
     print(f"RFC {case} {data_freq} {class_type} solar {solar} accuracy: "
           f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
-    print(classification_report(y_test, forest_predictions_num))
+    # print(classification_report(y_test, forest_predictions_num))
     feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
 
     # Creating a bar plot

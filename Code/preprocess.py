@@ -33,7 +33,7 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
         elif year == 3:
             datafile = f"0_{ledger}_{data_freq}_2012-13b{solar_n}.csv"
 
-    if pk or ledger:
+    if pk or per_ledger:
         datafile = f"0_pk{pk}_ledger{per_ledger}_{data_freq}.csv"
 
     try:
@@ -42,8 +42,18 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
         print(f"{datafile} file not found")
         exit()
 
+    if net_export:
+        df_cl = data[data['Type'] == "CL"]
+        df_gc = data[data['Type'] == "GC"]
+        df_gg = data[data['Type'] == "GG"]
+        frame = {'CL': df_cl['Amount'].values, 'GC': df_gc['Amount'].values, 'GG': df_gg['Amount'].values}
+        df_comb = pd.DataFrame(frame)
+        data = df_cl
+        data['Amount'] = df_comb['CL'].values + df_comb['GC'].values - df_comb['GG'].values
+        data.drop(['Type'], axis=1, inplace=True)
+    else:
+        data['Type'] = data['Type'].astype('category').cat.codes
     # Convert categorical columns to numeric
-    data['Type'] = data['Type'].astype('category').cat.codes
     data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
     data['Timestamp'] = (data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
@@ -60,10 +70,6 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
 
     # Strip zeros
     data = data[data['Amount'] != 0]
-
-    if net_export:
-        data['Amount'] = data['CL'].values + data['GC'].values - data['GG'].values
-        data.drop(['Type'], axis=1, inplace=True)
 
     x = data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
     y = None
