@@ -36,8 +36,10 @@ if __name__ == '__main__':
                         help="Security case of 'ledger_per_customer', 'ledger_per_postcode', or 'all_one_ledger'")
     parser.add_argument("-y", "--year", type=int, choices=[0, 1, 2, 3],
                         help="Year of data to use if hourly or half_hourly chosen. 0, 1, 2, or 3")
-    parser.add_argument("-s", "--solar", action='store_true',
+    parser.add_argument("-s", "--solar", action='solar_true',
                         help="Use solar data in analysis?")
+    parser.add_argument("-n", "--net", action='net_export_true',
+                        help="Use net export data in analysis?")
 
     args = parser.parse_args()
     method = args.method
@@ -45,6 +47,7 @@ if __name__ == '__main__':
     class_type = args.class_type
     case = args.case
     solar = args.solar
+    net_export = args.net
 
     year = None
     if data_freq == 'hourly' or data_freq == 'half_hourly':
@@ -59,53 +62,53 @@ if __name__ == '__main__':
         if class_type == 'both':
             processes = [
                 multiprocessing.Process(target=mlp, name="MLP Customer",
-                                        args=(data_freq, 'customer', case, year, solar)),
+                                        args=(data_freq, 'customer', case, year, solar, net_export)),
                 multiprocessing.Process(target=mlp, name="MLP Postcode",
-                                        args=(data_freq, 'postcode', case, year, solar))
+                                        args=(data_freq, 'postcode', case, year, solar, net_export))
             ]
             for p in processes:
                 p.start()
             for p in processes:
                 p.join()
         else:
-            mlp(data_freq, class_type, case, year, solar)
+            mlp(data_freq, class_type, case, year, solar, net_export)
 
     elif method == 'cnn':
         if class_type == 'both':
-            cnn(data_freq, 'customer', case, year, solar)
-            cnn(data_freq, 'postcode', case, year, solar)
+            cnn(data_freq, 'customer', case, year, solar, net_export)
+            cnn(data_freq, 'postcode', case, year, solar, net_export)
         else:
-            cnn(data_freq, class_type, case, year, solar)
+            cnn(data_freq, class_type, case, year, solar, net_export)
 
     elif method == 'rfc':
         if class_type == 'both':
             processes = [
                 multiprocessing.Process(target=rfc, name="Forest Customer",
-                                        args=(data_freq, 'customer', case, year, solar)),
+                                        args=(data_freq, 'customer', case, year, solar, net_export)),
                 multiprocessing.Process(target=rfc, name="Forest Postcode",
-                                        args=(data_freq, 'postcode', case, year, solar))
+                                        args=(data_freq, 'postcode', case, year, solar, net_export))
             ]
             for p in processes:
                 p.start()
             for p in processes:
                 p.join()
         else:
-            rfc(data_freq, class_type, case, year, solar)
+            rfc(data_freq, class_type, case, year, solar, net_export)
 
     elif method == 'knn':
         if class_type == 'both':
             processes = [
                 multiprocessing.Process(target=knn, name="KNN Customer",
-                                        args=(data_freq, 'customer', case, year, solar)),
+                                        args=(data_freq, 'customer', case, year, solar, net_export)),
                 multiprocessing.Process(target=knn, name="Process Postcode",
-                                        args=(data_freq, 'postcode', case, year, solar))
+                                        args=(data_freq, 'postcode', case, year, solar, net_export))
             ]
             for p in processes:
                 p.start()
             for p in processes:
                 p.join()
         else:
-            knn(data_freq, class_type, case, year, solar)
+            knn(data_freq, class_type, case, year, solar, net_export)
 
     else:
         print("Pick a valid analysis method")

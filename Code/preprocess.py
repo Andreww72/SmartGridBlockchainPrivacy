@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def preprocessing(data_freq, class_type, case, year, solar, strip_zeros=True):
+def preprocessing(data_freq, class_type, case, year, solar, net_export=False, strip_zeros=True):
     """Preprocess fully setup blockchain data for the ML analysis
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -50,6 +50,10 @@ def preprocessing(data_freq, class_type, case, year, solar, strip_zeros=True):
 
     if strip_zeros:
         data = data[data['Amount'] != 0]
+
+    if net_export:
+        data['Amount'] = data['CL'].values + data['GC'].values - data['GG'].values
+        data.drop(['Type'], axis=1, inplace=True)
 
     x = data.drop(['Customer', 'Postcode', 'Generator'], axis=1)
     y = None
