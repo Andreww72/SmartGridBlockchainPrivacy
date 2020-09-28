@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def preprocessing(data_freq, class_type, case, year, solar, net_export=False, strip_zeros=True):
+def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_ledger):
     """Preprocess fully setup blockchain data for the ML analysis
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -33,7 +33,14 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export=False, st
         elif year == 3:
             datafile = f"0_{ledger}_{data_freq}_2012-13b{solar_n}.csv"
 
-    data = pd.read_csv(datafile, header=0)
+    if pk or ledger:
+        datafile = f"0_pk{pk}_ledger{per_ledger}_{data_freq}.csv"
+
+    try:
+        data = pd.read_csv(datafile, header=0)
+    except FileNotFoundError:
+        print(f"{datafile} file not found")
+        exit()
 
     # Convert categorical columns to numeric
     data['Type'] = data['Type'].astype('category').cat.codes
@@ -47,9 +54,12 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export=False, st
         data.drop(['Ledger'], axis=1, inplace=True)
     elif case == 'lpp':
         data.drop(['Ledger'], axis=1, inplace=True)
+    elif case == 'obfs':
+        if ledger == 1:
+            data.drop(['Ledger'], axis=1, inplace=True)
 
-    if strip_zeros:
-        data = data[data['Amount'] != 0]
+    # Strip zeros
+    data = data[data['Amount'] != 0]
 
     if net_export:
         data['Amount'] = data['CL'].values + data['GC'].values - data['GG'].values

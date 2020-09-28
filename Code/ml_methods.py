@@ -15,7 +15,7 @@ knn_k_customer = 3
 knn_k_postcode = 2
 
 
-def mlp(data_freq, class_type, case, year, solar, net_export):
+def mlp(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     """Perform multilayer perceptron ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -26,7 +26,7 @@ def mlp(data_freq, class_type, case, year, solar, net_export):
     from sklearn.neural_network import MLPClassifier
 
     print(f"MLP for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export, pk, ledger)
 
     mlp_num = MLPClassifier(hidden_layer_sizes=mlp_layers, max_iter=mlp_iterations)
     mlp_num.fit(x_train, y_train)
@@ -36,7 +36,7 @@ def mlp(data_freq, class_type, case, year, solar, net_export):
     # print(classification_report(y_test, mlp_predictions_num))
 
 
-def cnn(data_freq, class_type, case, year, solar, net_export):
+def cnn(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     """Perform convolutional neural network ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -49,7 +49,7 @@ def cnn(data_freq, class_type, case, year, solar, net_export):
     from keras.utils import to_categorical
 
     print(f"CNN for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export, pk, ledger)
 
     x_train_cnn = np.expand_dims(x_train, axis=2)
     x_test_cnn = np.expand_dims(x_test, axis=2)
@@ -92,7 +92,7 @@ def cnn(data_freq, class_type, case, year, solar, net_export):
     # pyplot.show()
 
 
-def rfc(data_freq, class_type, case, year, solar, net_export):
+def rfc(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     """Perform random forest ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -112,7 +112,7 @@ def rfc(data_freq, class_type, case, year, solar, net_export):
         features.append('Solar')
 
     print(f"RFC for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export, pk, ledger)
 
     forest_num = RandomForestClassifier(max_depth=12, random_state=0)
     forest_num.fit(x_train, y_train)
@@ -133,7 +133,7 @@ def rfc(data_freq, class_type, case, year, solar, net_export):
     plt.savefig(f"/home/andrew/results/{data_freq}_{case}_{class_type}_rfc.png")
 
 
-def knn(data_freq, class_type, case, year, solar, net_export):
+def knn(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     """Perform K-nearest neighbours ML classification
     :parameter data_freq --> 'weekly', 'daily', 'hourly', or 'half_hourly' time data resolution.
     :parameter class_type --> 'customer', or 'postcode' are the target for classification.
@@ -146,7 +146,7 @@ def knn(data_freq, class_type, case, year, solar, net_export):
     k = knn_k_customer if class_type == 'customer' else knn_k_postcode
 
     print(f"KNN for {case} {data_freq} {class_type} solar {solar}")
-    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export)
+    x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export, pk, ledger)
 
     knn_num = KNeighborsClassifier(n_neighbors=k)
     knn_num.fit(x_train, y_train)
