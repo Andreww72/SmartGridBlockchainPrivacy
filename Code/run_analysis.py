@@ -36,9 +36,9 @@ if __name__ == '__main__':
                         help="Security case of 'ledger_per_customer', 'ledger_per_postcode', or 'all_one_ledger'")
     parser.add_argument("-y", "--year", type=int, choices=[0, 1, 2, 3],
                         help="Year of data to use if hourly or half_hourly chosen. 0, 1, 2, or 3")
-    parser.add_argument("-s", "--solar", action='solar_true',
+    parser.add_argument("-s", "--solar", action='store_true',
                         help="Use solar data in analysis?")
-    parser.add_argument("-n", "--net", action='net_export_true',
+    parser.add_argument("-n", "--net", action='store_true',
                         help="Use net export data in analysis?")
 
     args = parser.parse_args()
