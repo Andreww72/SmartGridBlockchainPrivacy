@@ -44,7 +44,7 @@ def cnn(data_freq, class_type, case, year, solar, net_export):
     :parameter year --> 0 (2010-11), 1 (2011-12), 2 (2012-13 or 1st half if hourly), or 3 (2012-13 2nd half).
     :parameter solar --> Boolean if to load data file with solar attribute
     """
-    from keras.models import Model
+    from keras.models import Sequential
     from keras.layers import Input, Conv1D, Flatten, Dense
     from keras.utils import to_categorical
 
@@ -64,18 +64,32 @@ def cnn(data_freq, class_type, case, year, solar, net_export):
         y_train_cnn = to_categorical(np.subtract(y_train, [2000] * len(y_train)))
         y_test_cnn = to_categorical(np.subtract(y_test, [2000] * len(y_test)))
 
-    inp = Input(shape=(n_features, 1))
-    t = Conv1D(filters=cnn_filter_size, kernel_size=1)(inp)
-    t = Conv1D(filters=cnn_filter_size, kernel_size=1)(t)
-    t = Flatten()(t)
-    t = Dense(elements, activation='relu')(t)
-    t = Dense(elements, activation='softmax')(t)
-    model = Model(inp, t)
+    model = Sequential()
+    model.add(Input(shape=(n_features, 1)))
+    model.add(Conv1D(filters=cnn_filter_size, kernel_size=1))
+    model.add(Conv1D(filters=cnn_filter_size, kernel_size=1))
+    model.add(Flatten())
+    model.add(Dense(elements, activation='relu'))
+    model.add(Dense(elements, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', 'top_k_categorical_accuracy'])
-    model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
+    history = model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
     print(f"CNN {case} {data_freq} {class_type} solar {solar} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
     print(f"CNN {case} {data_freq} {class_type} solar {solar} top-5 ac: {model.evaluate(x_test_cnn, y_test_cnn)[2]}")
-    print(classification_report(y_test_cnn, model.predict_classes(x_test_cnn)))
+
+    # plot loss during training
+    # from matplotlib import pyplot
+    # pyplot.subplot(211)
+    # pyplot.title('Loss')
+    # pyplot.plot(history.history['loss'], label='train')
+    # pyplot.plot(history.history['val_loss'], label='test')
+    # pyplot.legend()
+    # # plot accuracy during training
+    # pyplot.subplot(212)
+    # pyplot.title('Accuracy')
+    # pyplot.plot(history.history['accuracy'], label='train')
+    # pyplot.plot(history.history['val_accuracy'], label='test')
+    # pyplot.legend()
+    # pyplot.show()
 
 
 def rfc(data_freq, class_type, case, year, solar, net_export):
