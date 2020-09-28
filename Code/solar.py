@@ -300,7 +300,7 @@ def combine_half_hourly_solar():
         energy_data.to_csv(f"{data}_solar.csv", index=False)
 
 
-def compare_data():
+def compare_data(type):
     import statsmodels.tsa.stattools as ts
 
     # For daily data
@@ -318,16 +318,27 @@ def compare_data():
             continue
         print(customer)
         data = pd.read_csv(customer)
-        data = data[data['Type'] == "GG"]
+
+        if type == "nex":
+            # Change to net export analysis instead of just generation
+            df_cl = data[data['Type'] == "CL"]
+            df_gc = data[data['Type'] == "GC"]
+            df_gg = data[data['Type'] == "GG"]
+            frame = {'CL': df_cl['Amount'].values, 'GC': df_gc['Amount'].values, 'GG': df_gg['Amount'].values}
+            df_comb = pd.DataFrame(frame)
+            data = df_gg
+            data['Amount'] = df_comb['CL'].values + df_comb['GC'].values - df_comb['GG'].values
+            data.drop(['Type'], axis=1, inplace=True)
+
         data = data['Amount'].round(3)
         data = data.to_list()
-
-        os.chdir("../../WeatherData/")
         corr_results = []
         coint_results = []
 
+        os.chdir("../../WeatherData/")
         postcodes = os.listdir()
         postcode_nums = []
+
         for postcode in postcodes:
             postcode_nums.append(postcode.split("_")[0])
             solar = pd.read_csv(postcode)
@@ -352,6 +363,7 @@ def compare_data():
         all_results[customer_num] = [position_corr, position_coint]
         corrs.append(position_corr)
         coints.append(position_coint)
+        print(f"Corr: {position_corr}, Coint: {position_coint}")
 
         os.chdir("../BlockchainData/daily/")
 
@@ -523,9 +535,13 @@ if __name__ == '__main__':
         combine_half_hourly_solar()
 
     if int(sys.argv[7]):
-        print("Correlation and cointegraton")
-        compare_data()
+        print("Correlation and cointegraton with generation")
+        compare_data("gen")
 
     if int(sys.argv[8]):
+        print("Correlation and cointegraton net export")
+        compare_data("nex")
+
+    if int(sys.argv[9]):
         print("Reconstruct usage from generation")
         reconstruct_usage()
