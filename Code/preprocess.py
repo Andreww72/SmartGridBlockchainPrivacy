@@ -57,15 +57,11 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
     data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
     data['Timestamp'] = (data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
+    data.sort_values(['Ledger', 'Timestamp'], ascending=[True, True])
+    data.drop(['Ledger'], axis=1, inplace=True)
     if case == 'aol':
-        # Drop the PK and ledger information
-        data.drop(['Ledger', 'PK'], axis=1, inplace=True)
-    elif case == 'lpc':
-        data.drop(['Ledger'], axis=1, inplace=True)
-    elif case == 'lpp':
-        data.drop(['Ledger'], axis=1, inplace=True)
-    elif case == 'obfs':
-        data.drop(['Ledger'], axis=1, inplace=True)
+        # Drop the PKs as all would be unique and thus useless
+        data.drop(['PK'], axis=1, inplace=True)
 
     # Strip zeros
     data = data[data['Amount'] != 0]

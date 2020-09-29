@@ -171,9 +171,9 @@ def graphs_obj2():
         'MLP LPP': mlp_post_lpp,
         'MLP AOL': mlp_post_aol
     })
-    grapher(["Multilayer Percecptron - Customer",
-             "Multilayer Percecptron - Postcode"],
-            [plot_mlp_cust, plot_mlp_post])
+    bar_graph(["Multilayer Percecptron - Customer",
+               "Multilayer Percecptron - Postcode"],
+              [plot_mlp_cust, plot_mlp_post])
 
     # CNN RESULTS
     plot_cnn_cust = pd.DataFrame({
@@ -188,9 +188,9 @@ def graphs_obj2():
         'CNN LPP': cnn_post_lpp,
         'CNN AOL': cnn_post_aol
     })
-    grapher(["Convolutional Neural Network - Customer",
-             "Convolutional Neural Network - Postcode"],
-            [plot_cnn_cust, plot_cnn_post])
+    bar_graph(["Convolutional Neural Network - Customer",
+               "Convolutional Neural Network - Postcode"],
+              [plot_cnn_cust, plot_cnn_post])
 
     # RFC RESULTS
     plot_rfc_cust = pd.DataFrame({
@@ -205,9 +205,9 @@ def graphs_obj2():
         'RFC LPP': rfc_post_lpp,
         'RFC AOL': rfc_post_aol
     })
-    grapher(["Random Forest Classifier - Customer",
-             "Random Forest Classifier - Postcode"],
-            [plot_rfc_cust, plot_rfc_post])
+    bar_graph(["Random Forest Classifier - Customer",
+               "Random Forest Classifier - Postcode"],
+              [plot_rfc_cust, plot_rfc_post])
 
     # KNN RESULTS
     plot_knn_cust = pd.DataFrame({
@@ -222,9 +222,9 @@ def graphs_obj2():
         'KNN LPP': knn_post_lpp,
         'KNN AOL': knn_post_aol
     })
-    grapher(["K-Nearest Neighbours - Customer",
-             "K-Nearest Neighbours - Postcode"],
-            [plot_knn_cust, plot_knn_post])
+    bar_graph(["K-Nearest Neighbours - Customer",
+               "K-Nearest Neighbours - Postcode"],
+              [plot_knn_cust, plot_knn_post])
 
     # Compare ledger per customer results
     plot_comp_cust = pd.DataFrame({
@@ -241,9 +241,9 @@ def graphs_obj2():
         'RFC': rfc_post_lpc,
         'KNN': knn_post_lpc
     })
-    grapher(["Compare LPC - Customer",
-             "Compare LPC - Postcode"],
-            [plot_comp_cust, plot_comp_post])
+    bar_graph(["Compare LPC - Customer",
+               "Compare LPC - Postcode"],
+              [plot_comp_cust, plot_comp_post])
 
     # Compare ledger per postcode results
     plot_comp_cust = pd.DataFrame({
@@ -260,9 +260,9 @@ def graphs_obj2():
         'RFC': rfc_post_lpp,
         'KNN': knn_post_lpp
     })
-    grapher(["Compare LPP - Customer",
-             "Compare LPP - Postcode"],
-            [plot_comp_cust, plot_comp_post])
+    bar_graph(["Compare LPP - Customer",
+               "Compare LPP - Postcode"],
+              [plot_comp_cust, plot_comp_post])
 
     # Compare AOL results
     plot_comp_cust = pd.DataFrame({
@@ -279,9 +279,9 @@ def graphs_obj2():
         'RFC': rfc_post_aol,
         'KNN': knn_post_aol
     })
-    grapher(["Compare AOL - Customer",
-             "Compare AOL - Postcode"],
-            [plot_comp_cust, plot_comp_post])
+    bar_graph(["Compare AOL - Customer",
+               "Compare AOL - Postcode"],
+              [plot_comp_cust, plot_comp_post], ylim_max=20)
 
 
 def graphs_obj3():
@@ -327,21 +327,21 @@ def graphs_obj3():
                                    'RFC': rfc_cust_lpc, 'RFC solar': rfc_cust_lpc_s})
     plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_lpc, 'CNN solar': cnn_post_lpc_s,
                                    'RFC': rfc_post_lpc, 'RFC solar': rfc_post_lpc_s})
-    grapher(["Compare LPC - Customer", "Compare LPC - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+    bar_graph(["Compare LPC - Customer", "Compare LPC - Postcode"], [plot_comp_cust, plot_comp_post], palette)
 
     # Compare ledger per postcode results
     plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN': cnn_cust_lpp, 'CNN solar': cnn_cust_lpp_s,
                                    'RFC': rfc_cust_lpp, 'RFC solar': rfc_cust_lpp_s})
     plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_lpp, 'CNN solar': cnn_post_lpp_s,
                                    'RFC': rfc_post_lpp, 'RFC solar': rfc_post_lpp_s})
-    grapher(["Compare LPP - Customer", "Compare LPP - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+    bar_graph(["Compare LPP - Customer", "Compare LPP - Postcode"], [plot_comp_cust, plot_comp_post], palette)
 
     # Compare AOL results
     plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN': cnn_cust_aol, 'CNN solar': cnn_cust_aol_s,
                                    'RFC': rfc_cust_aol, 'RFC solar': rfc_cust_aol_s})
     plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN': cnn_post_aol, 'CNN solar': cnn_post_aol_s,
                                    'RFC': rfc_post_aol, 'RFC solar': rfc_post_aol_s})
-    grapher(["Compare AOL - Customer", "Compare AOL - Postcode"], [plot_comp_cust, plot_comp_post], palette)
+    bar_graph(["Compare AOL - Customer", "Compare AOL - Postcode"], [plot_comp_cust, plot_comp_post], palette, ylim_max=20)
 
     # Correlation distribution
     data = [44, 2, 3, 2, 22, 55, 4, 6, 1, 35, 71, 23, 12, 22, 35, 26, 96, 8, 17, 9, 61, 72, 19, 23, 95, 16, 96, 9, 96,
@@ -364,16 +364,39 @@ def graphs_obj3():
 
 
 def graphs_obj4():
-    pass
+    cnn_cust_obfs = [67.98, 44.22, 23.17, 8.92, 5.14, 3.52, 3.05]
+    cnn_post_obfs = [55.06, 29.71, 17.11, 12.46, 12.08, 11.61, 12.04]
+    rfc_cust_obfs = [71.77, 45.31, 25.76, 18.25, 8.03, 4.50, 2.84]
+    rfc_post_obfs = [57.69, 32.00, 25.81, 18.35, 15.89, 15.17, 14.43]
+
+    x_cats = [1, 2, 4, 10, 20, 50, 100]
+
+    plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN_cust': cnn_cust_obfs, 'RFC_cust': rfc_cust_obfs})
+    plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN_post': cnn_post_obfs, 'RFC_post': rfc_post_obfs})
+    line_graph(["PK Customer", "PK Postcode"], [plot_comp_cust, plot_comp_post])
 
 
-def grapher(title, data, palette='bright'):
+def bar_graph(title, data, palette='bright', ylim_max=100):
     fig, axes = plt.subplots(nrows=1, ncols=len(data), sharey='row')
-    # TODO AOL case have a lower y limit
+
+    for i, bar in enumerate(data):
+        ax = axes[i]
+        sns.barplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(bar, ['cats']))
+        ax.set_title(title[i])
+        ax.set_xlabel("Transaction Frequency")
+        ax.set_ylabel("Accuracy (%)")
+        ax.set(ylim=(0, ylim_max))
+        ax.legend()
+
+    plt.show()
+
+
+def line_graph(title, data, palette='bright'):
+    fig, axes = plt.subplots(nrows=1, ncols=len(data), sharey='row')
 
     for i, line in enumerate(data):
         ax = axes[i]
-        sns.barplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(line, ['cats']))
+        sns.lineplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(line, ['cats']))
         ax.set_title(title[i])
         ax.set_xlabel("Transaction Frequency")
         ax.set_ylabel("Accuracy (%)")
