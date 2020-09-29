@@ -57,9 +57,9 @@ if __name__ == '__main__':
     if ledger and not pk:
         print("PKs per customer not specified, defaulting to 1")
         pk = 1
-    # if (pk or ledger) and not case == "obfs":
-    #     print("Please use 'obfs' case with pk or ledger variations")
-    #     exit()
+    if (pk or ledger) and not case == "obfs":
+        print("Please use 'obfs' case with pk or ledger variations")
+        exit()
 
     year = None
     if data_freq == 'hourly' or data_freq == 'half_hourly':

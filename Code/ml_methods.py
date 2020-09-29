@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import numpy as np
 import pandas as pd
 from sklearn.metrics import classification_report, accuracy_score
@@ -107,7 +109,7 @@ def rfc(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     if case == 'aol':
         features = ['Timestamp', 'Type', 'Amount']
     elif case == 'obfs':
-        features = ['Ledger', 'PK', 'Timestamp', 'Type', 'Amount']
+        features = ['PK', 'Timestamp', 'Type', 'Amount']
     else:
         features = ['PK', 'Timestamp', 'Type', 'Amount']
     if solar:
