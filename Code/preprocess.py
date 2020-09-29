@@ -65,8 +65,7 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
     elif case == 'lpp':
         data.drop(['Ledger'], axis=1, inplace=True)
     elif case == 'obfs':
-        if ledger == 1:
-            data.drop(['Ledger'], axis=1, inplace=True)
+        data.drop(['Ledger'], axis=1, inplace=True)
 
     # Strip zeros
     data = data[data['Amount'] != 0]

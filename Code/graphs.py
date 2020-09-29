@@ -369,6 +369,7 @@ def graphs_obj4():
 
 def grapher(title, data, palette='bright'):
     fig, axes = plt.subplots(nrows=1, ncols=len(data), sharey='row')
+    # TODO AOL case have a lower y limit
 
     for i, line in enumerate(data):
         ax = axes[i]
