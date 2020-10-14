@@ -36,6 +36,7 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
     if pk or per_ledger:
         datafile = f"0_pk{pk}_ledger{per_ledger}_{data_freq}.csv"
 
+    data = None
     try:
         data = pd.read_csv(datafile, header=0)
     except FileNotFoundError:
@@ -59,7 +60,7 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
 
     data.sort_values(['Ledger', 'Timestamp'], ascending=[True, True])
     data.drop(['Ledger'], axis=1, inplace=True)
-    if case == 'aol':
+    if case == "aol":
         # Drop the PKs as all would be unique and thus useless
         data.drop(['PK'], axis=1, inplace=True)
 

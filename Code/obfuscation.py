@@ -7,6 +7,7 @@ Use: python ./obfuscation -h for usage
 
 import os
 import sys
+import math
 import secrets
 import hashlib
 import pandas as pd
@@ -35,15 +36,16 @@ def multi_pks_ledgers(data_freq, pk_count, per_ledger):
     # Create PK and ledger mappings
     pks = {}
     ledgers = {}
+    total_ledger_count = math.ceil(num_customers / per_ledger)
     group, count = 0, 0
     for i in range(num_customers):
         for j in range(pk_count):
             pks[f"{i+1}_{j}"] = create_hash(f"pk{i+1}{j}")
             ledgers[f"{i+1}_{j}"] = create_hash(f"ledger{group}")
-            count += 1
-            if count == per_ledger:
-                group += 1
-                count = 0
+            group += 1
+            # Allocate to ledgers but scramble it a bit
+            if group == total_ledger_count:
+                group = 0
 
     # Create list of random PK selections
     pk_rands = []
