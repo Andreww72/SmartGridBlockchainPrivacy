@@ -59,7 +59,7 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
 
     data.sort_values(['Ledger', 'Timestamp'], ascending=[True, True])
 
-    if not per_ledger > 1:
+    if per_ledger and not per_ledger > 1:
         # If only one ledger each then all PKs on separate ledger and thus useless
         data.drop(['Ledger'], axis=1, inplace=True)
     if case == "aol":
