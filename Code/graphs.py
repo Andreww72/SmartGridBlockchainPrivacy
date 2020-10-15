@@ -364,16 +364,115 @@ def graphs_obj3():
 
 
 def graphs_obj4():
-    cnn_cust_obfs = [67.98, 44.22, 23.17, 8.92, 5.14, 3.52, 3.05]
-    cnn_post_obfs = [55.06, 29.71, 17.11, 12.46, 12.08, 11.61, 12.04]
-    rfc_cust_obfs = [71.77, 45.31, 25.76, 18.25, 8.03, 4.50, 2.84]
-    rfc_post_obfs = [57.69, 32.00, 25.81, 18.35, 15.89, 15.17, 14.43]
+    cnn_cust_obfs_l1 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
+    cnn_cust_obfs_l2 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
+    cnn_cust_obfs_l5 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
+    cnn_cust_obfs_l10 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
+    cnn_cust_obfs_l20 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
+    cnn_post_obfs_l1 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
+    cnn_post_obfs_l2 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
+    cnn_post_obfs_l5 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
+    cnn_post_obfs_l10 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
+    cnn_post_obfs_l20 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
 
-    x_cats = [1, 2, 4, 10, 20, 50, 100]
+    rfc_cust_obfs_l1 = [71.77, 45.31, 24.03, 18.25, 8.03, 4.88, 2.84]
+    rfc_cust_obfs_l2 = [71.77, 13.00, 8.81, 8.22, 7.21, 4.83, 2.84]
+    rfc_cust_obfs_l5 = [71.77, 10.84, 8.93, 7.58, 6.50, 4.95, 2.84]
+    rfc_cust_obfs_l10 = [71.77, 8.89, 8.51, 7.90, 7.08, 4.76, 2.84]
+    rfc_cust_obfs_l20 = [71.77, 7.66, 7.31, 7.38, 6.92, 4.50, 2.84]
+    rfc_post_obfs_l1 = [57.69, 32.00, 24.00, 18.35, 15.89, 15.02, 14.43]
+    rfc_post_obfs_l2 = [57.69, 19.44, 17.74, 15.71, 14.86, 14.41, 14.43]
+    rfc_post_obfs_l5 = [57.69, 16.82, 17.35, 15.21, 14.79, 14.28, 14.43]
+    rfc_post_obfs_l10 = [57.69, 16.16, 15.57, 15.06, 14.59, 14.34, 14.43]
+    rfc_post_obfs_l20 = [57.69, 14.27, 15.21, 14.96, 14.33, 14.10, 14.43]
 
-    plot_comp_cust = pd.DataFrame({'cats': x_cats, 'CNN_cust': cnn_cust_obfs, 'RFC_cust': rfc_cust_obfs})
-    plot_comp_post = pd.DataFrame({'cats': x_cats, 'CNN_post': cnn_post_obfs, 'RFC_post': rfc_post_obfs})
-    line_graph(["PK Customer", "PK Postcode"], [plot_comp_cust, plot_comp_post])
+    x_cats = [1, 2, 5, 10, 20, 50, 100]
+
+    # CNN obfuscation graph
+    plot_comp_cnn_cust = pd.DataFrame({
+        'cats': x_cats,
+        'CNN 1 PK / ledger': cnn_cust_obfs_l1,
+        'CNN 2 PK / ledger': cnn_cust_obfs_l2,
+        'CNN 5 PK / ledger': cnn_cust_obfs_l5,
+        'CNN 10 PK / ledger': cnn_cust_obfs_l10,
+        'CNN 20 PK / ledger': cnn_cust_obfs_l20
+    })
+    plot_comp_cnn_post = pd.DataFrame({
+        'cats': x_cats,
+        'CNN 1 PK / ledger': cnn_post_obfs_l1,
+        'CNN 2 PK / ledger': cnn_post_obfs_l2,
+        'CNN 5 PK / ledger': cnn_post_obfs_l5,
+        'CNN 10 PK / ledger': cnn_post_obfs_l10,
+        'CNN 20 PK / ledger': cnn_post_obfs_l20
+    })
+    line_graph(["CNN Obfuscation - Customer", "CNN Obfuscation - Postcode"],
+               [plot_comp_cnn_cust, plot_comp_cnn_post],
+               xlabel="PKs per customer", ylim_max=80)
+
+    # RFC obfuscation graph
+    plot_comp_rfc_cust = pd.DataFrame({
+        'cats': x_cats,
+        'RFC 1 PK / ledger': rfc_cust_obfs_l1,
+        'RFC 2 PK / ledger': rfc_cust_obfs_l2,
+        'RFC 5 PK / ledger': rfc_cust_obfs_l5,
+        'RFC 10 PK / ledger': rfc_cust_obfs_l10,
+        'RFC 20 PK / ledger': rfc_cust_obfs_l20
+    })
+    plot_comp_rfc_post = pd.DataFrame({
+        'cats': x_cats,
+        'RFC 1 PK / ledger': rfc_post_obfs_l1,
+        'RFC 2 PK / ledger': rfc_post_obfs_l2,
+        'RFC 5 PK / ledger': rfc_post_obfs_l5,
+        'RFC 10 PK / ledger': rfc_post_obfs_l10,
+        'RFC 20 PK / ledger': rfc_post_obfs_l20
+    })
+    line_graph(["RFC Obfuscation - Customer", "RFC Obfuscation - Postcode"],
+               [plot_comp_rfc_cust, plot_comp_rfc_post],
+               xlabel="PKs per customer", ylim_max=80)
+
+    # Zoom in versions without the first x points
+    chop = 2
+    plot_comp_cnn_cust = pd.DataFrame({
+        'cats': x_cats[chop:-1],
+        'CNN 1 PK / ledger': cnn_cust_obfs_l1[chop:-1],
+        'CNN 2 PK / ledger': cnn_cust_obfs_l2[chop:-1],
+        'CNN 5 PK / ledger': cnn_cust_obfs_l5[chop:-1],
+        'CNN 10 PK / ledger': cnn_cust_obfs_l10[chop:-1],
+        'CNN 20 PK / ledger': cnn_cust_obfs_l20[chop:-1]
+    })
+    plot_comp_cnn_post = pd.DataFrame({
+        'cats': x_cats[chop:-1],
+        'CNN 1 PK / ledger': cnn_post_obfs_l1[chop:-1],
+        'CNN 2 PK / ledger': cnn_post_obfs_l2[chop:-1],
+        'CNN 5 PK / ledger': cnn_post_obfs_l5[chop:-1],
+        'CNN 10 PK / ledger': cnn_post_obfs_l10[chop:-1],
+        'CNN 20 PK / ledger': cnn_post_obfs_l20[chop:-1]
+    })
+    line_graph(["CNN Obfuscation - Customer", "CNN Obfuscation - Postcode"],
+               [plot_comp_cnn_cust, plot_comp_cnn_post],
+               xlabel="PKs per customer", ylim_max=25)
+
+    plot_comp_rfc_cust = pd.DataFrame({
+        'cats': x_cats[chop:-1],
+        'RFC 1 PK / ledger': rfc_cust_obfs_l1[chop:-1],
+        'RFC 2 PK / ledger': rfc_cust_obfs_l2[chop:-1],
+        'RFC 5 PK / ledger': rfc_cust_obfs_l5[chop:-1],
+        'RFC 10 PK / ledger': rfc_cust_obfs_l10[chop:-1],
+        'RFC 20 PK / ledger': rfc_cust_obfs_l20[chop:-1]
+    })
+    plot_comp_rfc_post = pd.DataFrame({
+        'cats': x_cats[chop:-1],
+        'RFC 1 PK / ledger': rfc_post_obfs_l1[chop:-1],
+        'RFC 2 PK / ledger': rfc_post_obfs_l2[chop:-1],
+        'RFC 5 PK / ledger': rfc_post_obfs_l5[chop:-1],
+        'RFC 10 PK / ledger': rfc_post_obfs_l10[chop:-1],
+        'RFC 20 PK / ledger': rfc_post_obfs_l20[chop:-1]
+    })
+    line_graph(["RFC Obfuscation - Customer", "RFC Obfuscation - Postcode"],
+               [plot_comp_rfc_cust, plot_comp_rfc_post],
+               xlabel="PKs per customer", ylim_max=25)
+
+    # Probably a graph that plots CNN and RFC on same one, but less ledger lines
 
 
 def bar_graph(title, data, palette='bright', ylim_max=100):
@@ -391,16 +490,16 @@ def bar_graph(title, data, palette='bright', ylim_max=100):
     plt.show()
 
 
-def line_graph(title, data, palette='bright'):
+def line_graph(title, data, palette='bright', xlabel="Transaction Frequency", ylim_max=100):
     fig, axes = plt.subplots(nrows=1, ncols=len(data), sharey='row')
 
     for i, line in enumerate(data):
         ax = axes[i]
         sns.lineplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(line, ['cats']))
         ax.set_title(title[i])
-        ax.set_xlabel("Transaction Frequency")
+        ax.set_xlabel(xlabel)
         ax.set_ylabel("Accuracy (%)")
-        ax.set(ylim=(0, 100))
+        ax.set(ylim=(0, ylim_max))
         ax.legend()
 
     plt.show()
