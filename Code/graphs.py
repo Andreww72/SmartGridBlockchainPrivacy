@@ -343,7 +343,26 @@ def graphs_obj3():
                                    'RFC': rfc_post_aol, 'RFC solar': rfc_post_aol_s})
     bar_graph(["Compare AOL - Customer", "Compare AOL - Postcode"], [plot_comp_cust, plot_comp_post], palette, ylim_max=20)
 
-    # Correlation distribution
+    # Net export correlation distribution
+    data = [58, 6, 20, 7, 78, 55, 21, 83, 3, 24, 26, 50, 93, 47, 11, 6, 20, 3, 32, 9, 71, 71, 61, 61, 76, 21, 98, 37,
+            88, 36, 4, 32, 91, 47, 73, 79, 44, 82, 39, 59, 92, 96, 64, 23, 74, 46, 84, 59, 59, 13, 18, 42, 1, 99, 58,
+            22, 13, 43, 55, 47, 34, 14, 24, 12, 17, 96, 21, 67, 65, 56, 11, 22, 5, 85, 55, 48, 31, 15, 96, 7, 6, 67, 87,
+            6, 30, 65, 10, 29, 3, 88, 7, 27, 17, 7, 76, 20, 96, 2, 70, 0, 66, 56, 73, 39, 63, 57, 69, 97, 17, 97, 32,
+            39, 34, 56, 8, 1, 57, 13, 35, 66, 24, 27, 95, 60, 77, 28, 54, 1, 14, 30, 57, 24, 65, 43, 44, 12, 51, 2, 91,
+            46, 79, 66, 63, 12, 30, 22, 75, 57, 91, 67, 72, 47, 77, 40, 46, 13, 3, 25, 81, 15, 69, 35, 8, 13, 5, 95, 8,
+            97, 28, 43, 34, 74, 41, 25, 6, 21, 53, 72, 3, 54, 26, 73, 75, 94, 71, 80, 33, 25, 45, 18, 28, 8, 73, 25, 3,
+            13, 4, 1, 35, 3, 39, 61, 79, 79, 50, 13, 65, 43, 52, 20, 69, 31, 6, 45, 84, 84, 0, 29, 59, 70, 76, 96, 32,
+            96, 34, 51, 57, 28, 3, 55, 20, 31, 25, 17, 87, 10, 4, 11, 1, 19, 88, 32, 89, 58, 3, 93, 18, 64, 15, 20, 6,
+            10, 10, 5, 7, 1, 1, 71, 99, 15, 82, 45, 13, 17, 46, 96, 30, 60, 30, 79]
+
+    ax = sns.distplot(data, bins=100, kde=True)
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
+    ax.set_xlabel("Net Export Correlation rank")
+    ax.set_ylabel("Frequency (%)")
+    ax.set(xlim=(0, 100))
+    plt.show()
+
+    # Generation correlation distribution
     data = [44, 2, 3, 2, 22, 55, 4, 6, 1, 35, 71, 23, 12, 22, 35, 26, 96, 8, 17, 9, 61, 72, 19, 23, 95, 16, 96, 9, 96,
             15, 10, 20, 87, 19, 45, 38, 3, 20, 18, 18, 84, 89, 35, 5, 1, 49, 4, 46, 19, 6, 0, 38, 0, 99, 17, 10, 9, 2,
             0, 19, 4, 22, 40, 11, 14, 31, 15, 12, 38, 37, 0, 21, 1, 5, 10, 35, 34, 25, 96, 2, 8, 81, 5, 0, 16, 65, 81,
@@ -357,7 +376,7 @@ def graphs_obj3():
 
     ax = sns.distplot(data, bins=100, kde=True)
     ax.yaxis.set_major_formatter(PercentFormatter(1))
-    ax.set_xlabel("Correlation rank")
+    ax.set_xlabel("Solar Generation Correlation rank")
     ax.set_ylabel("Frequency (%)")
     ax.set(xlim=(0, 100))
     plt.show()
