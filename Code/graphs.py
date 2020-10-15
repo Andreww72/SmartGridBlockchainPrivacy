@@ -364,16 +364,16 @@ def graphs_obj3():
 
 
 def graphs_obj4():
-    cnn_cust_obfs_l1 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
-    cnn_cust_obfs_l2 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
-    cnn_cust_obfs_l5 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
-    cnn_cust_obfs_l10 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
-    cnn_cust_obfs_l20 = [67.98, 44.22, 1, 8.92, 5.14, 3.52, 3.05]
-    cnn_post_obfs_l1 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
-    cnn_post_obfs_l2 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
-    cnn_post_obfs_l5 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
-    cnn_post_obfs_l10 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
-    cnn_post_obfs_l20 = [55.06, 29.71, 1, 12.46, 12.08, 11.61, 12.04]
+    cnn_cust_obfs_l1 = [67.98, 44.22, 18.87, 8.92, 5.14, 3.52, 2.89]
+    cnn_cust_obfs_l2 = [67.98, 14.86, 12.42, 8.76, 3.63, 3.35, 2.89]
+    cnn_cust_obfs_l5 = [67.98, 10.61, 8.93, 7.32, 3.51, 3.27, 2.89]
+    cnn_cust_obfs_l10 = [67.98, 7.79, 6.33, 5.17, 3.24, 2.96, 2.89]
+    cnn_cust_obfs_l20 = [67.98, 6.37, 4.69, 3.43, 3.31, 3.00, 2.89]
+    cnn_post_obfs_l1 = [55.06, 29.71, 14.78, 14.46, 13.08, 12.81, 12.04]
+    cnn_post_obfs_l2 = [55.06, 20.71, 14.20, 13.12, 12.88, 12.66, 12.04]
+    cnn_post_obfs_l5 = [55.06, 14.56, 13.30, 13.03, 12.72, 12.42, 12.04]
+    cnn_post_obfs_l10 = [55.06, 13.95, 13.54, 12.87, 12.84, 12.86, 12.04]
+    cnn_post_obfs_l20 = [55.06, 13.76, 13.79, 12.53, 12.50, 12.30, 12.04]
 
     rfc_cust_obfs_l1 = [71.77, 45.31, 24.03, 18.25, 8.03, 4.88, 2.84]
     rfc_cust_obfs_l2 = [71.77, 13.00, 8.81, 8.22, 7.21, 4.83, 2.84]
@@ -391,19 +391,19 @@ def graphs_obj4():
     # CNN obfuscation graph
     plot_comp_cnn_cust = pd.DataFrame({
         'cats': x_cats,
-        'CNN 1 PK / ledger': cnn_cust_obfs_l1,
-        'CNN 2 PK / ledger': cnn_cust_obfs_l2,
-        'CNN 5 PK / ledger': cnn_cust_obfs_l5,
-        'CNN 10 PK / ledger': cnn_cust_obfs_l10,
-        'CNN 20 PK / ledger': cnn_cust_obfs_l20
+        '1 PK / ledger': cnn_cust_obfs_l1,
+        '2 PK / ledger': cnn_cust_obfs_l2,
+        '5 PK / ledger': cnn_cust_obfs_l5,
+        '10 PK / ledger': cnn_cust_obfs_l10,
+        '20 PK / ledger': cnn_cust_obfs_l20
     })
     plot_comp_cnn_post = pd.DataFrame({
         'cats': x_cats,
-        'CNN 1 PK / ledger': cnn_post_obfs_l1,
-        'CNN 2 PK / ledger': cnn_post_obfs_l2,
-        'CNN 5 PK / ledger': cnn_post_obfs_l5,
-        'CNN 10 PK / ledger': cnn_post_obfs_l10,
-        'CNN 20 PK / ledger': cnn_post_obfs_l20
+        '1 PK / ledger': cnn_post_obfs_l1,
+        '2 PK / ledger': cnn_post_obfs_l2,
+        '5 PK / ledger': cnn_post_obfs_l5,
+        '10 PK / ledger': cnn_post_obfs_l10,
+        '20 PK / ledger': cnn_post_obfs_l20
     })
     line_graph(["CNN Obfuscation - Customer", "CNN Obfuscation - Postcode"],
                [plot_comp_cnn_cust, plot_comp_cnn_post],
@@ -412,19 +412,19 @@ def graphs_obj4():
     # RFC obfuscation graph
     plot_comp_rfc_cust = pd.DataFrame({
         'cats': x_cats,
-        'RFC 1 PK / ledger': rfc_cust_obfs_l1,
-        'RFC 2 PK / ledger': rfc_cust_obfs_l2,
-        'RFC 5 PK / ledger': rfc_cust_obfs_l5,
-        'RFC 10 PK / ledger': rfc_cust_obfs_l10,
-        'RFC 20 PK / ledger': rfc_cust_obfs_l20
+        '1 PK / ledger': rfc_cust_obfs_l1,
+        '2 PK / ledger': rfc_cust_obfs_l2,
+        '5 PK / ledger': rfc_cust_obfs_l5,
+        '10 PK / ledger': rfc_cust_obfs_l10,
+        '20 PK / ledger': rfc_cust_obfs_l20
     })
     plot_comp_rfc_post = pd.DataFrame({
         'cats': x_cats,
-        'RFC 1 PK / ledger': rfc_post_obfs_l1,
-        'RFC 2 PK / ledger': rfc_post_obfs_l2,
-        'RFC 5 PK / ledger': rfc_post_obfs_l5,
-        'RFC 10 PK / ledger': rfc_post_obfs_l10,
-        'RFC 20 PK / ledger': rfc_post_obfs_l20
+        '1 PK / ledger': rfc_post_obfs_l1,
+        '2 PK / ledger': rfc_post_obfs_l2,
+        '5 PK / ledger': rfc_post_obfs_l5,
+        '10 PK / ledger': rfc_post_obfs_l10,
+        '20 PK / ledger': rfc_post_obfs_l20
     })
     line_graph(["RFC Obfuscation - Customer", "RFC Obfuscation - Postcode"],
                [plot_comp_rfc_cust, plot_comp_rfc_post],
@@ -434,19 +434,19 @@ def graphs_obj4():
     chop = 2
     plot_comp_cnn_cust = pd.DataFrame({
         'cats': x_cats[chop:-1],
-        'CNN 1 PK / ledger': cnn_cust_obfs_l1[chop:-1],
-        'CNN 2 PK / ledger': cnn_cust_obfs_l2[chop:-1],
-        'CNN 5 PK / ledger': cnn_cust_obfs_l5[chop:-1],
-        'CNN 10 PK / ledger': cnn_cust_obfs_l10[chop:-1],
-        'CNN 20 PK / ledger': cnn_cust_obfs_l20[chop:-1]
+        '1 PK / ledger': cnn_cust_obfs_l1[chop:-1],
+        '2 PK / ledger': cnn_cust_obfs_l2[chop:-1],
+        '5 PK / ledger': cnn_cust_obfs_l5[chop:-1],
+        '10 PK / ledger': cnn_cust_obfs_l10[chop:-1],
+        '20 PK / ledger': cnn_cust_obfs_l20[chop:-1]
     })
     plot_comp_cnn_post = pd.DataFrame({
         'cats': x_cats[chop:-1],
-        'CNN 1 PK / ledger': cnn_post_obfs_l1[chop:-1],
-        'CNN 2 PK / ledger': cnn_post_obfs_l2[chop:-1],
-        'CNN 5 PK / ledger': cnn_post_obfs_l5[chop:-1],
-        'CNN 10 PK / ledger': cnn_post_obfs_l10[chop:-1],
-        'CNN 20 PK / ledger': cnn_post_obfs_l20[chop:-1]
+        '1 PK / ledger': cnn_post_obfs_l1[chop:-1],
+        '2 PK / ledger': cnn_post_obfs_l2[chop:-1],
+        '5 PK / ledger': cnn_post_obfs_l5[chop:-1],
+        '10 PK / ledger': cnn_post_obfs_l10[chop:-1],
+        '20 PK / ledger': cnn_post_obfs_l20[chop:-1]
     })
     line_graph(["CNN Obfuscation - Customer", "CNN Obfuscation - Postcode"],
                [plot_comp_cnn_cust, plot_comp_cnn_post],
@@ -454,19 +454,19 @@ def graphs_obj4():
 
     plot_comp_rfc_cust = pd.DataFrame({
         'cats': x_cats[chop:-1],
-        'RFC 1 PK / ledger': rfc_cust_obfs_l1[chop:-1],
-        'RFC 2 PK / ledger': rfc_cust_obfs_l2[chop:-1],
-        'RFC 5 PK / ledger': rfc_cust_obfs_l5[chop:-1],
-        'RFC 10 PK / ledger': rfc_cust_obfs_l10[chop:-1],
-        'RFC 20 PK / ledger': rfc_cust_obfs_l20[chop:-1]
+        '1 PK / ledger': rfc_cust_obfs_l1[chop:-1],
+        '2 PK / ledger': rfc_cust_obfs_l2[chop:-1],
+        '5 PK / ledger': rfc_cust_obfs_l5[chop:-1],
+        '10 PK / ledger': rfc_cust_obfs_l10[chop:-1],
+        '20 PK / ledger': rfc_cust_obfs_l20[chop:-1]
     })
     plot_comp_rfc_post = pd.DataFrame({
         'cats': x_cats[chop:-1],
-        'RFC 1 PK / ledger': rfc_post_obfs_l1[chop:-1],
-        'RFC 2 PK / ledger': rfc_post_obfs_l2[chop:-1],
-        'RFC 5 PK / ledger': rfc_post_obfs_l5[chop:-1],
-        'RFC 10 PK / ledger': rfc_post_obfs_l10[chop:-1],
-        'RFC 20 PK / ledger': rfc_post_obfs_l20[chop:-1]
+        '1 PK / ledger': rfc_post_obfs_l1[chop:-1],
+        '2 PK / ledger': rfc_post_obfs_l2[chop:-1],
+        '5 PK / ledger': rfc_post_obfs_l5[chop:-1],
+        '10 PK / ledger': rfc_post_obfs_l10[chop:-1],
+        '20 PK / ledger': rfc_post_obfs_l20[chop:-1]
     })
     line_graph(["RFC Obfuscation - Customer", "RFC Obfuscation - Postcode"],
                [plot_comp_rfc_cust, plot_comp_rfc_post],
