@@ -127,16 +127,16 @@ def rfc(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     print(f"RFC {case} {data_freq} {class_type} solar {solar} accuracy: "
           f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
     # print(classification_report(y_test, forest_predictions_num))
-    feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
-
-    # Creating a bar plot
-    sns.barplot(x=feature_imp, y=feature_imp.index)
-    # Add labels to your graph
-    plt.xlabel('Feature Importance Score')
-    plt.ylabel('Features')
-    plt.title(f"RFC {data_freq} {class_type}")
-    plt.legend()
-    plt.savefig(f"/home/andrew/results/{data_freq}_{case}_{class_type}_rfc.png")
+    # feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
+    #
+    # # Creating a bar plot
+    # sns.barplot(x=feature_imp, y=feature_imp.index)
+    # # Add labels to your graph
+    # plt.xlabel('Feature Importance Score')
+    # plt.ylabel('Features')
+    # plt.title(f"RFC {data_freq} {class_type}")
+    # plt.legend()
+    # plt.savefig(f"/home/andrew/results/{data_freq}_{case}_{class_type}_rfc.png")
 
 
 def knn(data_freq, class_type, case, year, solar, net_export, pk, ledger):

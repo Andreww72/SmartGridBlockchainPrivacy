@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -59,7 +58,10 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
     data['Timestamp'] = (data.Timestamp - pd.to_datetime('1970-01-01')).dt.total_seconds()
 
     data.sort_values(['Ledger', 'Timestamp'], ascending=[True, True])
-    data.drop(['Ledger'], axis=1, inplace=True)
+
+    if not per_ledger > 1:
+        # If only one ledger each then all PKs on separate ledger and thus useless
+        data.drop(['Ledger'], axis=1, inplace=True)
     if case == "aol":
         # Drop the PKs as all would be unique and thus useless
         data.drop(['PK'], axis=1, inplace=True)
@@ -76,6 +78,9 @@ def preprocessing(data_freq, class_type, case, year, solar, net_export, pk, per_
 
     # Preprocess
     x_train, x_test, y_train, y_test = train_test_split(x, y)
+    if case == "obfs" and per_ledger > 1:
+        x_test['Ledger'] = x_test['Ledger'] / 2
+
     scaler_num = StandardScaler()
     scaler_num.fit(x_train) # Fit only to training data
     StandardScaler(copy=True, with_mean=True, with_std=True)
