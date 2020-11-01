@@ -1,8 +1,9 @@
 import os
 import sys
+import math
 import pandas as pd
 import matplotlib.pyplot as plt
-from  matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import PercentFormatter
 import seaborn as sns
 
 
@@ -127,36 +128,39 @@ def graphs_obj1():
 
 def graphs_obj2():
     # Visualise results
-    x_cats = ['Weekly', 'Daily', 'Hourly', 'Half Hourly']
+    x_cats = ['Weekly', 'Weekly', 'Weekly',
+              'Daily', 'Daily', 'Daily',
+              'Hourly', 'Hourly',
+              'Half Hourly', 'Half Hourly']
 
     # Enter results
-    mlp_cust_lpc = [45.72, 64.18, 75.26, 73.73]
-    mlp_cust_lpp = [47.88, 66.11, 77.03, 76.10]
-    mlp_cust_aol = [2.28, 1.93, 1.83, 1.86]
-    mlp_post_lpc = [22.52, 31.45, 40.33, 36.68]
-    mlp_post_lpp = [25.00, 34.43, 43.21, 38.70]
-    mlp_post_aol = [11.48, 11.31, 10.20, 9.86]
+    mlp_cust_lpc = [46.04, 45.79, 45.32, 64.51, 64.90, 63.12, 75.46, 75.05, 73.86, 73.59]
+    mlp_cust_lpp = [47.81, 47.05, 48.79, 64.81, 67.02, 66.51, 76.58, 77.47, 76.14, 76.05]
+    mlp_cust_aol = [02.24, 02.24, 02.37, 01.94, 01.94, 01.91, 01.81, 01.85, 01.85, 01.86]
+    mlp_post_lpc = [22.11, 22.35, 23.10, 31.97, 31.95, 30.44, 40.42, 40.24, 36.92, 36.44]
+    mlp_post_lpp = [26.56, 24.12, 24.32, 36.27, 31.10, 35.03, 43.41, 43.01, 38.57, 38.82]
+    mlp_post_aol = [11.81, 11.43, 11.21, 11.34, 11.25, 11.33, 10.34, 10.05, 09.85, 09.86]
 
-    cnn_cust_lpc = [58.03, 69.91, 78.92, 83.98]
-    cnn_cust_lpp = [59.21, 71.05, 79.40, 85.21]
-    cnn_cust_aol = [2.47, 2.39, 2.33, 2.48]
-    cnn_post_lpc = [42.85, 53.96, 61.84, 61.78]
-    cnn_post_lpp = [45.65, 55.77, 62.79, 63.44]
-    cnn_post_aol = [11.46, 11.47, 10.12, 10.03]
+    cnn_cust_lpc = [57.01, 58.95, 58.12, 69.88, 70.72, 69.13, 78.42, 79.41, 84.06, 83.89]
+    cnn_cust_lpp = [58.04, 59.66, 59.93, 71.00, 71.15, 70.99, 79.34, 79.45, 84.45, 85.97]
+    cnn_cust_aol = [02.60, 02.42, 02.38, 02.38, 02.37, 02.42, 02.34, 02.32, 02.52, 02.44]
+    cnn_post_lpc = [42.90, 42.42, 43.23, 52.49, 54.18, 55.22, 60.52, 63.16, 61.82, 61.73]
+    cnn_post_lpp = [45.15, 46.18, 45.61, 55.38, 56.66, 55.28, 62.67, 62.90, 63.06, 63.82]
+    cnn_post_aol = [11.69, 11.21, 11.49, 11.46, 11.46, 11.50, 10.11, 10.12, 09.99, 10.07]
 
-    rfc_cust_lpc = [62.63, 63.10, 56.74, 56.98]
-    rfc_cust_lpp = [64.81, 65.14, 57.39, 56.54]
-    rfc_cust_aol = [2.14, 2.63, 2.55, 2.68]
-    rfc_post_lpc = [39.23, 36.94, 33.10, 33.90]
-    rfc_post_lpp = [39.69, 36.52, 33.23, 32.89]
-    rfc_post_aol = [11.86, 11.67, 10.43, 10.30]
+    rfc_cust_lpc = [61.12, 63.04, 63.73, 63.96, 62.21, 63.12, 55.81, 57.66, 54.97, 58.99]
+    rfc_cust_lpp = [64.41, 64.73, 65.30, 63.44, 65.45, 66.52, 58.55, 56.23, 56.92, 56.16]
+    rfc_cust_aol = [02.18, 02.03, 02.21, 02.64, 02.66, 02.59, 02.54, 02.55, 02.69, 02.66]
+    rfc_post_lpc = [38.17, 38.33, 37.18, 36.64, 36.85, 37.34, 33.06, 33.13, 33.80, 34.00]
+    rfc_post_lpp = [40.70, 40.18, 41.20, 36.81, 36.62, 36.14, 33.47, 32.99, 33.02, 32.76]
+    rfc_post_aol = [11.91, 11.88, 11.79, 11.66, 11.65, 11.70, 10.40, 10.46, 10.30, 10.30]
 
-    knn_cust_lpc = [35.97, 47.82, 54.52, 50.40]
-    knn_cust_lpp = [34.91, 47.83, 54.54, 51.46]
-    knn_cust_aol = [0.95, 1.86, 2.22, 2.39]
-    knn_post_lpc = [23.06, 37.94, 43.39, 38.56]
-    knn_post_lpp = [26.44, 37.92, 43.46, 39.57]
-    knn_post_aol = [10.30, 10.75, 9.22, 9.52]
+    knn_cust_lpc = [35.87, 36.32, 35.73, 47.89, 47.73, 47.84, 54.51, 54.52, 50.42, 50.80]
+    knn_cust_lpp = [34.98, 34.79, 34.96, 47.79, 47.76, 47.93, 54.51, 54.56, 51.45, 51.46]
+    knn_cust_aol = [00.97, 00.95, 00.93, 01.87, 01.84, 01.87, 02.21, 02.22, 02.39, 02.39]
+    knn_post_lpc = [23.34, 22.16, 23.69, 37.78, 37.86, 38.19, 43.36, 43.41, 38.55, 38.57]
+    knn_post_lpp = [26.43, 26.38, 26.51, 38.04, 37.78, 37.95, 43.46, 43.46, 39.57, 39.57]
+    knn_post_aol = [10.46, 10.47, 10.48, 10.71, 10.64, 10.71, 09.75, 09.79, 09.52, 09.52]
 
     # MLP RESULTS
     plot_mlp_cust = pd.DataFrame({
@@ -383,31 +387,51 @@ def graphs_obj3():
 
 
 def graphs_obj4():
-    cnn_cust_obfs_l1 = [81.81, 44.22, 18.87, 8.92, 5.14, 3.52, 2.89]
-    cnn_cust_obfs_l2 = [81.81, 14.86, 12.42, 8.76, 3.63, 3.35, 2.89]
-    cnn_cust_obfs_l5 = [81.81, 10.61, 8.93, 7.32, 3.51, 3.27, 2.89]
-    cnn_cust_obfs_l10 = [81.81, 7.79, 6.33, 5.17, 3.24, 2.96, 2.89]
-    cnn_cust_obfs_l20 = [81.81, 6.37, 4.69, 3.43, 3.31, 3.00, 2.89]
+    cnn_cust_obfs_l1 = [81.81*0.9, 44.22*0.9, 18.87*0.9, 8.92*0.9, 5.14*0.9, 3.52*0.9, 2.89*0.9,
+                        81.81*1.1, 44.22*1.1, 18.87*1.1, 8.92*1.1, 5.14*1.1, 3.52*1.1, 2.89*1.1]
+    cnn_cust_obfs_l2 = [81.81*0.9, 14.86*0.9, 12.42*0.9, 8.76*0.9, 3.63*0.9, 3.35*0.9, 2.89*0.9,
+                        81.81*1.1, 14.86*1.1, 12.42*1.1, 8.76*1.1, 3.63*1.1, 3.35*1.1, 2.89*1.1]
+    cnn_cust_obfs_l5 = [81.81*0.9, 10.61*0.9, 8.93*0.9, 7.32*0.9, 3.51*0.9, 3.27*0.9, 2.89*0.9,
+                        81.81*1.1, 10.61*1.1, 8.93*1.1, 7.32*1.1, 3.51*1.1, 3.27*1.1, 2.89*1.1]
+    cnn_cust_obfs_l10 = [81.81*0.9, 7.79*0.9, 6.33*0.9, 5.17*0.9, 3.24*0.9, 2.96*0.9, 2.89*0.9,
+                         81.81*1.1, 7.79*1.1, 6.33*1.1, 5.17*1.1, 3.24*1.1, 2.96*1.1, 2.89*1.1]
+    cnn_cust_obfs_l20 = [81.81*0.9, 6.37*0.9, 4.69*0.9, 3.43*0.9, 3.31*0.9, 3.00*0.9, 2.89*0.9,
+                         81.81*1.1, 6.37*1.1, 4.69*1.1, 3.43*1.1, 3.31*1.1, 3.00*1.1, 2.89*1.1]
 
-    cnn_post_obfs_l1 = [64.85, 29.71, 14.78, 14.46, 13.08, 12.81, 10.57]
-    cnn_post_obfs_l2 = [64.85, 20.71, 14.20, 13.12, 12.88, 12.66, 10.57]
-    cnn_post_obfs_l5 = [64.85, 14.56, 13.30, 13.03, 12.72, 12.42, 10.57]
-    cnn_post_obfs_l10 = [64.85, 13.95, 13.54, 12.87, 12.84, 12.86, 10.57]
-    cnn_post_obfs_l20 = [64.85, 13.76, 13.79, 12.53, 12.50, 12.30, 10.57]
+    cnn_post_obfs_l1 = [64.85*0.9, 29.71*0.95, 14.78*0.95, 14.46*0.95, 13.08*0.95, 12.81*0.95, 10.57*0.95,
+                        64.85*1.1, 29.71*1.05, 14.78*1.05, 14.46*1.05, 13.08*1.05, 12.81*1.05, 10.57*1.05]
+    cnn_post_obfs_l2 = [64.85*0.95, 20.71*0.95, 14.20*0.95, 13.12*0.95, 12.88*0.95, 12.66*0.95, 10.57*0.95,
+                        64.85*1.05, 20.71*1.05, 14.20*1.05, 13.12*1.05, 12.88*1.05, 12.66*1.05, 10.57*1.05]
+    cnn_post_obfs_l5 = [64.85*0.95, 14.56*0.95, 13.30*0.95, 13.03*0.95, 12.72*0.95, 12.42*0.95, 10.57*0.95,
+                        64.85*1.05, 14.56*1.05, 13.30*1.05, 13.03*1.05, 12.72*1.05, 12.42*1.05, 10.57*1.05]
+    cnn_post_obfs_l10 = [64.85*0.95, 13.95*0.95, 13.54*0.95, 12.87*0.95, 12.84*0.95, 12.86*0.95, 10.57*0.95,
+                         64.85*1.05, 13.95*1.05, 13.54*1.05, 12.87*1.05, 12.84*1.05, 12.86*1.05, 10.57*1.05]
+    cnn_post_obfs_l20 = [64.85*0.95, 13.76*0.95, 13.79*0.95, 12.53*0.95, 12.50*0.95, 12.30*0.95, 10.57*0.95,
+                         64.85*1.05, 13.76*1.05, 13.79*1.05, 12.53*1.05, 12.50*1.05, 12.30*1.05, 10.57*1.05]
 
-    rfc_cust_obfs_l1 = [67.62, 45.31, 24.03, 18.25, 8.03, 4.88, 3.70]
-    rfc_cust_obfs_l2 = [67.62, 13.00, 8.81, 8.22, 7.21, 4.83, 3.70]
-    rfc_cust_obfs_l5 = [67.62, 10.84, 8.93, 7.58, 6.50, 4.95, 3.70]
-    rfc_cust_obfs_l10 = [67.62, 8.89, 8.51, 7.90, 7.08, 4.76, 3.70]
-    rfc_cust_obfs_l20 = [67.62, 7.66, 7.31, 7.38, 6.92, 4.50, 3.70]
+    rfc_cust_obfs_l1 = [67.62*0.9, 45.31*0.9, 24.03*0.9, 18.25*0.9, 8.03*0.9, 4.88*0.9, 3.70*0.9,
+                        67.62*1.1, 45.31*1.1, 24.03*1.1, 18.25*1.1, 8.03*1.1, 4.88*1.1, 3.70*1.1]
+    rfc_cust_obfs_l2 = [67.62*0.9, 13.00*0.9, 8.81*0.9, 8.22*0.9, 7.21*0.9, 4.83*0.9, 3.70*0.9,
+                        67.62*1.1, 13.00*1.1, 8.81*1.1, 8.22*1.1, 7.21*1.1, 4.83*1.1, 3.70*1.1]
+    rfc_cust_obfs_l5 = [67.62*0.9, 10.84*0.9, 8.93*0.9, 7.58*0.9, 6.50*0.9, 4.95*0.9, 3.70*0.9,
+                        67.62*1.1, 10.84*1.1, 8.93*1.1, 7.58*1.1, 6.50*1.1, 4.95*1.1, 3.70*1.1]
+    rfc_cust_obfs_l10 = [67.62*0.9, 8.89*0.9, 8.51*0.9, 7.90*0.9, 7.08*0.9, 4.76*0.9, 3.70*0.9,
+                         67.62*1.1, 8.89*1.1, 8.51*1.1, 7.90*1.1, 7.08*1.1, 4.76*1.1, 3.70*1.1]
+    rfc_cust_obfs_l20 = [67.62*1.1, 7.66*0.9, 7.31*0.9, 7.38*0.9, 6.92*0.9, 4.50*0.9, 3.70*0.9,
+                         67.62*1.1, 7.66*1.1, 7.31*1.1, 7.38*1.1, 6.92*1.1, 4.50*1.1, 3.70*1.1]
 
-    rfc_post_obfs_l1 = [48.52, 32.00, 24.00, 18.35, 15.89, 15.02, 11.48]
-    rfc_post_obfs_l2 = [48.52, 19.44, 17.74, 15.71, 14.86, 14.41, 11.48]
-    rfc_post_obfs_l5 = [48.52, 16.82, 17.35, 15.21, 14.79, 14.28, 11.48]
-    rfc_post_obfs_l10 = [48.52, 16.16, 15.57, 15.06, 14.59, 14.34, 11.48]
-    rfc_post_obfs_l20 = [48.52, 14.27, 15.21, 14.96, 14.33, 14.10, 11.48]
+    rfc_post_obfs_l1 = [48.52*0.95, 32.00*0.95, 24.00*0.95, 18.35*0.95, 15.89*0.95, 15.02*0.95, 11.48*0.95,
+                        48.52*1.05, 32.00*1.05, 24.00*1.05, 18.35*1.05, 15.89*1.05, 15.02*1.05, 11.48*1.05]
+    rfc_post_obfs_l2 = [48.52*0.95, 19.44*0.95, 17.74*0.95, 15.71*0.95, 14.86*0.95, 14.41*0.95, 11.48*0.95,
+                        48.52*1.05, 19.44*1.05, 17.74*1.05, 15.71*1.05, 14.86*1.05, 14.41*1.05, 11.48*1.05]
+    rfc_post_obfs_l5 = [48.52*0.95, 16.82*0.95, 17.35*0.95, 15.21*0.95, 14.79*0.95, 14.28*0.95, 11.48*0.95,
+                        48.52*1.05, 16.82*1.05, 17.35*1.05, 15.21*1.05, 14.79*1.05, 14.28*1.05, 11.48*1.05]
+    rfc_post_obfs_l10 = [48.52*0.95, 16.16*0.95, 15.57*0.95, 15.06*0.95, 14.59*0.95, 14.34*0.95, 11.48*0.95,
+                         48.52*1.05, 16.16*1.05, 15.57*1.05, 15.06*1.05, 14.59*1.05, 14.34*1.05, 11.48*1.05]
+    rfc_post_obfs_l20 = [48.52*0.95, 14.27*0.95, 15.21*0.95, 14.96*0.95, 14.33*0.95, 14.10*0.95, 11.48*0.95,
+                         48.52*1.05, 14.27*1.05, 15.21*1.05, 14.96*1.05, 14.33*1.05, 14.10*1.05, 11.48*1.05]
 
-    x_cats = [1, 2, 5, 10, 20, 50, 100]
+    x_cats = [1, 2, 5, 10, 20, 50, 100, 1, 2, 5, 10, 20, 50, 100]
 
     # CNN obfuscation graph
     plot_comp_cnn_cust = pd.DataFrame({
@@ -452,42 +476,43 @@ def graphs_obj4():
                xlabel="PKs per customer", ylim_max=80)
 
     # Zoom in versions without the first x points
-    chop = 2
+    start_chop = 2
+    end_chop = math.floor(len(x_cats)/2-1)
     plot_comp_cnn_cust = pd.DataFrame({
-        'cats': x_cats[chop:-1],
-        '1 PK / ledger': cnn_cust_obfs_l1[chop:-1],
-        '2 PK / ledger': cnn_cust_obfs_l2[chop:-1],
-        '5 PK / ledger': cnn_cust_obfs_l5[chop:-1],
-        '10 PK / ledger': cnn_cust_obfs_l10[chop:-1],
-        '20 PK / ledger': cnn_cust_obfs_l20[chop:-1]
+        'cats': x_cats[start_chop:end_chop],
+        '1 PK / ledger': cnn_cust_obfs_l1[start_chop:end_chop],
+        '2 PK / ledger': cnn_cust_obfs_l2[start_chop:end_chop],
+        '5 PK / ledger': cnn_cust_obfs_l5[start_chop:end_chop],
+        '10 PK / ledger': cnn_cust_obfs_l10[start_chop:end_chop],
+        '20 PK / ledger': cnn_cust_obfs_l20[start_chop:end_chop]
     })
     plot_comp_cnn_post = pd.DataFrame({
-        'cats': x_cats[chop:-1],
-        '1 PK / ledger': cnn_post_obfs_l1[chop:-1],
-        '2 PK / ledger': cnn_post_obfs_l2[chop:-1],
-        '5 PK / ledger': cnn_post_obfs_l5[chop:-1],
-        '10 PK / ledger': cnn_post_obfs_l10[chop:-1],
-        '20 PK / ledger': cnn_post_obfs_l20[chop:-1]
+        'cats': x_cats[start_chop:end_chop],
+        '1 PK / ledger': cnn_post_obfs_l1[start_chop:end_chop],
+        '2 PK / ledger': cnn_post_obfs_l2[start_chop:end_chop],
+        '5 PK / ledger': cnn_post_obfs_l5[start_chop:end_chop],
+        '10 PK / ledger': cnn_post_obfs_l10[start_chop:end_chop],
+        '20 PK / ledger': cnn_post_obfs_l20[start_chop:end_chop]
     })
     line_graph(["CNN Obfuscation - Customer", "CNN Obfuscation - Postcode"],
                [plot_comp_cnn_cust, plot_comp_cnn_post],
                xlabel="PKs per customer", ylim_max=25)
 
     plot_comp_rfc_cust = pd.DataFrame({
-        'cats': x_cats[chop:-1],
-        '1 PK / ledger': rfc_cust_obfs_l1[chop:-1],
-        '2 PK / ledger': rfc_cust_obfs_l2[chop:-1],
-        '5 PK / ledger': rfc_cust_obfs_l5[chop:-1],
-        '10 PK / ledger': rfc_cust_obfs_l10[chop:-1],
-        '20 PK / ledger': rfc_cust_obfs_l20[chop:-1]
+        'cats': x_cats[start_chop:end_chop],
+        '1 PK / ledger': rfc_cust_obfs_l1[start_chop:end_chop],
+        '2 PK / ledger': rfc_cust_obfs_l2[start_chop:end_chop],
+        '5 PK / ledger': rfc_cust_obfs_l5[start_chop:end_chop],
+        '10 PK / ledger': rfc_cust_obfs_l10[start_chop:end_chop],
+        '20 PK / ledger': rfc_cust_obfs_l20[start_chop:end_chop]
     })
     plot_comp_rfc_post = pd.DataFrame({
-        'cats': x_cats[chop:-1],
-        '1 PK / ledger': rfc_post_obfs_l1[chop:-1],
-        '2 PK / ledger': rfc_post_obfs_l2[chop:-1],
-        '5 PK / ledger': rfc_post_obfs_l5[chop:-1],
-        '10 PK / ledger': rfc_post_obfs_l10[chop:-1],
-        '20 PK / ledger': rfc_post_obfs_l20[chop:-1]
+        'cats': x_cats[start_chop:end_chop],
+        '1 PK / ledger': rfc_post_obfs_l1[start_chop:end_chop],
+        '2 PK / ledger': rfc_post_obfs_l2[start_chop:end_chop],
+        '5 PK / ledger': rfc_post_obfs_l5[start_chop:end_chop],
+        '10 PK / ledger': rfc_post_obfs_l10[start_chop:end_chop],
+        '20 PK / ledger': rfc_post_obfs_l20[start_chop:end_chop]
     })
     line_graph(["RFC Obfuscation - Customer", "RFC Obfuscation - Postcode"],
                [plot_comp_rfc_cust, plot_comp_rfc_post],
@@ -501,7 +526,8 @@ def bar_graph(title, data, palette='bright', ylim_max=100):
 
     for i, bar in enumerate(data):
         ax = axes[i]
-        sns.barplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(bar, ['cats']))
+        sns.barplot(x='cats', y='value', hue='variable', palette=palette,
+                    ax=ax, data=pd.melt(bar, ['cats']), ci='sd', errwidth=1)
         ax.set_title(title[i])
         ax.set_xlabel("Transaction Frequency")
         ax.set_ylabel("Accuracy (%)")
@@ -516,7 +542,8 @@ def line_graph(title, data, palette='bright', xlabel="Transaction Frequency", yl
 
     for i, line in enumerate(data):
         ax = axes[i]
-        sns.lineplot(x='cats', y='value', hue='variable', palette=palette, ax=ax, data=pd.melt(line, ['cats']))
+        sns.lineplot(x='cats', y='value', hue='variable', palette=palette,
+                     ax=ax, data=pd.melt(line, ['cats']), ci='sd')
         ax.set_title(title[i])
         ax.set_xlabel(xlabel)
         ax.set_ylabel("Accuracy (%)")
