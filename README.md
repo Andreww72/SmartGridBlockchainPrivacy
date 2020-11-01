@@ -14,13 +14,22 @@ Results found machine learning models accurately link user transactions from pas
 The results highlight concern for a user's privacy without appropriate obfuscation methods. If a grid participant uses a single public key, there are serious issues with maintaining privacy between transactions and their anonymity. While blockchain guarantees some level of anonymity, it is not absolute. Attackers can find creative ways of using stored blockchain data without even accessing a real-time network. A standard blockchain poses risks to users in this research's context and warrants more attention.
 
 **Code**
+
 Update dependencies: pipreqs /path/to/project --force
+
 Run scripts with Terminal or Powershell, avoid an IDE as too slow.
+
 Runnable scripts include --help or will print a message upon incorrect usage for guidance.
 
+
 pop\_blockchain.py is used to prepare datasets.
+
 solar.py is used to prepare solar exposure data including datasets.
+
 obfuscation.py is used to create obfuscated datasets from standard ones.
+
 run\_analysis.py is used to run analysis with many selectable options detailed in its help.
+
 preprocess.py and ml\_methods are used by run analysis when running. preprocess does what you think, ml\_methods includes machine learning models implementations.
+
 graphs.py was used to create graphs of the results.
