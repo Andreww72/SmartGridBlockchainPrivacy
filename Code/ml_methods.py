@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
 import numpy as np
-import pandas as pd
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import classification_report, accuracy_score, f1_score
 from preprocess import preprocessing
 
+warnings.simplefilter(action='ignore', category=FutureWarning)
 mlp_layers = (10, 10, 10)
 mlp_iterations = 1000
 cnn_filter_size = 128
@@ -32,10 +30,11 @@ def mlp(data_freq, class_type, case, year, solar, net_export, pk, ledger):
 
     mlp_num = MLPClassifier(hidden_layer_sizes=mlp_layers, max_iter=mlp_iterations)
     mlp_num.fit(x_train, y_train)
-    mlp_predictions_num = mlp_num.predict(x_test)
+    mlp_predictions = mlp_num.predict(x_test)
 
-    print(f"MLP {case} {data_freq} {class_type} solar {solar} accuracy: {accuracy_score(y_test, mlp_predictions_num)}")
-    # print(classification_report(y_test, mlp_predictions_num))
+    print(f"MLP {case} {data_freq} {class_type} solar {solar} accuracy: {accuracy_score(y_test, mlp_predictions)}")
+    # print(classification_report(y_test, mlp_predictions))
+    print(f"F1: {f1_score(y_test, mlp_predictions, average='macro')}")
 
 
 def cnn(data_freq, class_type, case, year, solar, net_export, pk, ledger):
@@ -49,6 +48,24 @@ def cnn(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     from keras.models import Sequential
     from keras.layers import Input, Conv1D, Flatten, Dense
     from keras.utils import to_categorical
+    from keras import backend as K
+
+    def recall_m(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision_m(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+
+    def f1_m(y_true, y_pred):
+        precision = precision_m(y_true, y_pred)
+        recall = recall_m(y_true, y_pred)
+        return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
 
     print(f"CNN for {case} {data_freq} {class_type} solar {solar}")
     x_train, x_test, y_train, y_test = preprocessing(data_freq, class_type, case, year, solar, net_export, pk, ledger)
@@ -73,10 +90,16 @@ def cnn(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     model.add(Flatten())
     model.add(Dense(elements, activation='relu'))
     model.add(Dense(elements, activation='softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', 'top_k_categorical_accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='adam',
+                  metrics=['accuracy', 'top_k_categorical_accuracy', f1_m, precision_m, recall_m])
+
     history = model.fit(x_train_cnn, y_train_cnn, batch_size=cnn_batch_size, epochs=cnn_epochs, validation_split=0.2)
-    print(f"CNN {case} {data_freq} {class_type} solar {solar} accuracy: {model.evaluate(x_test_cnn, y_test_cnn)[1]}")
-    print(f"CNN {case} {data_freq} {class_type} solar {solar} top-5 ac: {model.evaluate(x_test_cnn, y_test_cnn)[2]}")
+    cnn_results = model.evaluate(x_test_cnn, y_test_cnn)
+    loss, accuracy, k_acc, f1, precision, recall = model.evaluate(x_test_cnn, y_test_cnn, verbose=0)
+    print(f"CNN {case} {data_freq} {class_type} solar {solar}")
+    print(f"Accuracy : {cnn_results[1]}")
+    print(f"Top5 acc : {k_acc}")
+    print(f"F1 score : {f1}")
 
     # plot loss during training
     # from matplotlib import pyplot
@@ -122,11 +145,13 @@ def rfc(data_freq, class_type, case, year, solar, net_export, pk, ledger):
 
     forest_num = RandomForestClassifier(max_depth=12, random_state=0)
     forest_num.fit(x_train, y_train)
-    forest_predictions_num = np.round(forest_num.predict(x_test))
+    forest_predictions = np.round(forest_num.predict(x_test))
 
     print(f"RFC {case} {data_freq} {class_type} solar {solar} accuracy: "
-          f"{accuracy_score(y_test, forest_predictions_num, normalize=True)}")
-    # print(classification_report(y_test, forest_predictions_num))
+          f"{accuracy_score(y_test, forest_predictions, normalize=True)}")
+    # print(classification_report(y_test, forest_predictions))
+    print(f"F1: {f1_score(y_test, forest_predictions, average='macro')}")
+
     # feature_imp = pd.Series(forest_num.feature_importances_, index=features).sort_values(ascending=False)
     #
     # # Creating a bar plot
@@ -159,3 +184,4 @@ def knn(data_freq, class_type, case, year, solar, net_export, pk, ledger):
     knn_predictions = knn_num.predict(x_test)
     print(f"KNN {case} {data_freq} {class_type} solar {solar} accuracy: ", accuracy_score(y_test, knn_predictions))
     # print(classification_report(y_test, knn_predictions))
+    print(f"F1: {f1_score(y_test, knn_predictions, average='macro')}")
